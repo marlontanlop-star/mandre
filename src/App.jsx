@@ -728,6 +728,37 @@ const [isCreditModalOpen, setIsCreditModalOpen] = useState(false);
                 setOrderType(table.type === 'mesa' ? 'mesa' : id.toLowerCase());
                 setServiceSelected(true);
             };
+            const handleCreditCollection = async (credit) => {
+    const amount = prompt(`¿Cuánto va a abonar ${credit.clientName}?\nDeuda actual: $${credit.total.toLocaleString()}`, credit.total);
+    
+    if (amount && !isNaN(amount) && Number(amount) > 0) {
+        const paymentValue = Number(amount);
+        try {
+            // 1. INGRESO AUTOMÁTICO A CAJA (Crea una orden de venta)
+            await db.collection('orders').add({
+                items: [{ name: `PAGO CRÉDITO: ${credit.clientName}`, price: paymentValue, quantity: 1 }],
+                total: paymentValue,
+                timestamp: new Date(),
+                userId: currentShiftEmployee || 'Cajero', 
+                type: 'pago_credito',
+                isPaid: true,
+                paymentMethod: 'efectivo',
+                tableId: 'CRÉDITO'
+            });
+
+            // 2. ACTUALIZACIÓN DE LA DEUDA
+            const newTotal = credit.total - paymentValue;
+            await db.collection('credits').doc(credit.id).update({
+                total: Math.max(0, newTotal),
+                isPaid: newTotal <= 0,
+                lastPayment: new Date()
+            });
+
+            alert(`✅ ¡Éxito! $${paymentValue.toLocaleString()} han ingresado a tu caja.`);
+            setIsCreditModalOpen(false);
+        } catch (e) { alert("Error al procesar. Intenta de nuevo."); }
+    }
+};
 
             const exitServiceMode = () => {
                 setServiceSelected(false);
@@ -2196,7 +2227,48 @@ const [isCreditModalOpen, setIsCreditModalOpen] = useState(false);
                             </div>
                         </div>
                     )}
-
+{/* PORTAL DE CRÉDITOS MANDRÉ */}
+                    {isCreditModalOpen && (
+                        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4">
+                            <div className="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-fadeIn">
+                                <div className="p-6 bg-mandre-coffee text-white flex justify-between items-center shrink-0">
+                                    <div>
+                                        <h2 className="text-xl font-black uppercase tracking-tighter italic">Cartera de Clientes</h2>
+                                        <p className="text-[9px] opacity-60 uppercase font-bold tracking-[0.2em]">TanAlza Group Technology</p>
+                                    </div>
+                                    <button onClick={() => setIsCreditModalOpen(false)} className="bg-white/20 w-10 h-10 rounded-full font-black text-white transition active:scale-90 flex items-center justify-center">X</button>
+                                </div>
+                                <div className="p-4 bg-gray-50 border-b shrink-0">
+                                    <input 
+                                        type="text" placeholder="Buscar deudor por nombre..." 
+                                        className="w-full p-4 bg-white rounded-2xl shadow-sm border-none outline-none font-bold text-mandre-coffee placeholder:text-gray-300"
+                                        value={creditSearch} onChange={(e) => setCreditSearch(e.target.value)}
+                                    />
+                                </div>
+                                <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50/30">
+                                    {credits.filter(c => !c.isPaid && c.clientName.toLowerCase().includes(creditSearch.toLowerCase())).map(credit => (
+                                        <div key={credit.id} className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm flex justify-between items-center active:scale-[0.98] transition">
+                                            <div className="flex-1 mr-4">
+                                                <p className="font-black text-mandre-coffee uppercase text-sm leading-tight">{credit.clientName}</p>
+                                                <p className="text-[10px] font-bold text-red-500 mt-1 uppercase">Deuda: ${credit.total.toLocaleString()}</p>
+                                            </div>
+                                            <button 
+                                                onClick={() => handleCreditCollection(credit)} 
+                                                className="bg-mandre-sage text-white px-5 py-3 rounded-2xl font-black text-[10px] uppercase shadow-md active:scale-95 transition shrink-0"
+                                            >
+                                                Cobrar
+                                            </button>
+                                        </div>
+                                    ))}
+                                    {credits.filter(c => !c.isPaid).length === 0 && (
+                                        <div className="text-center py-10">
+                                            <p className="text-gray-300 font-bold uppercase italic text-xs tracking-widest">No hay deudores pendientes</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 {view === 'admin_login' && (
                         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                             <form onSubmit={e => { e.preventDefault(); if(adminPass === '1234') setView('admin_panel'); else alert("PIN Incorrecto")}} className="bg-white p-8 md:p-10 rounded-[2rem] shadow-2xl w-full max-w-md animate-fadeIn">
