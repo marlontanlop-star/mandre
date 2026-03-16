@@ -1043,8 +1043,11 @@ const App = () => {
                                             {cart.length === 0 && <p className="text-center text-gray-400 text-sm mt-10">Agregue productos a la comanda</p>}
                                         </div>
                                         <div className="p-6 bg-gray-50 border-t">
-                                            <div className="flex justify-between text-xl font-bold mb-4"><span>Total</span><span>${total.toLocaleString()}</span></div>
-                                           <div className="flex flex-col gap-2">
+                            <div className="flex justify-between text-xl font-bold mb-4">
+                                <span className="text-gray-500 uppercase">Total</span>
+                                <span className="text-mandre-coffee font-black">${total.toLocaleString()}</span>
+                            </div>
+                            <div className="flex flex-col gap-2">
                                 <div className="grid grid-cols-2 gap-2">
                                     <button onClick={sendToKitchen} className="bg-gray-200 text-gray-700 py-3 rounded-lg font-bold text-xs hover:bg-gray-300 transition active:scale-95 shadow-sm uppercase">Guardar</button>
                                     <button onClick={openPaymentModal} className="bg-mandre-coffee text-white py-3 rounded-lg font-bold text-xs hover:bg-gray-800 transition shadow-lg active:scale-95 uppercase">Cobrar</button>
@@ -1053,7 +1056,8 @@ const App = () => {
                                     Cancelar Pedido / Liberar Mesa
                                 </button>
                             </div>
-                                    </div>
+                        </div>
+                    </div>
 
                                     {!showMobileCart && (
                                         <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-30 flex justify-between items-center pb-6">
