@@ -914,8 +914,9 @@ const App = () => {
                                     </button>
                                 </>
                             )}
-                            <button onClick={() => view === 'admin_panel' ? setView('pos') : setView('admin_login')} className="p-2 hover:bg-gray-100 rounded-full text-mandre-coffee transition ml-1 border-l pl-3 flex items-center justify-center">
+                           <button onClick={() => view === 'admin_panel' ? setView('pos') : setView('admin_login')} className="p-2 hover:bg-gray-100 rounded-full text-mandre-coffee transition ml-1 border-l pl-3 flex items-center justify-center">
                                 {view === 'admin_panel' ? <LogOut size={20} /> : <LayoutDashboard size={20} />}
+                            </button>
                         </div>
                     </header>
 
