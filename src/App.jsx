@@ -21,7 +21,8 @@ const App = () => {
             const [credits, setCredits] = useState([]);
             const [abonos, setAbonos] = useState([]);
             const [cashAdjustments, setCashAdjustments] = useState([]);
-
+const [isCreditModalOpen, setIsCreditModalOpen] = useState(false);
+    const [creditSearch, setCreditSearch] = useState('');
             const [activeOrders, setActiveOrders] = useState({}); 
             const [users, setUsers] = useState([]);
 
@@ -707,6 +708,11 @@ const App = () => {
             const selectTable = (rawId) => {
                 const id = rawId?.toString();
                 const table = tables.find(t => t.id?.toString() === id);
+                        // ACTIVADOR DEL PORTAL DE CRÉDITOS
+    if (id === 'creditos_servicio') {
+        setIsCreditModalOpen(true);
+        return;
+    }
                 if (!table) return;
 
                 if (table.status === 'ocupada') {
