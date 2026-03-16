@@ -3,30 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#F5F5F0">
+    <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Coffee_bean_icon.svg/512px-Coffee_bean_icon.svg.png">
+    
+    <script>
+        const manifestData = {
+            "name": "MANDRÉ POS",
+            "short_name": "MANDRÉ",
+            "start_url": "/",
+            "display": "standalone",
+            "background_color": "#F5F5F0",
+            "theme_color": "#3E2723",
+            "icons": [{
+                "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Coffee_bean_icon.svg/512px-Coffee_bean_icon.svg.png",
+                "sizes": "512x512",
+                "type": "image/png"
+            }]
+        };
+        const manifestBlob = new Blob([JSON.stringify(manifestData)], { type: 'application/json' });
+        const manifestUrl = URL.createObjectURL(manifestBlob);
+        document.write('<link rel="manifest" href="' + manifestUrl + '">');
+    </script>
+
     <title>MANDRÉ | Specialty Coffee & Wellness</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-    
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        mandre: {
+                            coffee: '#3E2723',
+                            sage: '#8FBC8F',   
+                            bone: '#F5F5F0',   
+                            dark: '#1a1a1a',   
+                            orange: '#D97706', 
+                        },
+                        bank: { nequi: '#200020' }
+                    },
+                    fontFamily: { sans: ['Montserrat', 'sans-serif'] },
+                    animation: {
+                        'spin-slow': 'spin 8s linear infinite',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'slideUp': 'slideUp 0.3s ease-out forwards',
+                        'fadeIn': 'fadeIn 0.5s ease-out forwards',
+                        'bounce-slight': 'bounceSlight 2s infinite'
+                    },
+                    keyframes: {
+                        slideUp: { '0%': { transform: 'translateY(20px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        bounceSlight: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-5px)' } }
+                    }
+                }
+            }
+        }
+    </script>
     
     <style>
         * { touch-action: manipulation; }
         body { font-family: 'Montserrat', sans-serif; background-color: #F5F5F0; overflow: hidden; }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        input, select, button { -webkit-tap-highlight-color: transparent; }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
-   <script type="text/babel" data-type="module" src="./src/Icons.jsx"></script>
+    <script type="text/babel" data-type="module" src="./src/Icons.jsx"></script>
     <script type="text/babel" data-type="module" src="./src/firebase-config.js"></script>
     <script type="text/babel" data-type="module" src="./src/Data.js"></script>
     <script type="text/babel" data-type="module" src="./src/App.jsx"></script>
