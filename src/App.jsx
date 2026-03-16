@@ -142,6 +142,7 @@ const App = () => {
                         { id: 'Cafetería', type: 'especial', icon: 'coffee', status: 'libre', currentTotal: 0, label: 'Cafetería' },
                         { id: 'Domicilio', type: 'especial', icon: 'bike', status: 'libre', currentTotal: 0, label: 'Domicilio' }
                     ];
+                            { id: 'creditos_servicio', type: 'especial', icon: 'credit', status: 'libre', currentTotal: 0, label: 'CRÉDITOS' },
 
                     const batch = db.batch();
                     let needsUpdate = false;
