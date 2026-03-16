@@ -2196,11 +2196,12 @@ const App = () => {
                             </form>
                         </div>
                     )}
-{/* FOOTER CORPORATIVO TANALZA */}
-                    <div className="bg-white text-center py-2 shrink-0 border-t border-gray-100 z-50">
-                        <p className="text-[9px] font-black text-gray-300 uppercase tracking-[0.3em]">TanAlza Group Tecnology</p>
+{/* SELLO DISCRETO AL FINAL */}
+                    <div className="mt-auto py-8 text-center opacity-20">
+                        <p className="text-[7px] font-medium text-gray-400 uppercase tracking-[0.5em]">
+                            TanAlza Group Tecnology
+                        </p>
                     </div>
-                </div>
             );
         };
 
