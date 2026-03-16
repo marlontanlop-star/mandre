@@ -1044,11 +1044,15 @@ const App = () => {
                                         </div>
                                         <div className="p-6 bg-gray-50 border-t">
                                             <div className="flex justify-between text-xl font-bold mb-4"><span>Total</span><span>${total.toLocaleString()}</span></div>
-                                            <div className="grid grid-cols-2 gap-2">
-                                                <button onClick={sendToKitchen} className="bg-gray-200 text-gray-700 py-3 rounded-lg font-bold text-xs hover:bg-gray-300 transition active:scale-95 shadow-sm">GUARDAR (PAGAR LUEGO)</button>
-                                                <button onClick={openPaymentModal} className="bg-mandre-coffee text-white py-3 rounded-lg font-bold text-xs hover:bg-gray-800 transition shadow-lg active:scale-95">COBRAR AHORA</button>
-                                            </div>
-                                        </div>
+                                           <div className="flex flex-col gap-2">
+                                <div className="grid grid-cols-2 gap-2">
+                                    <button onClick={sendToKitchen} className="bg-gray-200 text-gray-700 py-3 rounded-lg font-bold text-xs hover:bg-gray-300 transition active:scale-95 shadow-sm uppercase">Guardar</button>
+                                    <button onClick={openPaymentModal} className="bg-mandre-coffee text-white py-3 rounded-lg font-bold text-xs hover:bg-gray-800 transition shadow-lg active:scale-95 uppercase">Cobrar</button>
+                                </div>
+                                <button onClick={exitServiceMode} className="w-full bg-red-50 border border-red-100 text-red-500 py-3 rounded-lg font-bold text-xs hover:bg-red-100 transition active:scale-95 shadow-sm uppercase">
+                                    Cancelar Pedido / Liberar Mesa
+                                </button>
+                            </div>
                                     </div>
 
                                     {!showMobileCart && (
@@ -2188,7 +2192,10 @@ const App = () => {
                             </form>
                         </div>
                     )}
-
+{/* FOOTER CORPORATIVO TANALZA */}
+                    <div className="bg-white text-center py-2 shrink-0 border-t border-gray-100 z-50">
+                        <p className="text-[9px] font-black text-gray-300 uppercase tracking-[0.3em]">TanAlza Group Tecnology</p>
+                    </div>
                 </div>
             );
         };
