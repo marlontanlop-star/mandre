@@ -2184,24 +2184,26 @@ const App = () => {
                         </div>
                     )}
 
-                    {/* LOGIN ADMIN */}
+                   {/* LOGIN ADMIN */}
                     {view === 'admin_login' && (
                         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                            <form onSubmit={e => {e.preventDefault(); if(adminPass === '1234') setView('admin_panel'); else alert("PIN Incorrecto")}} className="bg-white p-8 md:p-10 rounded-[2rem] shadow-2xl w-full max-w-sm text-center animate-slideUp">
+                            <form onSubmit={e => { e.preventDefault(); if(adminPass === '1234') setView('admin_panel'); else alert("PIN Incorrecto")}} className="bg-white p-8 md:p-10 rounded-[2rem] shadow-2xl w-full max-w-md animate-fadeIn">
                                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-mandre-coffee"><Lock size={24}/></div>
-                                <h2 className="font-bold text-xl text-mandre-coffee mb-6">Acceso Administrador</h2>
-                                <input type="password" value={adminPass} onChange={e => setAdminPass(e.target.value)} placeholder="• • • •" className="w-full p-5 bg-gray-50 rounded-2xl text-center text-3xl tracking-[1em] font-bold mb-6 outline-none focus:border-mandre-sage focus:bg-white border-2 border-transparent transition shadow-inner" maxLength="4" autoFocus/>
+                                <h2 className="font-bold text-xl text-mandre-coffee mb-6 text-center">Acceso Administrador</h2>
+                                <input type="password" value={adminPass} onChange={e => setAdminPass(e.target.value)} placeholder="• • • •" className="w-full p-5 bg-gray-50 rounded-2xl text-center text-3xl tracking-widest mb-4 outline-none border-2 border-transparent focus:border-mandre-sage transition" autoFocus />
                                 <button className="w-full py-4 bg-mandre-coffee text-white font-bold rounded-2xl shadow-lg hover:scale-[1.02] active:scale-95 transition text-lg mb-4">INGRESAR PANEL</button>
                                 <button type="button" onClick={() => setView('pos')} className="w-full py-3 text-sm font-bold text-gray-400 bg-gray-50 rounded-xl hover:bg-gray-100 transition">Volver al POS</button>
                             </form>
                         </div>
                     )}
-{/* SELLO DISCRETO AL FINAL */}
-                    <div className="mt-auto py-8 text-center opacity-20">
+
+                    {/* SELLO DISCRETO AL FINAL */}
+                    <div className="mt-auto py-10 text-center opacity-20 select-none">
                         <p className="text-[7px] font-medium text-gray-400 uppercase tracking-[0.5em]">
                             TanAlza Group Tecnology
                         </p>
                     </div>
+                </div>
             );
         };
 
