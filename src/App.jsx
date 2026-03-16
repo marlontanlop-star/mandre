@@ -915,8 +915,7 @@ const App = () => {
                                 </>
                             )}
                             <button onClick={() => view === 'admin_panel' ? setView('pos') : setView('admin_login')} className="p-2 hover:bg-gray-100 rounded-full text-mandre-coffee transition ml-1 border-l pl-3 flex items-center justify-center">
-                                {view === 'admin_panel' ? <IconBase size={20}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></IconBase> : <LayoutDashboard size={20} />}
-                            </button>
+                                {view === 'admin_panel' ? <LogOut size={20} /> : <LayoutDashboard size={20} />}
                         </div>
                     </header>
 
