@@ -943,6 +943,12 @@ const App = () => {
                                                 </button>
                                             ))}
                                         </div>
+                                                {/* SELLO INTEGRADO DISCRETO */}
+                                <div className="mt-12 mb-6 text-center">
+                                    <p className="text-[9px] font-bold text-gray-300 uppercase tracking-[0.4em] select-none">
+                                        TanAlza Group Tecnology
+                                    </p>
+                                </div>
 
                                         {/* CAFETERIA Y DOMICILIO - ANIMADOS */}
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
