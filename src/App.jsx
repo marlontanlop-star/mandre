@@ -140,9 +140,9 @@ const App = () => {
                         { id: '3', type: 'mesa', status: 'libre', currentTotal: 0, label: 'Mesa 3' },
                         { id: '4', type: 'mesa', status: 'libre', currentTotal: 0, label: 'Mesa 4' },
                         { id: 'Cafetería', type: 'especial', icon: 'coffee', status: 'libre', currentTotal: 0, label: 'Cafetería' },
-                        { id: 'Domicilio', type: 'especial', icon: 'bike', status: 'libre', currentTotal: 0, label: 'Domicilio' }
-                    ];
-                            { id: 'creditos_servicio', type: 'especial', icon: 'credit', status: 'libre', currentTotal: 0, label: 'CRÉDITOS' },
+        { id: 'Domicilio', type: 'especial', icon: 'bike', status: 'libre', currentTotal: 0, label: 'Domicilio' },
+        { id: 'creditos_servicio', type: 'especial', icon: 'credit', status: 'libre', currentTotal: 0, label: 'CRÉDITOS' }
+    ];
 
                     const batch = db.batch();
                     let needsUpdate = false;
