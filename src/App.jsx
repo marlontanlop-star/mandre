@@ -2184,8 +2184,7 @@ const App = () => {
                         </div>
                     )}
 
-                   {/* LOGIN ADMIN */}
-                    {view === 'admin_login' && (
+                {view === 'admin_login' && (
                         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                             <form onSubmit={e => { e.preventDefault(); if(adminPass === '1234') setView('admin_panel'); else alert("PIN Incorrecto")}} className="bg-white p-8 md:p-10 rounded-[2rem] shadow-2xl w-full max-w-md animate-fadeIn">
                                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-mandre-coffee"><Lock size={24}/></div>
@@ -2196,13 +2195,6 @@ const App = () => {
                             </form>
                         </div>
                     )}
-
-                    {/* SELLO DISCRETO AL FINAL */}
-                    <div className="mt-auto py-10 text-center opacity-20 select-none">
-                        <p className="text-[7px] font-medium text-gray-400 uppercase tracking-[0.5em]">
-                            TanAlza Group Tecnology
-                        </p>
-                    </div>
                 </div>
             );
         };
