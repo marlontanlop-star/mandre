@@ -1120,7 +1120,7 @@ const App = () => {
                         <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
                             {/* Pestañas Admin */}
                             <div className="bg-white border-b px-4 py-4 flex gap-3 overflow-x-auto scrollbar-hide shrink-0 touch-pan-x">
-                                {[{k:'dashboard', l:'Métricas VIVO'}, {k:'status', l:'Estado Sistema'}, {k:'payroll', l:'Pagos Equipo'}, {k:'credits', l:'Créditos/Abonos'}, {k:'cash_adjust', l:'Canje Caja'}, {k:'transfers', l:'Transferencias'}, {k:'expenses', l:'Egresos'}, {k:'products', l:'Menú'}, {k:'users', l:'Equipo'}, {k:'combos', l:'Combos'}, {k:'manual_items', l:'Items Manuales'}, {k:'shifts', l:'Cierres'}].map(t => (
+                                {[{k:'dashboard', l:'Métricas VIVO'}, {k:'status', l:'Estado Sistema'}, {k:'payroll', l:'Pagos Equipo'}, {k:'creditos', l:'Créditos/Abonos'}, {k:'cash_adjust', l:'Canje Caja'}, {k:'transfers', l:'Transferencias'}, {k:'expenses', l:'Egresos'}, {k:'products', l:'Menú'}, {k:'users', l:'Equipo'}, {k:'combos', l:'Combos'}, {k:'manual_items', l:'Items Manuales'}, {k:'shifts', l:'Cierres'}].map(t => (
                                     <button key={t.k} onClick={() => setAdminTab(t.k)} className={`px-4 py-2 rounded-xl font-bold text-xs uppercase transition whitespace-nowrap shrink-0 shadow-sm border border-transparent ${adminTab === t.k ? 'bg-mandre-sage text-white' : 'bg-gray-50 text-gray-500 hover:border-gray-200'}`}>{t.l}</button>
                                 ))}
                             </div>
@@ -1398,7 +1398,7 @@ const App = () => {
                                     </div>
                                 )}
 
-                                {adminTab === 'credits' && (
+                                {adminTab === 'creditos' && (
                                     <div className="max-w-5xl mx-auto space-y-6 animate-fadeIn">
                                         <div className="bg-white p-4 md:p-6 rounded-2xl shadow-sm sticky top-0 z-10 border border-gray-100">
                                             <h3 className="font-bold text-purple-800 mb-4 flex items-center gap-2"><Shield size={18}/> Búsqueda de Créditos y Fiados</h3>
