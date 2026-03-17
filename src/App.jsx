@@ -248,7 +248,7 @@ const [isCreditModalOpen, setIsCreditModalOpen] = useState(false);
             }, [displayInventory, searchQuery, selectedCategory]);
 
             const renderMesas = tables.filter(t => ['1','2','3','4'].includes(t.id?.toString()));
-            const renderEspeciales = tables.filter(t => ['Cafetería', 'Domicilio'].includes(t.id?.toString()));
+            const renderEspeciales = tables.filter(t => ['Cafetería', 'Domicilio', 'creditos_servicio'].includes(t.id?.toString()));
 
             // --- METRICAS EN VIVO POR USUARIO ---
             const liveStats = useMemo(() => {
