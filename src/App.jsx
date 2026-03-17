@@ -469,7 +469,8 @@ const App = () => {
                     manualItems: manualItems,
                     expensesList: currentShiftExpenses,
                     totalExpensesAmount: totalExpensesAmount,
-                    totalAdjustments: totalAdjustments, 
+                    totalAdjustments: totalAdjustments,
+                    abonosList: currentShiftAbonos,
                     isAuto: isAuto
                 };
 
