@@ -2067,6 +2067,22 @@ const App = () => {
                                                     </div>
                                                 </div>
                                             )}
+                                                    {/* LISTA DETALLADA DE ABONOS (CARTERA) */}
+                                            {closureResult.abonosList && closureResult.abonosList.length > 0 && (
+                                                <div className="mb-8 bg-purple-50/50 p-4 rounded-xl border border-purple-100">
+                                                    <h4 className="text-left text-xs font-bold text-purple-700 uppercase mb-3 flex items-center gap-2">
+                                                        <Shield size={12}/> Detalle de Abonos
+                                                    </h4>
+                                                    <div className="space-y-2">
+                                                        {closureResult.abonosList.map((abono, i) => (
+                                                            <div key={i} className="flex justify-between text-xs border-b border-purple-100 pb-1 last:border-0">
+                                                                <span className="text-left flex-1 pr-2">{abono.customer} <span className="opacity-50">(Abono)</span></span>
+                                                                <span className="font-bold text-purple-600">${abono.amount.toLocaleString()}</span>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
 
                                             {/* ITEMS MANUALES */}
                                             {closureResult.manualItems && closureResult.manualItems.length > 0 && (
