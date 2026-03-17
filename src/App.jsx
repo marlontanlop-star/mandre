@@ -2276,18 +2276,36 @@ const App = () => {
                                 </div>
                              <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50/30">
                                     {credits.filter(c => c.status !== 'pagado' && (c.customer || c.clientName || '').toLowerCase().includes(creditSearch.toLowerCase())).map(credit => (
-                                        <div key={credit.id} className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm flex justify-between items-center active:scale-[0.98] transition">
-                                            <div className="flex-1 mr-4">
-                                                <p className="font-black text-mandre-coffee uppercase text-sm leading-tight">{credit.customer || credit.clientName}</p>
-                                                <p className="text-[10px] font-bold text-red-500 mt-1 uppercase">Deuda: ${(credit.balance || credit.total || 0).toLocaleString()}</p>
-                                            </div>
-                                            <button 
-                                                onClick={() => handleCreditCollection(credit)} 
-                                                className="bg-mandre-sage text-white px-5 py-3 rounded-2xl font-black text-[10px] uppercase shadow-md active:scale-95 transition shrink-0"
-                                            >
-                                                Cobrar
-                                            </button>
+                                        <div key={credit.id} className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 mb-4 animate-fadeIn">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div>
+                                            <h4 className="font-black text-lg text-mandre-coffee uppercase tracking-tighter italic leading-none">{credit.customer || credit.clientName}</h4>
+                                            <p className="text-[10px] text-gray-400 font-bold uppercase mt-1">Registrado: {credit.date}</p>
                                         </div>
+                                        <div className="flex flex-col items-end">
+                                            <span className="bg-orange-50 text-orange-600 text-[10px] font-black px-3 py-1 rounded-full uppercase border border-orange-100 mb-1">
+                                                Pendiente
+                                            </span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="bg-mandre-coffee/5 p-4 rounded-2xl mb-4 border border-mandre-coffee/10">
+                                        <div className="flex justify-between items-end">
+                                            <div>
+                                                <p className="text-[9px] text-mandre-coffee font-bold uppercase tracking-widest opacity-60">Saldo a Cobrar</p>
+                                                <p className="text-2xl font-black text-mandre-coffee tracking-tighter">${(credit.balance || 0).toLocaleString()}</p>
+                                            </div>
+                                            <Shield size={20} className="text-mandre-coffee opacity-20 mb-1"/>
+                                        </div>
+                                    </div>
+
+                                    <button 
+                                        onClick={() => handleCreditCollection(credit)}
+                                        className="w-full bg-mandre-coffee text-white py-4 rounded-2xl font-black shadow-lg shadow-mandre-coffee/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 text-sm uppercase tracking-tighter"
+                                    >
+                                        <DollarSign size={16}/> Registrar Abono
+                                    </button>
+                                </div>
                                     ))}
                                     {credits.filter(c => c.status !== 'pagado').length === 0 && (
                                         <div className="text-center py-10">
