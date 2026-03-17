@@ -721,36 +721,30 @@ const App = () => {
                 setServiceSelected(true);
             };
             const handleCreditCollection = async (credit) => {
-    const amount = prompt(`¿Cuánto va a abonar ${credit.clientName}?\nDeuda actual: $${credit.total.toLocaleString()}`, credit.total);
-    
-    if (amount && !isNaN(amount) && Number(amount) > 0) {
-        const paymentValue = Number(amount);
-        try {
-            // 1. INGRESO AUTOMÁTICO A CAJA (Crea una orden de venta)
-            await db.collection('orders').add({
-                items: [{ name: `PAGO CRÉDITO: ${credit.clientName}`, price: paymentValue, quantity: 1 }],
-                total: paymentValue,
-                timestamp: new Date(),
-                userId: currentShiftEmployee || 'Cajero', 
-                type: 'pago_credito',
-                isPaid: true,
-                paymentMethod: 'efectivo',
-                tableId: 'CRÉDITO'
-            });
+                const amount = prompt(`¿Cuánto va a abonar ${credit.customer}?\nDeuda actual: $${credit.balance.toLocaleString()}`, credit.balance);
+                
+                if (amount && !isNaN(amount) && Number(amount) > 0) {
+                    const paymentValue = Number(amount);
+                    try {
+                        // 1. Guardar como Abono Oficial para que sume a la caja de hoy
+                        await db.collection('abonos').doc(Date.now().toString()).set({
+                            id: Date.now(), creditId: credit.id, customer: credit.customer,
+                            amount: paymentValue, method: 'efectivo', employee: currentShiftEmployee || 'Cajero',
+                            date: new Date().toLocaleString(), isoDate: new Date().toISOString().split('T')[0]
+                        });
 
-            // 2. ACTUALIZACIÓN DE LA DEUDA
-            const newTotal = credit.total - paymentValue;
-            await db.collection('credits').doc(credit.id).update({
-                total: Math.max(0, newTotal),
-                isPaid: newTotal <= 0,
-                lastPayment: new Date()
-            });
+                        // 2. Actualizar el saldo del Crédito
+                        const newBalance = credit.balance - paymentValue;
+                        await db.collection('credits').doc(credit.id.toString()).update({
+                            balance: Math.max(0, newBalance),
+                            status: newBalance <= 0 ? 'pagado' : 'pendiente'
+                        });
 
-            alert(`✅ ¡Éxito! $${paymentValue.toLocaleString()} han ingresado a tu caja.`);
-            setIsCreditModalOpen(false);
-        } catch (e) { alert("Error al procesar. Intenta de nuevo."); }
-    }
-};
+                        alert(`✅ ¡Éxito! $${paymentValue.toLocaleString()} han ingresado a tu caja.`);
+                        setIsCreditModalOpen(false);
+                    } catch (e) { alert("Error al procesar. Intenta de nuevo."); }
+                }
+            };
 
             const exitServiceMode = () => {
                 setServiceSelected(false);
@@ -2249,12 +2243,12 @@ const App = () => {
                                         value={creditSearch} onChange={(e) => setCreditSearch(e.target.value)}
                                     />
                                 </div>
-                                <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50/30">
-                                    {credits.filter(c => !c.isPaid && c.clientName.toLowerCase().includes(creditSearch.toLowerCase())).map(credit => (
+                              <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50/30">
+                                    {credits.filter(c => c.status !== 'pagado' && (c.customer || '').toLowerCase().includes(creditSearch.toLowerCase())).map(credit => (
                                         <div key={credit.id} className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm flex justify-between items-center active:scale-[0.98] transition">
                                             <div className="flex-1 mr-4">
-                                                <p className="font-black text-mandre-coffee uppercase text-sm leading-tight">{credit.clientName}</p>
-                                                <p className="text-[10px] font-bold text-red-500 mt-1 uppercase">Deuda: ${credit.total.toLocaleString()}</p>
+                                                <p className="font-black text-mandre-coffee uppercase text-sm leading-tight">{credit.customer}</p>
+                                                <p className="text-[10px] font-bold text-red-500 mt-1 uppercase">Deuda: ${credit.balance.toLocaleString()}</p>
                                             </div>
                                             <button 
                                                 onClick={() => handleCreditCollection(credit)} 
@@ -2264,7 +2258,7 @@ const App = () => {
                                             </button>
                                         </div>
                                     ))}
-                                    {credits.filter(c => !c.isPaid).length === 0 && (
+                                    {credits.filter(c => c.status !== 'pagado').length === 0 && (
                                         <div className="text-center py-10">
                                             <p className="text-gray-300 font-bold uppercase italic text-xs tracking-widest">No hay deudores pendientes</p>
                                         </div>
