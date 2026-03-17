@@ -2263,9 +2263,9 @@ const App = () => {
                                             <p className="text-gray-300 font-bold uppercase italic text-xs tracking-widest">No hay deudores pendientes</p>
                                         </div>
                                     )}
-                                </div> {/* Cierra la lista */}
-                            </div> {/* Cierra el modal de creditos */}
-                        </div> {/* Cierra el fondo oscuro */}
+                              </div> 
+                            </div> 
+                        </div> 
                     )}
 
                     {/* SELLO MANDRÉ AL FINAL */}
