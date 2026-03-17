@@ -734,16 +734,21 @@ const App = () => {
                 if (amount && !isNaN(amount) && Number(amount) > 0) {
                     const paymentValue = Number(amount);
                     try {
-                        // 1. Guardar como Abono Oficial
+                        // 1. Guardar como Abono Oficial (Esto suma a tu caja del día)
                         await db.collection('abonos').doc(Date.now().toString()).set({
-                            id: Date.now(), creditId: credit.id, customer: clientName,
-                            amount: paymentValue, method: 'efectivo', employee: currentShiftEmployee || 'Cajero',
-                            date: new Date().toLocaleString(), isoDate: new Date().toISOString().split('T')[0]
+                            id: Date.now(), 
+                            creditId: credit.id, 
+                            customer: clientName,
+                            amount: paymentValue, 
+                            method: 'efectivo', 
+                            employee: currentShiftEmployee || 'Cajero',
+                            date: new Date().toLocaleString(), 
+                            isoDate: new Date().toISOString().split('T')[0]
                         });
 
-                        // 2. Actualizar el saldo del Crédito (Compatible con datos viejos)
+                        // 2. Actualizar el saldo del Crédito en la carpeta correcta 'creditos'
                         const newBalance = currentDebt - paymentValue;
-                        await db.collection('credits').doc(credit.id.toString()).update({
+                        await db.collection('creditos').doc(credit.id.toString()).update({
                             balance: Math.max(0, newBalance),
                             total: Math.max(0, newBalance),
                             status: newBalance <= 0 ? 'pagado' : 'pendiente'
@@ -751,7 +756,7 @@ const App = () => {
 
                         alert(`✅ ¡Éxito! $${paymentValue.toLocaleString()} han ingresado a tu caja.`);
                         setIsCreditModalOpen(false);
-                    } catch (e) { alert("Error al procesar. Intenta de nuevo."); }
+                    } catch (e) { alert("Error al procesar el cobro. Intente de nuevo."); }
                 }
             };
 
