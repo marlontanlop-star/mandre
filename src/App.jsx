@@ -2282,28 +2282,23 @@ const App = () => {
                                             <h4 className="font-black text-lg text-mandre-coffee uppercase tracking-tighter italic leading-none">{credit.customer || credit.clientName}</h4>
                                             <p className="text-[10px] text-gray-400 font-bold uppercase mt-1">Registrado: {credit.date}</p>
                                         </div>
-                                        <div className="flex flex-col items-end">
-                                            <span className="bg-orange-50 text-orange-600 text-[10px] font-black px-3 py-1 rounded-full uppercase border border-orange-100 mb-1">
-                                                Pendiente
-                                            </span>
-                                        </div>
+                                        <span className="bg-orange-50 text-orange-600 text-[10px] font-black px-3 py-1 rounded-full uppercase border border-orange-100">
+                                            Pendiente
+                                        </span>
                                     </div>
                                     
-                                    <div className="bg-mandre-coffee/5 p-4 rounded-2xl mb-4 border border-mandre-coffee/10">
-                                        <div className="flex justify-between items-end">
-                                            <div>
-                                                <p className="text-[9px] text-mandre-coffee font-bold uppercase tracking-widest opacity-60">Saldo a Cobrar</p>
-                                                <p className="text-2xl font-black text-mandre-coffee tracking-tighter">${(credit.balance || 0).toLocaleString()}</p>
-                                            </div>
-                                            <Shield size={20} className="text-mandre-coffee opacity-20 mb-1"/>
-                                        </div>
+                                    <div className="bg-gray-50 p-4 rounded-2xl mb-4 border border-gray-100">
+                                        <p className="text-[9px] text-mandre-coffee font-bold uppercase tracking-widest opacity-60">Saldo a Cobrar</p>
+                                        <p className="text-2xl font-black text-mandre-coffee tracking-tighter">
+                                            ${(credit.balance || 0).toLocaleString()}
+                                        </p>
                                     </div>
 
                                     <button 
                                         onClick={() => handleCreditCollection(credit)}
                                         className="w-full bg-mandre-coffee text-white py-4 rounded-2xl font-black shadow-lg shadow-mandre-coffee/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 text-sm uppercase tracking-tighter"
                                     >
-                                        <DollarSign size={16}/> Registrar Abono
+                                        REGISTRAR ABONO
                                     </button>
                                 </div>
                                     ))}
