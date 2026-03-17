@@ -1,5 +1,6 @@
 const { useState, useEffect, useMemo, useRef } = window.React || React;
 const { Search, Plus, Trash2, Edit3, X, Coffee, CreditCard, Banknote, User, LayoutDashboard, ShoppingCart, FileText, Tag, Box, ChevronUp, ChevronDown, Download, Phone, Lock, Share, LogOut, AlertTriangle, Bike, Shield, DollarSign, RefreshCw } = window.Lucide || {};
+
 // Protecciones de Iconos (Sello TanAlza Group)
 const Activity = window.Activity || (() => <span>📊</span>);
 const CheckCircle = window.CheckCircle || (() => <span>✅</span>);
@@ -2349,7 +2350,6 @@ const App = () => {
                                 <p className="text-xl font-black text-red-500 tracking-tighter italic mb-4">
                                     ${(activeCredit.balance || 0).toLocaleString()}
                                 </p>
-                                
                                 <div className="relative">
                                     <span className="absolute left-5 top-1/2 -translate-y-1/2 font-black text-mandre-coffee opacity-20 text-xl">$</span>
                                     <input 
@@ -2357,8 +2357,8 @@ const App = () => {
                                         autoFocus
                                         value={abonoAmount}
                                         onChange={(e) => setAbonoAmount(e.target.value)}
-                                        placeholder="Monto a abonar"
-                                        className="w-full bg-white border-2 border-gray-100 focus:border-mandre-coffee p-5 pl-12 rounded-2xl text-2xl font-black text-mandre-coffee outline-none transition-all shadow-inner"
+                                        placeholder="Monto"
+                                        className="w-full bg-white border-2 border-gray-100 focus:border-mandre-coffee p-5 pl-12 rounded-2xl text-2xl font-black text-mandre-coffee outline-none shadow-inner"
                                     />
                                 </div>
                             </div>
@@ -2367,7 +2367,7 @@ const App = () => {
                                 <button onClick={() => setIsAbonoModalOpen(false)} className="py-5 font-black text-gray-400 uppercase text-[10px] tracking-widest">
                                     Cancelar
                                 </button>
-                                <button onClick={handleConfirmAbono} className="bg-mandre-coffee text-white py-5 rounded-2xl font-black shadow-lg shadow-mandre-coffee/30 hover:scale-[1.02] active:scale-95 transition-all text-[10px] uppercase tracking-widest">
+                                <button onClick={handleConfirmAbono} className="bg-mandre-coffee text-white py-5 rounded-2xl font-black shadow-lg shadow-mandre-coffee/30 text-[10px] uppercase tracking-widest">
                                     Confirmar Pago
                                 </button>
                             </div>
@@ -2375,28 +2375,9 @@ const App = () => {
                     </div>
                 </div>
             )}
-                                <button 
-                                    onClick={() => setIsAbonoModalOpen(false)}
-                                    className="py-5 rounded-2xl font-black text-gray-400 uppercase text-[10px] tracking-widest hover:bg-gray-50 transition-colors"
-                                >
-                                    Cancelar
-                                </button>
-                                <button 
-                                    onClick={handleConfirmAbono}
-                                    className="bg-mandre-coffee text-white py-5 rounded-2xl font-black shadow-lg shadow-mandre-coffee/30 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 text-[10px] uppercase tracking-widest"
-                                >
-                                    Confirmar Pago
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
-                    {/* SELLO MANDRÉ AL FINAL */}
-                    <div className="mt-auto py-10 text-center opacity-20 select-none">
-                        <p className="text-[7px] font-medium text-gray-400 uppercase tracking-[0.5em]">
-                            TanAlza Group Technology
-                        </p>
+        </div>
+    );
+};
                     </div>
                 </div> 
             ); 
