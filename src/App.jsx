@@ -2286,4 +2286,12 @@ const App = () => {
             ); 
         };
 
-export default App;
+// Renderizado final forzado para que MANDRÉ aparezca en el navegador
+if (window.ReactDOM) {
+    const rootElement = document.getElementById('root');
+    if (rootElement) {
+        ReactDOM.render(<App />, rootElement);
+    } else {
+        console.error("Error: No se encontró el div con id='root' en tu index.html");
+    }
+}
