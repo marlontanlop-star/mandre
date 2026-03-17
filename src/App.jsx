@@ -2288,93 +2288,63 @@ const [abonoForm, setAbonoForm] = useState({ amount: '', method: 'efectivo', ass
                              <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50/30">
                                     {credits.filter(c => c.status !== 'pagado' && (c.customer || c.clientName || '').toLowerCase().includes(creditSearch.toLowerCase())).map(credit => (
                                         <div key={credit.id} className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 mb-4 animate-fadeIn">
-                                    <div className="flex justify-between items-start mb-4">
-                                        <div>
-                                            <h4 className="font-black text-lg text-mandre-coffee uppercase tracking-tighter italic leading-none">{credit.customer || credit.clientName}</h4>
-                                            <p className="text-[10px] text-gray-400 font-bold uppercase mt-1">Registrado: {credit.date}</p>
+                                            <div className="flex justify-between items-start mb-4">
+                                                <div>
+                                                    <h4 className="font-black text-lg text-mandre-coffee uppercase tracking-tighter italic leading-none">{credit.customer || credit.clientName}</h4>
+                                                    <p className="text-[10px] text-gray-400 font-bold uppercase mt-1">Registrado: {credit.date}</p>
+                                                </div>
+                                                <span className="bg-orange-50 text-orange-600 text-[10px] font-black px-3 py-1 rounded-full uppercase border border-orange-100">Pendiente</span>
+                                            </div>
+                                            <div className="bg-gray-50 p-4 rounded-2xl mb-4 border border-gray-100">
+                                                <p className="text-[9px] text-mandre-coffee font-bold uppercase tracking-widest opacity-60">Saldo a Cobrar</p>
+                                                <p className="text-2xl font-black text-mandre-coffee tracking-tighter">${(credit.balance || 0).toLocaleString()}</p>
+                                            </div>
+                                            <button onClick={() => handleCreditCollection(credit)} className="w-full bg-mandre-coffee text-white py-4 rounded-2xl font-black shadow-lg shadow-mandre-coffee/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 text-sm uppercase tracking-tighter">
+                                                REGISTRAR ABONO
+                                            </button>
                                         </div>
-                                        <span className="bg-orange-50 text-orange-600 text-[10px] font-black px-3 py-1 rounded-full uppercase border border-orange-100">
-                                            Pendiente
-                                        </span>
-                                    </div>
-                                    
-                                    <div className="bg-gray-50 p-4 rounded-2xl mb-4 border border-gray-100">
-                                        <p className="text-[9px] text-mandre-coffee font-bold uppercase tracking-widest opacity-60">Saldo a Cobrar</p>
-                                        <p className="text-2xl font-black text-mandre-coffee tracking-tighter">
-                                            ${(credit.balance || 0).toLocaleString()}
-                                        </p>
-                                    </div>
-
-                      <button 
-                                    onClick={() => handleCreditCollection(credit)}
-                                    className="w-full bg-mandre-coffee text-white py-4 rounded-2xl font-black shadow-lg shadow-mandre-coffee/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 text-sm uppercase tracking-tighter"
-                                >
-                                    REGISTRAR ABONO
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
-
-            {/* PORTAL DE ABONO ESTILO PREMIUM ADMIN */}
-            {isAbonoModalOpen && activeCredit && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[2000] flex items-center justify-center p-4 animate-fadeIn">
-                    <div className="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden border border-white/20">
-                        <div className="bg-mandre-coffee p-8 pb-10 text-white text-center relative">
-                            <button onClick={() => setIsAbonoModalOpen(false)} className="absolute top-6 right-6 bg-white/10 hover:bg-white/20 p-2 rounded-full">
-                                <X size={20} />
-                            </button>
-                            <div className="bg-white/10 w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4 backdrop-blur-md">
-                                <DollarSign size={32} className="text-white" />
-                            </div>
-                            <h2 className="text-2xl font-black uppercase tracking-tighter italic leading-none">Registrar Pago</h2>
-                            <p className="text-[10px] opacity-60 font-bold uppercase tracking-[0.2em] mt-2">Cartera Anserma • TanAlza Group</p>
-                        </div>
-
-                        <div className="p-8 -mt-8 bg-white rounded-t-[2.5rem] relative">
-                            <div className="mb-6 text-center">
-                                <p className="text-[9px] text-gray-400 font-black uppercase tracking-widest mb-1">Cliente en Cartera</p>
-                                <h3 className="text-xl font-black text-mandre-coffee uppercase tracking-tighter italic">
-                                    {activeCredit.customer || activeCredit.clientName}
-                                </h3>
-                            </div>
-<div className="p-8 -mt-8 bg-white rounded-t-[2.5rem] relative">
-                            <div className="mb-6 text-center">
-                                <p className="text-[9px] text-gray-400 font-black uppercase tracking-widest mb-1">Cliente en Cartera</p>
-                                <h3 className="text-xl font-black text-mandre-coffee uppercase tracking-tighter italic">
-                                    {activeCredit.customer || activeCredit.clientName}
-                                </h3>
-                            </div>
-
-                            <div className="bg-gray-50 p-6 rounded-[2rem] border border-gray-100 mb-6 text-center">
-                                <p className="text-[10px] font-black text-gray-400 uppercase mb-1">Saldo Pendiente</p>
-                                <p className="text-xl font-black text-red-500 tracking-tighter italic mb-4">
-                                    ${(activeCredit.balance || activeCredit.total || 0).toLocaleString()}
-                                </p>
-                                <div className="relative">
-                                    <span className="absolute left-5 top-1/2 -translate-y-1/2 font-black text-mandre-coffee opacity-20 text-xl">$</span>
-                                    <input 
-                                        type="number"
-                                        autoFocus
-                                        value={abonoAmount}
-                                        onChange={(e) => setAbonoAmount(e.target.value)}
-                                        placeholder="Monto"
-                                        className="w-full bg-white border-2 border-gray-100 focus:border-mandre-coffee p-5 pl-12 rounded-2xl text-2xl font-black text-mandre-coffee outline-none shadow-inner"
-                                    />
+                                    ))}
                                 </div>
                             </div>
-
-                           </div>
                         </div>
-                    </div>
-                </div>
-            )}
-        </div>
-    );
-};
+                    )}
 
-// Renderizado final para el navegador
+                    {/* PORTAL DE ABONO ESTILO PREMIUM ADMIN */}
+                    {isAbonoModalOpen && activeCredit && (
+                        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[2000] flex items-center justify-center p-4 animate-fadeIn">
+                            <div className="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden border border-white/20">
+                                <div className="bg-mandre-coffee p-8 pb-10 text-white text-center relative">
+                                    <button onClick={() => setIsAbonoModalOpen(false)} className="absolute top-6 right-6 bg-white/10 hover:bg-white/20 p-2 rounded-full"><X size={20} /></button>
+                                    <div className="bg-white/10 w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4 backdrop-blur-md"><DollarSign size={32} className="text-white" /></div>
+                                    <h2 className="text-2xl font-black uppercase tracking-tighter italic leading-none">Registrar Pago</h2>
+                                    <p className="text-[10px] opacity-60 font-bold uppercase tracking-[0.2em] mt-2">Cartera Anserma • TanAlza Group</p>
+                                </div>
+                                <div className="p-8 -mt-8 bg-white rounded-t-[2.5rem] relative">
+                                    <div className="mb-6 text-center">
+                                        <p className="text-[9px] text-gray-400 font-black uppercase tracking-widest mb-1">Cliente en Cartera</p>
+                                        <h3 className="text-xl font-black text-mandre-coffee uppercase tracking-tighter italic">{activeCredit.customer || activeCredit.clientName}</h3>
+                                    </div>
+                                    <div className="bg-gray-50 p-6 rounded-[2rem] border border-gray-100 mb-6 text-center">
+                                        <p className="text-[10px] font-black text-gray-400 uppercase mb-1">Saldo Pendiente</p>
+                                        <p className="text-xl font-black text-red-500 tracking-tighter italic mb-4">${(activeCredit.balance || activeCredit.total || 0).toLocaleString()}</p>
+                                        <div className="relative">
+                                            <span className="absolute left-5 top-1/2 -translate-y-1/2 font-black text-mandre-coffee opacity-20 text-xl">$</span>
+                                            <input type="number" autoFocus value={abonoAmount} onChange={(e) => setAbonoAmount(e.target.value)} placeholder="Monto" className="w-full bg-white border-2 border-gray-100 focus:border-mandre-coffee p-5 pl-12 rounded-2xl text-2xl font-black text-mandre-coffee outline-none shadow-inner"/>
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <button onClick={() => setIsAbonoModalOpen(false)} className="py-5 font-black text-gray-400 uppercase text-[10px] tracking-widest">Cancelar</button>
+                                        <button onClick={handleConfirmAbono} className="bg-mandre-coffee text-white py-5 rounded-2xl font-black shadow-lg shadow-mandre-coffee/30 text-[10px] uppercase tracking-widest">Confirmar Pago</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            ); 
+        };
+
+// Renderizado final
 if (window.ReactDOM) {
     const rootElement = document.getElementById('root');
     if (rootElement) {
