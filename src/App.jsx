@@ -19,12 +19,12 @@ const App = () => {
             
             // Estados para Créditos, Abonos y Canjes de Caja
             const [credits, setCredits] = useState([]);
-            const [abonos, setAbonos] = useState([]);
-            const [cashAdjustments, setCashAdjustments] = useState([]);
-const [isCreditModalOpen, setIsCreditModalOpen] = useState(false);
+    const [abonos, setAbonos] = useState([]);
+    const [cashAdjustments, setCashAdjustments] = useState([]);
+    const [isCreditModalOpen, setIsCreditModalOpen] = useState(false);
     const [creditSearch, setCreditSearch] = useState('');
-            const [activeOrders, setActiveOrders] = useState({}); 
-            const [users, setUsers] = useState([]);
+    const [activeOrders, setActiveOrders] = useState({});
+    const [users, setUsers] = useState([]);
 
             // Cierre de Caja & Shifts
             const [shifts, setShifts] = useState([]);
@@ -2280,10 +2280,14 @@ const [isCreditModalOpen, setIsCreditModalOpen] = useState(false);
                                 </div>
                             </div>
                         </div>
-                    )}
-                </div>
-            );
+                   {/* SELLO MANDRÉ AL FINAL */}
+                    <div className="mt-auto py-10 text-center opacity-20 select-none">
+                        <p className="text-[7px] font-medium text-gray-400 uppercase tracking-[0.5em]">
+                            TanAlza Group Technology
+                        </p>
+                    </div>
+                </div> 
+            ); 
         };
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+export default App;
