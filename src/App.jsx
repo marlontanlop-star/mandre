@@ -161,7 +161,7 @@ const App = () => {
         const unsubOrders = db.collection('orders').orderBy('id', 'desc').limit(100).onSnapshot(snap => setOrders(snap.docs.map(d => ({id: d.id, ...d.data()}))));
         const unsubShifts = db.collection('shifts').orderBy('id', 'desc').onSnapshot(snap => setShifts(snap.docs.map(d => ({id: d.id, ...d.data()}))));
         const unsubExpenses = db.collection('expenses').orderBy('id', 'desc').onSnapshot(snap => setExpenses(snap.docs.map(d => ({id: d.id, ...d.data()}))));
-        const unsubCredits = db.collection('credits').onSnapshot(snap => setCredits(snap.docs.map(d => ({id: d.id, ...d.data()}))));
+        const unsubCredits = db.collection('creditos').onSnapshot(snap => setCredits(snap.docs.map(d => ({id: d.id, ...d.data()}))));
         const unsubAbonos = db.collection('abonos').onSnapshot(snap => setAbonos(snap.docs.map(d => ({id: d.id, ...d.data()}))));
         const unsubAdjustments = db.collection('cashAdjustments').onSnapshot(snap => setCashAdjustments(snap.docs.map(d => ({id: d.id, ...d.data()}))));
         const unsubSystemStatus = db.collection('system_status').onSnapshot(snap => setSystemPresence(snap.docs.map(d => d.data())));
