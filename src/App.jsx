@@ -2267,7 +2267,7 @@ const [abonoForm, setAbonoForm] = useState({ amount: '', method: 'efectivo', ass
                             </form>
                         </div>
                     )}
-                            {/* PORTAL DE CRÉDITOS MANDRÉ */}
+{/* PORTAL DE CRÉDITOS MANDRÉ */}
                     {isCreditModalOpen && (
                         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[999] flex items-center justify-center p-4">
                             <div className="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-fadeIn">
@@ -2285,7 +2285,7 @@ const [abonoForm, setAbonoForm] = useState({ amount: '', method: 'efectivo', ass
                                         value={creditSearch} onChange={(e) => setCreditSearch(e.target.value)}
                                     />
                                 </div>
-                             <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50/30">
+                                <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50/30">
                                     {credits.filter(c => c.status !== 'pagado' && (c.customer || c.clientName || '').toLowerCase().includes(creditSearch.toLowerCase())).map(credit => (
                                         <div key={credit.id} className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 mb-4 animate-fadeIn">
                                             <div className="flex justify-between items-start mb-4">
@@ -2344,12 +2344,12 @@ const [abonoForm, setAbonoForm] = useState({ amount: '', method: 'efectivo', ass
             ); 
         };
 
-// Renderizado final
+// Renderizado final de MANDRÉ
 if (window.ReactDOM) {
     const rootElement = document.getElementById('root');
     if (rootElement) {
         ReactDOM.render(<App />, rootElement);
     } else {
-        console.error("Error: No se encontró el div con id='root' en tu index.html");
+        console.error("Error: No se encontró el div id='root'");
     }
 }
