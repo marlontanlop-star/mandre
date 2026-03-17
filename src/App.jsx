@@ -2367,16 +2367,13 @@ const [abonoForm, setAbonoForm] = useState({ amount: '', method: 'efectivo', ass
                                 </button>
                             </div>
                         </div>
+                   </div>
                     </div>
                 </div>
             )}
         </div>
     );
 };
-                    </div>
-                </div> 
-            ); 
-        };
 
 // Renderizado final forzado para que MANDRÉ aparezca en el navegador
 if (window.ReactDOM) {
