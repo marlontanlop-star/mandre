@@ -77,18 +77,13 @@ const App = () => {
             const [paymentStep, setPaymentStep] = useState('method');
             const [cashGiven, setCashGiven] = useState('');
             const [adminPass, setAdminPass] = useState('');
-            const [isProcessingPayment, setIsProcessingPayment] = useState(false);
-
+const [isProcessingPayment, setIsProcessingPayment] = useState(false);
             // Egresos POS
             const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
             const [expenseForm, setExpenseForm] = useState({ desc: '', amount: '' });
 
-            // Abonos Modals
-            const [isAbonoModalOpen, setIsAbonoModalOpen] = useState(false);
-            const [activeCredit, setActiveCredit] = useState(null);
-            const [abonoForm, setAbonoForm] = useState({ amount: '', method: 'efectivo', assignedUser: '' });
-
-            // Canje Caja Modals
+            // // Abonos Modals
+const [abonoForm, setAbonoForm] = useState({ amount: '', method: 'efectivo', assignedUser: '' });
             const [cashAdjustForm, setCashAdjustForm] = useState({ employee: '', amount: '', type: 'add' });
 
             // Nomina / Pagos
