@@ -2339,11 +2339,18 @@ const [abonoForm, setAbonoForm] = useState({ amount: '', method: 'efectivo', ass
                                     {activeCredit.customer || activeCredit.clientName}
                                 </h3>
                             </div>
+<div className="p-8 -mt-8 bg-white rounded-t-[2.5rem] relative">
+                            <div className="mb-6 text-center">
+                                <p className="text-[9px] text-gray-400 font-black uppercase tracking-widest mb-1">Cliente en Cartera</p>
+                                <h3 className="text-xl font-black text-mandre-coffee uppercase tracking-tighter italic">
+                                    {activeCredit.customer || activeCredit.clientName}
+                                </h3>
+                            </div>
 
                             <div className="bg-gray-50 p-6 rounded-[2rem] border border-gray-100 mb-6 text-center">
                                 <p className="text-[10px] font-black text-gray-400 uppercase mb-1">Saldo Pendiente</p>
                                 <p className="text-xl font-black text-red-500 tracking-tighter italic mb-4">
-                                    ${(activeCredit.balance || 0).toLocaleString()}
+                                    ${(activeCredit.balance || activeCredit.total || 0).toLocaleString()}
                                 </p>
                                 <div className="relative">
                                     <span className="absolute left-5 top-1/2 -translate-y-1/2 font-black text-mandre-coffee opacity-20 text-xl">$</span>
@@ -2358,16 +2365,8 @@ const [abonoForm, setAbonoForm] = useState({ amount: '', method: 'efectivo', ass
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <button onClick={() => setIsAbonoModalOpen(false)} className="py-5 font-black text-gray-400 uppercase text-[10px] tracking-widest">
-                                    Cancelar
-                                </button>
-                                <button onClick={handleConfirmAbono} className="bg-mandre-coffee text-white py-5 rounded-2xl font-black shadow-lg shadow-mandre-coffee/30 text-[10px] uppercase tracking-widest">
-                                    Confirmar Pago
-                                </button>
-                            </div>
+                           </div>
                         </div>
-                   </div>
                     </div>
                 </div>
             )}
@@ -2375,7 +2374,7 @@ const [abonoForm, setAbonoForm] = useState({ amount: '', method: 'efectivo', ass
     );
 };
 
-// Renderizado final forzado para que MANDRÉ aparezca en el navegador
+// Renderizado final para el navegador
 if (window.ReactDOM) {
     const rootElement = document.getElementById('root');
     if (rootElement) {
