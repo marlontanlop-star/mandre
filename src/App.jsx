@@ -2293,11 +2293,9 @@ const App = () => {
                                         <div className="text-center py-10">
                                             <p className="text-gray-300 font-bold uppercase italic text-xs tracking-widest">No hay deudores pendientes</p>
                                         </div>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                   {/* SELLO MANDRÉ AL FINAL */}
+                                   )}
+
+                    {/* SELLO MANDRÉ AL FINAL */}
                     <div className="mt-auto py-10 text-center opacity-20 select-none">
                         <p className="text-[7px] font-medium text-gray-400 uppercase tracking-[0.5em]">
                             TanAlza Group Technology
