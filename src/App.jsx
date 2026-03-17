@@ -1,6 +1,5 @@
 const { useState, useEffect, useMemo, useRef } = window.React || React;
 const { Search, Plus, Trash2, Edit3, X, Coffee, CreditCard, Banknote, User, LayoutDashboard, ShoppingCart, FileText, Tag, Box, ChevronUp, ChevronDown, Download, Phone, Lock, Share, LogOut, AlertTriangle, Bike, Shield, DollarSign, RefreshCw } = window.Lucide || {};
-
 // Protecciones de Iconos (Sello TanAlza Group)
 const Activity = window.Activity || (() => <span>📊</span>);
 const CheckCircle = window.CheckCircle || (() => <span>✅</span>);
@@ -2211,19 +2210,18 @@ const App = () => {
                                             <div className="flex-1 flex flex-col items-center justify-center text-center">
                                                 <div className="bg-purple-50 text-purple-900 p-4 rounded-xl border border-purple-200 mb-6 text-sm">
                                                     Este monto se enviará al área de administración bajo el nombre proporcionado y <b>no sumará a la caja de hoy</b> hasta que se registre el abono.
-                                                </div>
-                                                 <button 
-                                                    onClick={() => handleFinalizePayment('credito', 'Crédito')}
-                                                    disabled={isProcessingPayment || !customerName.trim()}
-                                                    className="bg-purple-800 text-white h-20 w-full rounded-2xl font-bold text-xl shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center disabled:opacity-50"
-                                                >
-                                                    CONFIRMAR FIADO
-                                                </button>
-                                                {!customerName.trim() && <p className="text-red-500 text-xs text-center mt-4 font-bold">Ingrese el nombre completo del cliente para fiar</p>}
-                                            </div>
-                                            <button onClick={() => setPaymentStep('method')} className="w-full mt-8 py-3 bg-gray-100 text-gray-500 font-bold rounded-xl active:scale-95 transition text-sm">VOLVER ATRÁS</button>
-                                        </div>
-                                    )}
+                                               <button 
+                                    onClick={() => handleCreditCollection(credit)}
+                                    className="w-full bg-mandre-coffee text-white py-4 rounded-2xl font-black shadow-lg shadow-mandre-coffee/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 text-sm uppercase tracking-tighter"
+                                >
+                                    REGISTRAR ABONO
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        )}
                                 </div>
                             </div>
                         </div>
