@@ -2268,7 +2268,11 @@ const App = () => {
                                         <div className="text-center py-10">
                                             <p className="text-gray-300 font-bold uppercase italic text-xs tracking-widest">No hay deudores pendientes</p>
                                         </div>
-                                   )}
+                                    )}
+                                </div> {/* Cierra la lista */}
+                            </div> {/* Cierra el modal de creditos */}
+                        </div> {/* Cierra el fondo oscuro */}
+                    )}
 
                     {/* SELLO MANDRÉ AL FINAL */}
                     <div className="mt-auto py-10 text-center opacity-20 select-none">
