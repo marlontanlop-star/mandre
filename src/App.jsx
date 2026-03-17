@@ -130,7 +130,7 @@ const App = () => {
                 const unsubInv = syncCollection('inventory', INITIAL_INVENTORY, setInventory);
                 const unsubComb = syncCollection('combos', INITIAL_COMBOS, setCombos);
                 const unsubUsers = syncCollection('users', INITIAL_USERS, setUsers);
-                const unsubCredits = syncCollection('credits', [], setCredits);
+                
                 // Lógica Robusta y Respaldo para Tablas (Asegura que siempre existan las requeridas)
                 const unsubTables = db.collection('tables').onSnapshot(snap => {
                     let data = snap.docs.map(doc => doc.data());
