@@ -2311,33 +2311,24 @@ const App = () => {
                                         </p>
                                     </div>
 
-                                    <button 
-                                        onClick={() => handleCreditCollection(credit)}
-                                        className="w-full bg-mandre-coffee text-white py-4 rounded-2xl font-black shadow-lg shadow-mandre-coffee/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 text-sm uppercase tracking-tighter"
-                                    >
-                                        REGISTRAR ABONO
-                                    </button>
-                                </div>
-                                    ))}
-                                    {credits.filter(c => c.status !== 'pagado').length === 0 && (
-                                        <div className="text-center py-10">
-                                    <p className="text-gray-300 font-bold uppercase italic text-xs tracking-widest">No hay deudores pendientes</p>
-                                </div>
-                            )}
-                        </div> 
-                    </div> 
-                </div> 
+                      <button 
+                                    onClick={() => handleCreditCollection(credit)}
+                                    className="w-full bg-mandre-coffee text-white py-4 rounded-2xl font-black shadow-lg shadow-mandre-coffee/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 text-sm uppercase tracking-tighter"
+                                >
+                                    REGISTRAR ABONO
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
             )}
-                            {/* PORTAL DE ABONO ESTILO PREMIUM ADMIN */}
+
+            {/* PORTAL DE ABONO ESTILO PREMIUM ADMIN */}
             {isAbonoModalOpen && activeCredit && (
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[2000] flex items-center justify-center p-4 animate-fadeIn">
                     <div className="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden border border-white/20">
-                        {/* Cabecera Mandré */}
                         <div className="bg-mandre-coffee p-8 pb-10 text-white text-center relative">
-                            <button 
-                                onClick={() => setIsAbonoModalOpen(false)}
-                                className="absolute top-6 right-6 bg-white/10 hover:bg-white/20 p-2 rounded-full transition-colors"
-                            >
+                            <button onClick={() => setIsAbonoModalOpen(false)} className="absolute top-6 right-6 bg-white/10 hover:bg-white/20 p-2 rounded-full">
                                 <X size={20} />
                             </button>
                             <div className="bg-white/10 w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4 backdrop-blur-md">
@@ -2347,7 +2338,6 @@ const App = () => {
                             <p className="text-[10px] opacity-60 font-bold uppercase tracking-[0.2em] mt-2">Cartera Anserma • TanAlza Group</p>
                         </div>
 
-                        {/* Cuerpo del Portal */}
                         <div className="p-8 -mt-8 bg-white rounded-t-[2.5rem] relative">
                             <div className="mb-6 text-center">
                                 <p className="text-[9px] text-gray-400 font-black uppercase tracking-widest mb-1">Cliente en Cartera</p>
@@ -2356,15 +2346,12 @@ const App = () => {
                                 </h3>
                             </div>
 
-                            <div className="bg-gray-50 p-6 rounded-[2rem] border border-gray-100 mb-6">
-                                <div className="flex justify-between items-center mb-4 border-b border-gray-200 pb-4">
-                                    <span className="text-[10px] font-black text-gray-400 uppercase">Saldo Pendiente</span>
-                                    <span className="text-xl font-black text-red-500 tracking-tighter italic">
-                                        ${(activeCredit.balance || 0).toLocaleString()}
-                                    </span>
-                                </div>
+                            <div className="bg-gray-50 p-6 rounded-[2rem] border border-gray-100 mb-6 text-center">
+                                <p className="text-[10px] font-black text-gray-400 uppercase mb-1">Saldo Pendiente</p>
+                                <p className="text-xl font-black text-red-500 tracking-tighter italic mb-4">
+                                    ${(activeCredit.balance || 0).toLocaleString()}
+                                </p>
                                 
-                                <label className="block text-[10px] font-black text-mandre-coffee uppercase tracking-widest mb-3">Monto a Abonar</label>
                                 <div className="relative">
                                     <span className="absolute left-5 top-1/2 -translate-y-1/2 font-black text-mandre-coffee opacity-20 text-xl">$</span>
                                     <input 
@@ -2372,13 +2359,24 @@ const App = () => {
                                         autoFocus
                                         value={abonoAmount}
                                         onChange={(e) => setAbonoAmount(e.target.value)}
-                                        placeholder="0"
-                                        className="w-full bg-white border-2 border-gray-100 focus:border-mandre-coffee p-5 pl-12 rounded-2xl text-2xl font-black text-mandre-coffee outline-none transition-all placeholder:text-gray-200 shadow-inner"
+                                        placeholder="Monto a abonar"
+                                        className="w-full bg-white border-2 border-gray-100 focus:border-mandre-coffee p-5 pl-12 rounded-2xl text-2xl font-black text-mandre-coffee outline-none transition-all shadow-inner"
                                     />
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
+                                <button onClick={() => setIsAbonoModalOpen(false)} className="py-5 font-black text-gray-400 uppercase text-[10px] tracking-widest">
+                                    Cancelar
+                                </button>
+                                <button onClick={handleConfirmAbono} className="bg-mandre-coffee text-white py-5 rounded-2xl font-black shadow-lg shadow-mandre-coffee/30 hover:scale-[1.02] active:scale-95 transition-all text-[10px] uppercase tracking-widest">
+                                    Confirmar Pago
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
                                 <button 
                                     onClick={() => setIsAbonoModalOpen(false)}
                                     className="py-5 rounded-2xl font-black text-gray-400 uppercase text-[10px] tracking-widest hover:bg-gray-50 transition-colors"
