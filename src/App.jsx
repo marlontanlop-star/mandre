@@ -163,20 +163,19 @@ const App = () => {
                     setTables(data);
                 });
 
-                // Carga de Históricos y Nuevas Colecciones
-        const unsubOrders = db.collection('orders').orderBy('id', 'desc').onSnapshot(snap => setOrders(snap.docs.map(d => d.data())));
-        const unsubShifts = db.collection('shifts').orderBy('id', 'desc').onSnapshot(snap => setShifts(snap.docs.map(d => d.data())));
-        const unsubExpenses = db.collection('expenses').orderBy('id', 'desc').onSnapshot(snap => setExpenses(snap.docs.map(d => d.data())));
-        const unsubManualItems = db.collection('manualItems').orderBy('id', 'desc').onSnapshot(snap => setManualItemsCollection(snap.docs.map(d => d.data())));
-        const unsubCredits = db.collection('credits').orderBy('id', 'desc').onSnapshot(snap => setCredits(snap.docs.map(d => ({id: d.id, ...d.data()}))));
-        const unsubAbonos = db.collection('abonos').orderBy('id', 'desc').onSnapshot(snap => setAbonos(snap.docs.map(d => d.data())));
-        const unsubAdjustments = db.collection('cashAdjustments').orderBy('id', 'desc').onSnapshot(snap => setCashAdjustments(snap.docs.map(d => d.data())));
-
+                // --- CARGA DE DATOS EN TIEMPO REAL ---
+        const unsubOrders = db.collection('orders').orderBy('id', 'desc').limit(100).onSnapshot(snap => setOrders(snap.docs.map(d => ({id: d.id, ...d.data()}))));
+        const unsubShifts = db.collection('shifts').orderBy('id', 'desc').onSnapshot(snap => setShifts(snap.docs.map(d => ({id: d.id, ...d.data()}))));
+        const unsubExpenses = db.collection('expenses').orderBy('id', 'desc').onSnapshot(snap => setExpenses(snap.docs.map(d => ({id: d.id, ...d.data()}))));
+        const unsubManualItems = db.collection('manualItems').onSnapshot(snap => setManualItemsCollection(snap.docs.map(d => ({id: d.id, ...d.data()}))));
+        const unsubCredits = db.collection('credits').onSnapshot(snap => setCredits(snap.docs.map(d => ({id: d.id, ...d.data()}))));
+        const unsubAbonos = db.collection('abonos').onSnapshot(snap => setAbonos(snap.docs.map(d => ({id: d.id, ...d.data()}))));
+        const unsubAdjustments = db.collection('cashAdjustments').onSnapshot(snap => setCashAdjustments(snap.docs.map(d => ({id: d.id, ...d.data()}))));
         const unsubSystemStatus = db.collection('system_status').onSnapshot(snap => setSystemPresence(snap.docs.map(d => d.data())));
 
         const unsubActiveOrders = db.collection('activeOrders').onSnapshot(snap => {
             const data = {};
-            snap.docs.forEach(d => data[d.id] = d.data());
+            snap.docs.forEach(d => { data[d.id] = d.data(); });
             setActiveOrders(data);
         });
 
@@ -189,11 +188,17 @@ const App = () => {
             window.removeEventListener('online', handleOnline);
             window.removeEventListener('offline', handleOffline);
             clearInterval(checkMidnightClosure);
-            // Limpieza de radares (Evita que la app se ponga lenta)
-            if (typeof unsubConnection === 'function') unsubConnection();
-            if (typeof unsubInv === 'function') unsubInv();
-            if (typeof unsubComb === 'function') unsubComb();
-            if (typeof unsubUsers === 'function') unsubUsers();
+            if (unsubOrders) unsubOrders();
+            if (unsubShifts) unsubShifts();
+            if (unsubExpenses) unsubExpenses();
+            if (unsubManualItems) unsubManualItems();
+            if (unsubCredits) unsubCredits();
+            if (unsubAbonos) unsubAbonos();
+            if (unsubAdjustments) unsubAdjustments();
+            if (unsubSystemStatus) unsubSystemStatus();
+            if (unsubActiveOrders) unsubActiveOrders();
+        };
+    }, []); // <--- ESTE CIERRE ES VITAL
             if (typeof unsubTables === 'function') unsubTables();
             if (typeof unsubOrders === 'function') unsubOrders();
             if (typeof unsubShifts === 'function') unsubShifts();
