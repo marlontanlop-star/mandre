@@ -111,63 +111,50 @@ const App = () => {
             }, [users, view]);
 
             // --- SINCRONIZACIÓN FIREBASE (REALTIME) ---
-            useEffect(() => {
-                const handleOnline = () => {
-                    setIsOnline(true);
-                    setConnectionLogs(prev => [{status: 'online', time: new Date().toLocaleTimeString()}, ...prev].slice(0, 50));
-                };
-                const handleOffline = () => {
-                    setIsOnline(false);
-                    setConnectionLogs(prev => [{status: 'offline', time: new Date().toLocaleTimeString()}, ...prev].slice(0, 50));
-                };
-                window.addEventListener('online', handleOnline);
-                window.addEventListener('offline', handleOffline);
+   useEffect(() => {
+        const handleOnline = () => setIsOnline(true);
+        const handleOffline = () => setIsOnline(false);
+        window.addEventListener('online', handleOnline);
+        window.addEventListener('offline', handleOffline);
 
-                const unsubConnection = db.collection('inventory').onSnapshot({ includeMetadataChanges: true }, (snap) => {
-                    setIsFirebaseConnected(!snap.metadata.fromCache);
-                });
+        // --- RADARES DE DATOS (MANDRÉ CORE) ---
+        const unsubConnection = db.collection('inventory').onSnapshot({ includeMetadataChanges: true }, (snap) => {
+            setIsFirebaseConnected(!snap.metadata.fromCache);
+        });
 
-                const unsubInv = syncCollection('inventory', INITIAL_INVENTORY, setInventory);
-                const unsubComb = syncCollection('combos', INITIAL_COMBOS, setCombos);
-                const unsubUsers = syncCollection('users', INITIAL_USERS, setUsers);
-                
-                // Lógica Robusta y Respaldo para Tablas (Asegura que siempre existan las requeridas)
-                const unsubTables = db.collection('tables').onSnapshot(snap => {
-                    let data = snap.docs.map(doc => doc.data());
-                    
-                    const requiredTables = [
-                        { id: '1', type: 'mesa', status: 'libre', currentTotal: 0, label: 'Mesa 1' },
-                        { id: '2', type: 'mesa', status: 'libre', currentTotal: 0, label: 'Mesa 2' },
-                        { id: '3', type: 'mesa', status: 'libre', currentTotal: 0, label: 'Mesa 3' },
-                        { id: '4', type: 'mesa', status: 'libre', currentTotal: 0, label: 'Mesa 4' },
-                        { id: 'Cafetería', type: 'especial', icon: 'coffee', status: 'libre', currentTotal: 0, label: 'Cafetería' },
-        { id: 'Domicilio', type: 'especial', icon: 'bike', status: 'libre', currentTotal: 0, label: 'Domicilio' },
-        { id: 'creditos_servicio', type: 'especial', icon: 'credit', status: 'libre', currentTotal: 0, label: 'CRÉDITOS' }
-    ];
+        const unsubInv = syncCollection('inventory', INITIAL_INVENTORY, setInventory);
+        const unsubComb = syncCollection('combos', INITIAL_COMBOS, setCombos);
+        const unsubUsers = syncCollection('users', INITIAL_USERS, setUsers);
 
-                    const batch = db.batch();
-                    let needsUpdate = false;
+        // Radar de Tablas y Configuración Automática
+        const unsubTables = db.collection('tables').onSnapshot(snap => {
+            let data = snap.docs.map(doc => doc.data());
+            const requiredTables = [
+                { id: '1', type: 'mesa', status: 'libre', currentTotal: 0, label: 'Mesa 1' },
+                { id: '2', type: 'mesa', status: 'libre', currentTotal: 0, label: 'Mesa 2' },
+                { id: '3', type: 'mesa', status: 'libre', currentTotal: 0, label: 'Mesa 3' },
+                { id: '4', type: 'mesa', status: 'libre', currentTotal: 0, label: 'Mesa 4' },
+                { id: 'Cafetería', type: 'especial', icon: 'coffee', status: 'libre', currentTotal: 0, label: 'Cafetería' },
+                { id: 'Domicilio', type: 'especial', icon: 'bike', status: 'libre', currentTotal: 0, label: 'Domicilio' },
+                { id: 'creditos_servicio', type: 'especial', icon: 'credit', status: 'libre', currentTotal: 0, label: 'CRÉDITOS' }
+            ];
 
-                    requiredTables.forEach(req => {
-                        if (!data.find(t => t.id?.toString() === req.id)) {
-                            batch.set(db.collection('tables').doc(req.id), req);
-                            needsUpdate = true;
-                            data.push(req); 
-                        }
-                    });
+            const batch = db.batch();
+            let needsUpdate = false;
+            requiredTables.forEach(table => {
+                if (!data.find(t => t.id === table.id)) {
+                    batch.set(db.collection('tables').doc(table.id), table);
+                    needsUpdate = true;
+                }
+            });
+            if (needsUpdate) batch.commit();
+            setTables(data);
+        });
 
-                    if (needsUpdate) {
-                        batch.commit();
-                    }
-                    
-                    setTables(data);
-                });
-
-                // --- CARGA DE DATOS EN TIEMPO REAL ---
+        // --- CARGA DE HISTÓRICOS Y CRÉDITOS ---
         const unsubOrders = db.collection('orders').orderBy('id', 'desc').limit(100).onSnapshot(snap => setOrders(snap.docs.map(d => ({id: d.id, ...d.data()}))));
         const unsubShifts = db.collection('shifts').orderBy('id', 'desc').onSnapshot(snap => setShifts(snap.docs.map(d => ({id: d.id, ...d.data()}))));
         const unsubExpenses = db.collection('expenses').orderBy('id', 'desc').onSnapshot(snap => setExpenses(snap.docs.map(d => ({id: d.id, ...d.data()}))));
-        const unsubManualItems = db.collection('manualItems').onSnapshot(snap => setManualItemsCollection(snap.docs.map(d => ({id: d.id, ...d.data()}))));
         const unsubCredits = db.collection('credits').onSnapshot(snap => setCredits(snap.docs.map(d => ({id: d.id, ...d.data()}))));
         const unsubAbonos = db.collection('abonos').onSnapshot(snap => setAbonos(snap.docs.map(d => ({id: d.id, ...d.data()}))));
         const unsubAdjustments = db.collection('cashAdjustments').onSnapshot(snap => setCashAdjustments(snap.docs.map(d => ({id: d.id, ...d.data()}))));
@@ -188,33 +175,21 @@ const App = () => {
             window.removeEventListener('online', handleOnline);
             window.removeEventListener('offline', handleOffline);
             clearInterval(checkMidnightClosure);
+            if (unsubConnection) unsubConnection();
+            if (unsubInv) unsubInv();
+            if (unsubComb) unsubComb();
+            if (unsubUsers) unsubUsers();
+            if (unsubTables) unsubTables();
             if (unsubOrders) unsubOrders();
             if (unsubShifts) unsubShifts();
             if (unsubExpenses) unsubExpenses();
-            if (unsubManualItems) unsubManualItems();
             if (unsubCredits) unsubCredits();
             if (unsubAbonos) unsubAbonos();
             if (unsubAdjustments) unsubAdjustments();
             if (unsubSystemStatus) unsubSystemStatus();
             if (unsubActiveOrders) unsubActiveOrders();
         };
-    }, []); // <--- ESTE CIERRE ES VITAL
-            if (typeof unsubTables === 'function') unsubTables();
-            if (typeof unsubOrders === 'function') unsubOrders();
-            if (typeof unsubShifts === 'function') unsubShifts();
-            if (typeof unsubExpenses === 'function') unsubExpenses();
-            if (typeof unsubManualItems === 'function') unsubManualItems();
-            if (typeof unsubCredits === 'function') unsubCredits();
-            if (typeof unsubAbonos === 'function') unsubAbonos();
-            if (typeof unsubAdjustments === 'function') unsubAdjustments();
-            if (typeof unsubSystemStatus === 'function') unsubSystemStatus();
-            if (typeof unsubActiveOrders === 'function') unsubActiveOrders();
-        };
     }, []);
-                    unsubOrders(); unsubShifts(); unsubActiveOrders(); unsubExpenses(); unsubManualItems();
-                    unsubCredits(); unsubAbonos(); unsubAdjustments(); unsubSystemStatus();
-                };
-            }, []);
 
             // NUEVO: HEARTBEAT (Latido) PARA REPORTE DE CONEXIÓN EN ADMIN
             useEffect(() => {
