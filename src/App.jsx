@@ -1,3 +1,4 @@
+// REINICIO FORZADO VERCEL 1
 const { useState, useEffect, useMemo, useRef } = React;
 const { Search, Plus, Trash2, Edit3, X, Coffee, CreditCard, Banknote, User, LayoutDashboard, ShoppingCart, FileText, Tag, Box, ChevronUp, ChevronDown, Download, Phone, Lock, Share, LogOut, AlertTriangle, Bike, Shield, RefreshCw, CheckCircle, Activity, IconLeaf, db, syncCollection, INITIAL_INVENTORY, INITIAL_COMBOS, INITIAL_USERS, DENOMINATIONS, UNITS } = window;
 const App = () => {
@@ -721,22 +722,25 @@ const App = () => {
                 setServiceSelected(true);
             };
             const handleCreditCollection = async (credit) => {
-                const amount = prompt(`¿Cuánto va a abonar ${credit.customer}?\nDeuda actual: $${credit.balance.toLocaleString()}`, credit.balance);
+                const currentDebt = credit.balance || credit.total || 0;
+                const clientName = credit.customer || credit.clientName || 'Cliente';
+                const amount = prompt(`¿Cuánto va a abonar ${clientName}?\nDeuda actual: $${currentDebt.toLocaleString()}`, currentDebt);
                 
                 if (amount && !isNaN(amount) && Number(amount) > 0) {
                     const paymentValue = Number(amount);
                     try {
-                        // 1. Guardar como Abono Oficial para que sume a la caja de hoy
+                        // 1. Guardar como Abono Oficial
                         await db.collection('abonos').doc(Date.now().toString()).set({
-                            id: Date.now(), creditId: credit.id, customer: credit.customer,
+                            id: Date.now(), creditId: credit.id, customer: clientName,
                             amount: paymentValue, method: 'efectivo', employee: currentShiftEmployee || 'Cajero',
                             date: new Date().toLocaleString(), isoDate: new Date().toISOString().split('T')[0]
                         });
 
-                        // 2. Actualizar el saldo del Crédito
-                        const newBalance = credit.balance - paymentValue;
+                        // 2. Actualizar el saldo del Crédito (Compatible con datos viejos)
+                        const newBalance = currentDebt - paymentValue;
                         await db.collection('credits').doc(credit.id.toString()).update({
                             balance: Math.max(0, newBalance),
+                            total: Math.max(0, newBalance),
                             status: newBalance <= 0 ? 'pagado' : 'pendiente'
                         });
 
@@ -2243,12 +2247,12 @@ const App = () => {
                                         value={creditSearch} onChange={(e) => setCreditSearch(e.target.value)}
                                     />
                                 </div>
-                              <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50/30">
-                                    {credits.filter(c => c.status !== 'pagado' && (c.customer || '').toLowerCase().includes(creditSearch.toLowerCase())).map(credit => (
+                             <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50/30">
+                                    {credits.filter(c => c.status !== 'pagado' && (c.customer || c.clientName || '').toLowerCase().includes(creditSearch.toLowerCase())).map(credit => (
                                         <div key={credit.id} className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm flex justify-between items-center active:scale-[0.98] transition">
                                             <div className="flex-1 mr-4">
-                                                <p className="font-black text-mandre-coffee uppercase text-sm leading-tight">{credit.customer}</p>
-                                                <p className="text-[10px] font-bold text-red-500 mt-1 uppercase">Deuda: ${credit.balance.toLocaleString()}</p>
+                                                <p className="font-black text-mandre-coffee uppercase text-sm leading-tight">{credit.customer || credit.clientName}</p>
+                                                <p className="text-[10px] font-bold text-red-500 mt-1 uppercase">Deuda: ${(credit.balance || credit.total || 0).toLocaleString()}</p>
                                             </div>
                                             <button 
                                                 onClick={() => handleCreditCollection(credit)} 
@@ -2260,14 +2264,13 @@ const App = () => {
                                     ))}
                                     {credits.filter(c => c.status !== 'pagado').length === 0 && (
                                         <div className="text-center py-10">
-                                            <p className="text-gray-300 font-bold uppercase italic text-xs tracking-widest">No hay deudores pendientes</p>
-                                        </div>
-                                    )}
-                              </div> 
-                            </div> 
+                                    <p className="text-gray-300 font-bold uppercase italic text-xs tracking-widest">No hay deudores pendientes</p>
+                                </div>
+                            )}
                         </div> 
-                    )}
-
+                    </div> 
+                </div> 
+            )}
                     {/* SELLO MANDRÉ AL FINAL */}
                     <div className="mt-auto py-10 text-center opacity-20 select-none">
                         <p className="text-[7px] font-medium text-gray-400 uppercase tracking-[0.5em]">
