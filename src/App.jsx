@@ -1,13 +1,13 @@
-// REINICIO FORZADO VERCEL 1
-const { useState, useEffect, useMemo, useRef } = React;
+// REINICIO FORZADO MANDRÉ V1.1
+const { useState, useEffect, useMemo, useRef } = window.React || React;
 const { Search, Plus, Trash2, Edit3, X, Coffee, CreditCard, Banknote, User, LayoutDashboard, ShoppingCart, FileText, Tag, Box, ChevronUp, ChevronDown, Download, Phone, Lock, Share, LogOut, AlertTriangle, Bike, Shield, RefreshCw, db, syncCollection, INITIAL_INVENTORY, INITIAL_COMBOS, INITIAL_USERS, DENOMINATIONS, UNITS } = window;
-const App = () => {
-// Estos son los que estaban rompiendo la app. Si no existen en el sistema, 
-// les damos un icono de texto para que MANDRÉ no se quede en blanco.
+
+// Protecciones de Iconos (Sello TanAlza Group)
 const Activity = window.Activity || (() => <span>📊</span>);
 const CheckCircle = window.CheckCircle || (() => <span>✅</span>);
 const IconLeaf = window.IconLeaf || (() => <span>🍃</span>);
-            // --- ESTADOS CONEXIÓN ---
+
+const App = () => {
             const [isOnline, setIsOnline] = useState(navigator.onLine);
             const [isFirebaseConnected, setIsFirebaseConnected] = useState(false);
             const [connectionLogs, setConnectionLogs] = useState([{status: navigator.onLine ? 'online' : 'offline', time: new Date().toLocaleTimeString()}]);
