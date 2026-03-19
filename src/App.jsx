@@ -1,6 +1,5 @@
 const { useState, useEffect, useMemo, useRef } = window.React || React;
-const { Search, Plus, Trash2, Edit3, X, Coffee, CreditCard, Banknote, User, LayoutDashboard, ShoppingCart, FileText, Tag, Box, ChevronUp, ChevronDown, Download, Phone, Lock, Share, LogOut, AlertTriangle, Bike, Shield, DollarSign, RefreshCw } = window.Lucide || {};
-
+const { Search, Plus, Trash2, Edit3, X, Coffee, CreditCard, Banknote, User, LayoutDashboard, ShoppingCart, FileText, Tag, Box, ChevronUp, ChevronDown, Download, Phone, Lock, Share, LogOut, AlertTriangle, Bike, Shield, DollarSign, RefreshCw } = window;
 // Protecciones de Iconos (Sello TanAlza Group)
 const Activity = window.Activity || (() => <span>📊</span>);
 const CheckCircle = window.CheckCircle || (() => <span>✅</span>);
