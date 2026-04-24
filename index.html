@@ -98,8 +98,6 @@
                 return () => unsub();
             }, []);
 
-            // LÓGICA DE INTERCALADO: 
-            // Total = productos + 1 slide de Club por cada 4 productos (mínimo 1)
             const totalSlides = items.length > 0 
                 ? items.length + Math.ceil(items.length / 4) 
                 : 0;
@@ -113,7 +111,6 @@
                 }
             }, [totalSlides]);
 
-            // Inteligencia de Texto
             const getTitleStyle = (text) => {
                 const len = text.length;
                 if (len < 12) return "text-[8vw]";
@@ -146,11 +143,7 @@
                 );
             }
 
-            // DETERMINAR SI ES SLIDE DE CLUB:
-            // Cada 5 slots (1 club cada 4 productos) O si es el último slot en listas cortas
             const isClubSlide = (currentIndex + 1) % 5 === 0 || currentIndex === totalSlides - 1;
-            
-            // Calcular qué producto mostrar saltando los slots del Club
             const itemIndex = currentIndex - Math.floor((currentIndex + 1) / 5);
             const current = items[itemIndex % items.length];
 
@@ -213,12 +206,6 @@
                             <img src={current.imageUrl} className="h-full w-full object-cover" alt={current.name} />
                             <div className="absolute inset-0 bg-gradient-to-r from-[#e3e4d4] via-transparent to-transparent opacity-50"></div>
                             <div className="absolute inset-0 bg-gradient-to-r from-[#e3e4d4] w-[10%]"></div>
-                        </div>
-                        <div className="absolute top-[5vh] right-[4vw] bg-white/95 p-[1.2vw] rounded-full shadow-2xl border-4 border-oficina-verde/10">
-                             <svg className="w-[5vw] h-[5vw] text-oficina-verde" viewBox="0 0 200 220" fill="currentColor">
-                                <path d="M40,95 h120 c0,0,0,60-60,60 S40,95,40,95 z" />
-                                <path d="M160,105 c15,0,25,10,25,22 s-10,22-25,22" stroke="currentColor" fill="none" strokeWidth="12"/>
-                            </svg>
                         </div>
                     </div>
                 </div>
