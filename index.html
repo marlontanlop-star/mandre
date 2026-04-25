@@ -52,7 +52,7 @@
 
         .tv-container {
             height: 100vh;
-            width: 50vw; /* Aseguramos que ocupe exactamente la mitad */
+            width: 50vw; 
             padding: 5vh 4vw;
             display: flex;
             flex-direction: column;
@@ -60,7 +60,6 @@
             overflow: hidden;
         }
 
-        /* EVITAR CUALQUIER TIPO DE CORTE DE PALABRA */
         .no-word-break {
             white-space: normal;
             word-break: keep-all;
@@ -69,7 +68,6 @@
             display: block;
         }
 
-        /* Si el nombre es una sola palabra, prohibimos el salto de línea por completo */
         .single-word {
             white-space: nowrap;
         }
@@ -99,6 +97,7 @@
             const [isFullscreen, setIsFullscreen] = useState(false);
 
             useEffect(() => {
+                // EL KIOSKO TRAE AUTOMÁTICAMENTE CUALQUIER CATEGORÍA NUEVA
                 const unsub = db.collection('inventory')
                     .where('isPromoted', '==', true) 
                     .onSnapshot(snap => {
@@ -121,7 +120,6 @@
                 }
             }, [totalSlides]);
 
-            // ESCALADO MÁS CONSERVADOR PARA EVITAR DESBORDAMIENTOS
             const getTitleStyle = (text) => {
                 const len = text.length;
                 if (len < 8) return "text-[8vw]";
@@ -139,7 +137,7 @@
             if (!isFullscreen) {
                 return (
                     <div className="h-screen w-screen flex flex-col items-center justify-center bg-oficina-dark text-white p-10 text-center">
-                        <h2 className="text-4xl mb-8 font-black uppercase">Terminal Adaptativa de Alta Frecuencia</h2>
+                        <h2 className="text-4xl mb-8 font-black uppercase tracking-tighter">Terminal Inteligente Mandré</h2>
                         <button onClick={enterFullscreen} className="bg-oficina-verde text-white px-12 py-6 rounded-full text-2xl font-black border-4 border-white transition-all hover:scale-105">
                             INICIAR KIOSCO
                         </button>
@@ -150,7 +148,7 @@
             if (items.length === 0) {
                 return (
                     <div className="h-screen w-screen flex items-center justify-center bg-oficina-dark text-white">
-                        <div className="text-center animate-pulse text-2xl font-bold uppercase">Sincronizando...</div>
+                        <div className="text-center animate-pulse text-2xl font-bold uppercase tracking-widest">Sincronizando Menú...</div>
                     </div>
                 );
             }
@@ -159,7 +157,6 @@
             const itemIndex = currentIndex - Math.floor((currentIndex + 1) / 5);
             const current = items[itemIndex % items.length];
             
-            // Detectar si el nombre es una sola palabra para aplicar 'nowrap'
             const isSingleWord = current?.name && !current.name.trim().includes(" ");
 
             if (isClubSlide) {
@@ -183,6 +180,7 @@
                 <div className="h-screen w-screen bg-pattern flex overflow-hidden">
                     <div className="w-1/2 tv-container z-10">
                         <div>
+                            {/* EL KIOSKO LEERÁ AQUÍ: CAFE, COCKTAILS, CERVEZAS, ETC. */}
                             <span className="bg-oficina-verde text-white px-[1.5vw] py-[0.5vh] rounded-lg text-[1.4vw] font-bold uppercase tracking-widest">
                                 {current.category}
                             </span>
