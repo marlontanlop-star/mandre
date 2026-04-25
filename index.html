@@ -52,16 +52,26 @@
 
         .tv-container {
             height: 100vh;
-            width: 100vw;
-            padding: 5vh 5vw;
+            width: 50vw; /* Aseguramos que ocupe exactamente la mitad */
+            padding: 5vh 4vw;
             display: flex;
+            flex-direction: column;
             box-sizing: border-box;
             overflow: hidden;
         }
 
-        .text-wrap-balance {
-            text-wrap: balance;
-            word-break: break-word;
+        /* EVITAR CUALQUIER TIPO DE CORTE DE PALABRA */
+        .no-word-break {
+            white-space: normal;
+            word-break: keep-all;
+            overflow-wrap: normal;
+            hyphens: none;
+            display: block;
+        }
+
+        /* Si el nombre es una sola palabra, prohibimos el salto de línea por completo */
+        .single-word {
+            white-space: nowrap;
         }
     </style>
 </head>
@@ -111,11 +121,13 @@
                 }
             }, [totalSlides]);
 
+            // ESCALADO MÁS CONSERVADOR PARA EVITAR DESBORDAMIENTOS
             const getTitleStyle = (text) => {
                 const len = text.length;
-                if (len < 12) return "text-[8vw]";
-                if (len < 22) return "text-[6vw]";
-                return "text-[4.5vw]";
+                if (len < 8) return "text-[8vw]";
+                if (len < 15) return "text-[6.5vw]";
+                if (len < 22) return "text-[5vw]";
+                return "text-[4.2vw]";
             };
 
             const enterFullscreen = () => {
@@ -138,7 +150,7 @@
             if (items.length === 0) {
                 return (
                     <div className="h-screen w-screen flex items-center justify-center bg-oficina-dark text-white">
-                        <div className="text-center animate-pulse text-2xl font-bold uppercase">Sincronizando con La Oficina...</div>
+                        <div className="text-center animate-pulse text-2xl font-bold uppercase">Sincronizando...</div>
                     </div>
                 );
             }
@@ -146,6 +158,9 @@
             const isClubSlide = (currentIndex + 1) % 5 === 0 || currentIndex === totalSlides - 1;
             const itemIndex = currentIndex - Math.floor((currentIndex + 1) / 5);
             const current = items[itemIndex % items.length];
+            
+            // Detectar si el nombre es una sola palabra para aplicar 'nowrap'
+            const isSingleWord = current?.name && !current.name.trim().includes(" ");
 
             if (isClubSlide) {
                 return (
@@ -157,36 +172,37 @@
                             </svg>
                         </div>
                         <h2 className="text-[7vw] font-black text-white uppercase leading-none mb-6 tracking-tighter">¡ÚNETE AL CLUB!</h2>
-                        <p className="text-[3.2vw] text-oficina-verde font-bold mb-10 max-w-[80vw] leading-tight text-wrap-balance">
-                            Escanea el <span className="text-white underline">CÓDIGO QR</span> de tu mesa y accede a <span className="text-white">promociones y descuentos exclusivos</span> para miembros.
+                        <p className="text-[3.2vw] text-oficina-verde font-bold mb-10 max-w-[80vw] leading-tight text-center">
+                            Escanea el <span className="text-white underline">CÓDIGO QR</span> de tu mesa y accede a beneficios exclusivos.
                         </p>
-                        <div className="bg-oficina-verde/20 border-2 border-oficina-verde px-10 py-4 rounded-3xl">
-                             <p className="text-[1.8vw] font-black text-white uppercase tracking-[0.3em]">Beneficios de La Oficina</p>
-                        </div>
                     </div>
                 );
             }
 
             return (
                 <div className="h-screen w-screen bg-pattern flex overflow-hidden">
-                    <div className="w-1/2 tv-container flex-col justify-between z-10">
+                    <div className="w-1/2 tv-container z-10">
                         <div>
-                            <span className="bg-oficina-verde text-white px-[1.5vw] py-[0.5vh] rounded-lg text-[1.4vw] font-bold uppercase">
+                            <span className="bg-oficina-verde text-white px-[1.5vw] py-[0.5vh] rounded-lg text-[1.4vw] font-bold uppercase tracking-widest">
                                 {current.category}
                             </span>
                         </div>
                         
-                        <div className="flex-grow flex flex-col justify-center">
-                            <h1 className={`${getTitleStyle(current.name)} font-black text-oficina-dark leading-[0.85] mb-[2vh] uppercase tracking-tighter text-wrap-balance`}>
+                        <div className="flex-grow flex flex-col justify-center overflow-hidden">
+                            <h1 className={`
+                                ${getTitleStyle(current.name)} 
+                                ${isSingleWord ? 'single-word' : ''} 
+                                font-[900] text-oficina-dark leading-[0.9] mb-[2vh] uppercase tracking-tighter no-word-break
+                            `}>
                                 {current.name}
                             </h1>
-                            <p className="text-[2.2vw] text-oficina-verde/90 font-bold max-w-[95%] leading-tight text-wrap-balance">
-                                {current.description || "Experiencia premium en cada sorbo."}
+                            <p className="text-[2.2vw] text-oficina-verde/90 font-bold max-w-[90%] leading-tight">
+                                {current.description || "Experiencia premium en cada preparación."}
                             </p>
                         </div>
                         
-                        <div>
-                            <div className="text-[7vw] font-black text-oficina-verde price-tag leading-none mb-[4vh]">
+                        <div className="mt-auto">
+                            <div className="text-[7.5vw] font-black text-oficina-verde price-tag leading-none mb-[4vh]">
                                 ${current.price ? current.price.toLocaleString() : '0'}
                             </div>
                             <div className="flex items-center gap-[2vw] border-t-[0.3vw] border-oficina-verde pt-[3vh]">
@@ -194,7 +210,7 @@
                                     <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://instagram.com/laoficinaanserma`} className="w-[7vw] h-[7vw]" alt="QR" />
                                 </div>
                                 <div>
-                                    <p className="text-[1vw] font-bold text-oficina-dark/50 uppercase">Escanea para pedir</p>
+                                    <p className="text-[1vw] font-bold text-oficina-dark/50 uppercase">Pide desde tu mesa</p>
                                     <p className="text-[2.2vw] font-black text-oficina-verde leading-none">@laoficinaanserma</p>
                                 </div>
                             </div>
@@ -204,8 +220,8 @@
                     <div className="w-1/2 relative h-full">
                         <div key={currentIndex} className="h-full w-full slide-enter">
                             <img src={current.imageUrl} className="h-full w-full object-cover" alt={current.name} />
-                            <div className="absolute inset-0 bg-gradient-to-r from-[#e3e4d4] via-transparent to-transparent opacity-50"></div>
-                            <div className="absolute inset-0 bg-gradient-to-r from-[#e3e4d4] w-[10%]"></div>
+                            <div className="absolute inset-0 bg-gradient-to-r from-[#e3e4d4] via-transparent to-transparent opacity-60"></div>
+                            <div className="absolute inset-0 bg-gradient-to-r from-[#e3e4d4] w-[12%]"></div>
                         </div>
                     </div>
                 </div>
