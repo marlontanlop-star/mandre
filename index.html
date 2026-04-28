@@ -5,160 +5,155 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EN OBRA | LA OFICINA</title>
     
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;400;700;900&display=swap" rel="stylesheet">
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            gold: '#D4AF37',
-                            dark: '#080808',
-                            caution: '#FFCC00' /* Amarillo de precaución */
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Montserrat', 'sans-serif'],
-                    }
-                }
-            }
-        };
-    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;400;500;700;900&display=swap" rel="stylesheet">
 
     <style>
-        body { background-color: #080808; color: white; margin: 0; overflow: hidden; }
-        
-        /* Efecto cristal */
-        .glass-panel { 
-            background: rgba(15, 15, 15, 0.7); 
-            backdrop-filter: blur(15px); 
-            -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(212, 175, 55, 0.2); 
+        /* VARIABLES Y RESET */
+        :root {
+            --brand-gold: #D4AF37;
+            --brand-dark: #080808;
+            --brand-caution: #FFCC00;
+        }
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background-color: var(--brand-dark); color: white;
+            font-family: 'Montserrat', sans-serif;
+            overflow: hidden; display: flex; align-items: center; justify-content: center;
         }
 
-        /* Animación infinita para las cintas de precaución */
-        .scroll-bg {
-            background-image: repeating-linear-gradient(
-                -45deg,
-                #000,
-                #000 30px,
-                transparent 30px,
-                transparent 60px
-            );
-            background-size: 85px 85px;
+        /* FONDO LUMINOSO */
+        .glow {
+            position: absolute; width: 900px; height: 900px;
+            background: var(--brand-gold); border-radius: 50%;
+            filter: blur(200px); opacity: 0.15; z-index: 0;
+            animation: pulse 4s infinite;
+        }
+
+        /* CINTAS DE PRECAUCIÓN */
+        .tape-container {
+            position: absolute; width: 120%; height: 80px; z-index: 20;
+            display: flex; align-items: center; justify-content: space-around;
+            background-color: var(--brand-caution);
+            background-image: repeating-linear-gradient(-45deg, #000, #000 30px, transparent 30px, transparent 60px);
+            border-top: 4px solid black; border-bottom: 4px solid black;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.6);
             animation: moveStripes 3s linear infinite;
         }
+        .tape-top { top: 40px; left: -10%; transform: rotate(-3deg); }
+        .tape-bottom { bottom: 40px; left: -10%; transform: rotate(2deg); }
+        .tape-text {
+            background-color: rgba(0,0,0,0.85); width: 100%; padding: 10px 0;
+            display: flex; justify-content: space-around; align-items: center;
+            color: var(--brand-caution); font-weight: 900; font-size: 2rem;
+            text-transform: uppercase; letter-spacing: 5px; white-space: nowrap;
+        }
 
+        /* PANEL DE CRISTAL (Glassmorphism) */
+        .glass-panel {
+            z-index: 10; display: flex; flex-direction: column; align-items: center;
+            background: rgba(15, 15, 15, 0.7);
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            padding: 4rem 6rem; border-radius: 3rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+            width: 90%; max-width: 1200px;
+        }
+
+        /* TEXTOS PRINCIPALES */
+        .title {
+            font-size: 8rem; font-weight: 900; margin: 0 0 1rem 0;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.8); line-height: 1; letter-spacing: -3px;
+        }
+        .subtitle {
+            font-size: 4rem; font-weight: 200; text-transform: uppercase;
+            letter-spacing: 15px; margin: 0 0 3rem 0;
+        }
+        .gold-text { color: var(--brand-gold); font-weight: 700; }
+
+        /* SECCIÓN "COCINANDO" */
+        .cocinando-container {
+            display: flex; align-items: center; justify-content: center; gap: 2rem; margin-bottom: 3.5rem;
+        }
+        .icon { width: 60px; height: 60px; color: var(--brand-gold); opacity: 0.8; }
+        .cocinando-text {
+            font-size: 2.5rem; font-weight: 500; color: #d1d5db;
+            font-style: italic; letter-spacing: 2px; margin: 0; text-align: center;
+        }
+
+        /* CAJA DE INSTAGRAM */
+        .ig-box {
+            display: flex; flex-direction: column; align-items: center;
+            background: rgba(0,0,0,0.6); padding: 2.5rem 5rem;
+            border-radius: 2rem; border: 2px solid rgba(212, 175, 55, 0.3);
+        }
+        .ig-label {
+            font-size: 1.5rem; color: var(--brand-gold); text-transform: uppercase;
+            letter-spacing: 5px; font-weight: 200; margin-bottom: 1.5rem; text-align: center;
+        }
+        .ig-handle-container { display: flex; align-items: center; gap: 1.5rem; }
+        .ig-icon { width: 70px; height: 70px; color: white; }
+        .ig-handle { font-size: 4.5rem; font-weight: 700; color: white; letter-spacing: 2px; }
+
+        /* ANIMACIONES */
         @keyframes moveStripes {
             0% { background-position: 0 0; }
             100% { background-position: 85px 0; }
         }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.15; }
+            50% { opacity: 0.08; }
+        }
     </style>
 </head>
 <body>
-    <div id="root"></div>
 
-    <script type="text/babel">
-        const App = () => {
-            return (
-                <div className="h-screen w-screen flex flex-col items-center justify-center relative overflow-hidden bg-brand-dark">
-                    
-                    {/* --- CINTAS DE PRECAUCIÓN ANIMADAS --- */}
-                    {/* Cinta Superior */}
-                    <div className="absolute top-10 -left-10 w-[120%] h-20 bg-brand-caution scroll-bg transform -rotate-3 z-20 flex items-center shadow-2xl border-y-4 border-black">
-                        <div className="w-full flex justify-around text-brand-caution bg-black/80 py-2 font-black text-3xl uppercase tracking-widest whitespace-nowrap">
-                            <span>PRECAUCIÓN EN OBRA</span>
-                            <span>•</span>
-                            <span>PRECAUCIÓN EN OBRA</span>
-                            <span>•</span>
-                            <span>PRECAUCIÓN EN OBRA</span>
-                            <span>•</span>
-                            <span>PRECAUCIÓN EN OBRA</span>
-                        </div>
-                    </div>
+    <div class="glow"></div>
 
-                    {/* Cinta Inferior */}
-                    <div className="absolute bottom-10 -left-10 w-[120%] h-20 bg-brand-caution scroll-bg transform rotate-2 z-20 flex items-center shadow-2xl border-y-4 border-black">
-                        <div className="w-full flex justify-around text-brand-caution bg-black/80 py-2 font-black text-3xl uppercase tracking-widest whitespace-nowrap">
-                            <span>PELIGRO: ALTO SABOR</span>
-                            <span>•</span>
-                            <span>PELIGRO: ALTO SABOR</span>
-                            <span>•</span>
-                            <span>PELIGRO: ALTO SABOR</span>
-                            <span>•</span>
-                            <span>PELIGRO: ALTO SABOR</span>
-                        </div>
-                    </div>
-                    {/* ------------------------------------- */}
+    <div class="tape-container tape-top">
+        <div class="tape-text">
+            <span>PRECAUCIÓN EN OBRA</span> <span>•</span>
+            <span>PRECAUCIÓN EN OBRA</span> <span>•</span>
+            <span>PRECAUCIÓN EN OBRA</span>
+        </div>
+    </div>
 
-                    {/* Fondo con brillo */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] bg-brand-gold rounded-full blur-[200px] opacity-15 z-0 animate-pulse"></div>
+    <div class="tape-container tape-bottom">
+        <div class="tape-text">
+            <span>PELIGRO: ALTO SABOR</span> <span>•</span>
+            <span>PELIGRO: ALTO SABOR</span> <span>•</span>
+            <span>PELIGRO: ALTO SABOR</span>
+        </div>
+    </div>
 
-                    {/* Contenedor Principal */}
-                    <div className="z-10 flex flex-col items-center glass-panel p-12 md:p-20 rounded-[3rem] shadow-2xl w-11/12 max-w-6xl mt-8">
-                        
-                        {/* Título Principal - Recuerda que puedes cambiar este h1 por el logo oficial <img> */}
-                        <h1 className="text-[5rem] md:text-[8rem] font-black leading-none tracking-tighter mb-4 drop-shadow-2xl text-center text-white">
-                            LA OFICINA
-                        </h1>
+    <div class="glass-panel">
+        
+        <h1 class="title">LA OFICINA</h1>
+        
+        <h2 class="subtitle">En <span class="gold-text">Obra</span></h2>
 
-                        <h2 className="text-3xl md:text-5xl font-light tracking-[0.4em] text-white uppercase mb-10 text-center">
-                            En <span className="text-brand-gold font-bold">Obra</span>
-                        </h2>
+        <div class="cocinando-container">
+            <svg class="icon" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M2,21V19H20V21H2M20,8V5H18V8H20M20,3A2,2 0 0,1 22,5V8A2,2 0 0,1 20,10H18V13A4,4 0 0,1 14,17H8A4,4 0 0,1 4,13V3H20M16,5H6V13A2,2 0 0,0 8,15H14A2,2 0 0,0 16,13V5Z" />
+            </svg>
+            
+            <p class="cocinando-text">Acá se está cocinando algo increíble...</p>
 
-                        {/* Mensaje "Acá se está cocinando" con íconos (Café y Licor) */}
-                        <div className="flex items-center justify-center gap-6 mb-12">
-                            {/* Ícono de Café (SVG Premium) */}
-                            <svg className="w-12 h-12 md:w-16 md:h-16 text-brand-gold opacity-80" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M2,21V19H20V21H2M20,8V5H18V8H20M20,3A2,2 0 0,1 22,5V8A2,2 0 0,1 20,10H18V13A4,4 0 0,1 14,17H8A4,4 0 0,1 4,13V3H20M16,5H6V13A2,2 0 0,0 8,15H14A2,2 0 0,0 16,13V5Z" />
-                            </svg>
-                            
-                            <p className="text-3xl md:text-5xl font-medium text-gray-300 italic tracking-wide text-center">
-                                Acá se está cocinando algo increíble...
-                            </p>
+            <svg class="icon" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M7.5,7L5.5,5H18.5L16.5,7M11,13V19H6V21H18V19H13V13L21,5V3H3V5L11,13Z" />
+            </svg>
+        </div>
 
-                            {/* Ícono de Licor/Coctel (SVG Premium) */}
-                            <svg className="w-12 h-12 md:w-16 md:h-16 text-brand-gold opacity-80" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M7.5,7L5.5,5H18.5L16.5,7M11,13V19H6V21H18V19H13V13L21,5V3H3V5L11,13Z" />
-                            </svg>
-                        </div>
+        <div class="ig-box">
+            <span class="ig-label">Síguenos y entérate de todo</span>
+            <div class="ig-handle-container">
+                <svg class="ig-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M7.8,2H16.2C19.4,2 22,4.6 22,7.8V16.2A5.8,5.8 0 0,1 16.2,22H7.8C4.6,22 2,19.4 2,16.2V7.8A5.8,5.8 0 0,1 7.8,2M7.6,4A3.6,3.6 0 0,0 4,7.6V16.4C4,18.39 5.61,20 7.6,20H16.4A3.6,3.6 0 0,0 20,16.4V7.6C20,5.61 18.39,4 16.4,4H7.6M12,6.75A5.25,5.25 0 1,1 6.75,12A5.25,5.25 0 0,1 12,6.75M12,9A3,3 0 1,0 15,12A3,3 0 0,0 12,9M17.25,5.5A1.25,1.25 0 1,1 16,6.75A1.25,1.25 0 0,1 17.25,5.5Z" />
+                </svg>
+                <span class="ig-handle">@laoficinaanserma</span>
+            </div>
+        </div>
 
-                        {/* Caja de Llamado a la Acción (Instagram) */}
-                        <div className="mt-4 flex flex-col items-center bg-black/60 p-8 md:p-10 rounded-3xl border-2 border-brand-gold/30 hover:border-brand-gold/80 transition-colors duration-500">
-                            <span className="text-xl md:text-3xl text-brand-gold mb-6 uppercase tracking-[0.3em] font-light">
-                                Síguenos y entérate de todo
-                            </span>
-                            
-                            <div className="flex items-center gap-6">
-                                {/* Ícono de Instagram */}
-                                <svg className="w-16 h-16 md:w-20 md:h-20 text-white" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M7.8,2H16.2C19.4,2 22,4.6 22,7.8V16.2A5.8,5.8 0 0,1 16.2,22H7.8C4.6,22 2,19.4 2,16.2V7.8A5.8,5.8 0 0,1 7.8,2M7.6,4A3.6,3.6 0 0,0 4,7.6V16.4C4,18.39 5.61,20 7.6,20H16.4A3.6,3.6 0 0,0 20,16.4V7.6C20,5.61 18.39,4 16.4,4H7.6M12,6.75A5.25,5.25 0 1,1 6.75,12A5.25,5.25 0 0,1 12,6.75M12,9A3,3 0 1,0 15,12A3,3 0 0,0 12,9M17.25,5.5A1.25,1.25 0 1,1 16,6.75A1.25,1.25 0 0,1 17.25,5.5Z" />
-                                </svg>
-                                
-                                <span className="text-5xl md:text-7xl font-bold text-white tracking-wider drop-shadow-lg">
-                                    @laoficinaanserma
-                                </span>
-                            </div>
-                        </div>
+    </div>
 
-                    </div>
-                </div>
-            );
-        };
-
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
 </body>
 </html>
