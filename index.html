@@ -5,63 +5,115 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EN OBRA | LA OFICINA</title>
     
-    <script src="https://cdn.tailwindcss.com"></script>
-    
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;400;700;900&display=swap" rel="stylesheet">
     
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            gold: '#D4AF37', /* Dorado elegante */
-                            dark: '#080808'  /* Negro profundo para pantallas grandes */
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Montserrat', 'sans-serif'],
-                    }
-                }
-            }
-        };
-    </script>
     <style>
-        /* Animaciones CSS nativas (No consumen RAM en el TV) */
-        .fade-in { animation: fadeIn 2.5s ease-out forwards; opacity: 0; }
-        .slide-up { animation: slideUp 2s ease-out 0.5s forwards; opacity: 0; transform: translateY(30px); }
-        .pulse-slow { animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-        
-        @keyframes fadeIn { to { opacity: 1; } }
-        @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .6; } }
+        /* 1. RESET Y FONDO (Obligamos al TV a pintar todo de negro) */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #080808 !important; /* Negro profundo */
+            color: #ffffff;
+            font-family: 'Montserrat', Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden; /* Evita barras de scroll en el TV */
+        }
+
+        /* 2. CONTENEDOR PRINCIPAL */
+        .container {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            padding: 0 20px;
+        }
+
+        /* 3. ETIQUETA SUPERIOR */
+        .badge {
+            border: 2px solid rgba(212, 175, 55, 0.5);
+            color: #D4AF37; /* Dorado */
+            padding: 12px 40px;
+            border-radius: 50px;
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            font-size: 1.5rem; /* Tamaño adecuado para 55 pulgadas */
+            margin-bottom: 50px;
+            opacity: 0;
+            animation: fadeIn 2s ease-out forwards;
+        }
+
+        /* 4. TÍTULO PRINCIPAL (Letras gigantes) */
+        h1 {
+            font-size: 11vw; /* Ajuste dinámico masivo para la pantalla */
+            font-weight: 900;
+            margin: 0;
+            line-height: 1;
+            letter-spacing: -5px;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            opacity: 0;
+            animation: fadeIn 2.5s ease-out 0.3s forwards;
+        }
+
+        /* 5. LÍNEA DECORATIVA DORADA */
+        .divider {
+            height: 8px;
+            width: 300px;
+            background-color: #D4AF37;
+            border-radius: 10px;
+            margin: 50px 0;
+            box-shadow: 0 0 25px rgba(212,175,55,0.5);
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideUp 2s ease-out 0.8s forwards;
+        }
+
+        /* 6. SUBTÍTULO ANIMADO */
+        h2 {
+            font-size: 4rem;
+            font-weight: 200;
+            text-transform: uppercase;
+            letter-spacing: 15px;
+            margin: 0;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideUp 2s ease-out 1s forwards, pulse 4s infinite 3s;
+        }
+
+        .gold-text {
+            color: #D4AF37;
+            font-weight: 700;
+        }
+
+        /* 7. ANIMACIONES NATIVAS */
+        @keyframes fadeIn { 
+            to { opacity: 1; } 
+        }
+        @keyframes slideUp { 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        @keyframes pulse { 
+            0%, 100% { opacity: 1; } 
+            50% { opacity: 0.5; } 
+        }
     </style>
 </head>
-<body class="bg-brand-dark flex flex-col items-center justify-center h-screen w-screen overflow-hidden text-white font-sans">
+<body>
     
-    <div class="relative z-10 flex flex-col items-center justify-center text-center px-8 w-full">
+    <div class="container">
+        <div class="badge">Próximamente</div>
         
-        <div class="fade-in mb-8">
-            <span class="px-5 py-2 border border-brand-gold/50 text-brand-gold text-sm md:text-xl tracking-[0.5em] uppercase rounded-full">
-                Próximamente
-            </span>
-        </div>
-
-        <h1 class="fade-in text-[6rem] md:text-[8rem] lg:text-[11rem] font-black leading-none tracking-tighter mb-6 drop-shadow-2xl">
-            LA OFICINA
-        </h1>
+        <h1>LA OFICINA</h1>
         
-        <div class="slide-up h-1 w-40 bg-brand-gold rounded-full mb-10 shadow-[0_0_15px_rgba(212,175,55,0.4)]"></div>
+        <div class="divider"></div>
         
-        <h2 class="slide-up text-4xl md:text-5xl lg:text-6xl font-light tracking-[0.4em] text-white uppercase pulse-slow">
-            En <span class="text-brand-gold font-bold">Obra</span>
-        </h2>
-
+        <h2>En <span class="gold-text">Obra</span></h2>
     </div>
 
-    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent pointer-events-none opacity-80"></div>
-
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </body>
 </html>
