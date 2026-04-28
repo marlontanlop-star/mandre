@@ -4,249 +4,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EN OBRA | LA OFICINA</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
 
     <script>
+        // Configuración de Tailwind corregida
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        'oficina-verde': '#4b5320',
-                        'oficina-dark': '#111111',
-                        'oficina-yellow': '#FFCC00',
-                    },
-                    animation: {
-                        'spin-slow': 'spin 8s linear infinite',
+                        brand: {
+                            gold: '#C5A059', // Ejemplo de color para "La Oficina"
+                            dark: '#1a1a1a'
+                        }
                     }
                 }
             }
-        }
+        };
     </script>
-
-    <style>
-        body, html { 
-            margin: 0; 
-            padding: 0; 
-            overflow: hidden; 
-            background-color: #111111;
-            cursor: none;
-            font-family: 'Montserrat', sans-serif;
-            height: 100vh;
-        }
-        
-        .slide-enter { animation: fadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        .hazard-stripes {
-            background: repeating-linear-gradient(
-                -45deg,
-                #FFCC00,
-                #FFCC00 25px,
-                #000000 25px,
-                #000000 50px
-            );
-            background-size: 70px 70px;
-            animation: moveHazard 2s linear infinite;
-        }
-
-        @keyframes moveHazard {
-            0% { background-position: 0 0; }
-            100% { background-position: 70px 0; }
-        }
-
-        .bg-blueprint {
-            background-color: #111111;
-            background-image: 
-                linear-gradient(rgba(255, 204, 0, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 204, 0, 0.05) 1px, transparent 1px);
-            background-size: 40px 40px;
-        }
-
-        .pulse-slow {
-            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-    </style>
 </head>
-<body>
+<body class="bg-black text-white font-['Montserrat']">
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect } = React;
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyAutOqky0mpVmwDrqFsyZ0zRl_abrzgPvc",
-            authDomain: "mandre-f9e43.firebaseapp.com",
-            projectId: "mandre-f9e43",
-            storageBucket: "mandre-f9e43.firebasestorage.app",
-            messagingSenderId: "865403538422",
-            appId: "1:865403538422:web:0ee2fb754343de9bc015d7"
-        };
-
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-
-        const ConstructionDisplay = () => {
-            const [items, setItems] = useState([]);
-            const [currentIndex, setCurrentIndex] = useState(0);
-            const [isFullscreen, setIsFullscreen] = useState(false);
-            const [viewMode, setViewMode] = useState('CONSTRUCTION'); // 'CONSTRUCTION' o 'MENU'
-
-            // Carga de Datos
-            useEffect(() => {
-                const unsub = db.collection('inventory')
-                    .where('isPromoted', '==', true) 
-                    .onSnapshot(snap => {
-                        const data = snap.docs.map(doc => doc.data());
-                        setItems(data.filter(i => i.imageUrl));
-                    });
-                return () => unsub();
-            }, []);
-
-            // Lógica de Ciclo Principal (30s Construcción / 15s Menú)
-            useEffect(() => {
-                let timer;
-                if (viewMode === 'CONSTRUCTION') {
-                    timer = setTimeout(() => setViewMode('MENU'), 30000); // 30 segundos
-                } else {
-                    timer = setTimeout(() => setViewMode('CONSTRUCTION'), 15000); // 15 segundos
-                }
-                return () => clearTimeout(timer);
-            }, [viewMode]);
-
-            // Lógica de Rotación de Items (solo cuando está en modo MENU)
-            useEffect(() => {
-                if (viewMode === 'MENU' && items.length > 0) {
-                    const timer = setInterval(() => {
-                        setCurrentIndex(prev => (prev + 1) % items.length);
-                    }, 3000); // Rota rápido (cada 3s) para mostrar varios en los 15s totales
-                    return () => clearInterval(timer);
-                }
-            }, [viewMode, items]);
-
-            const enterFullscreen = () => {
-                const elem = document.documentElement;
-                if (elem.requestFullscreen) elem.requestFullscreen();
-                setIsFullscreen(true);
-            };
-
-            if (!isFullscreen) {
-                return (
-                    <div className="h-screen w-screen flex flex-col items-center justify-center bg-oficina-dark text-white p-10">
-                        <div className="hazard-stripes w-full h-8 absolute top-0"></div>
-                        <h1 className="text-5xl mb-8 font-black uppercase text-oficina-yellow tracking-tighter">SISTEMA DE PANTALLAS V2</h1>
-                        <button onClick={enterFullscreen} className="bg-oficina-yellow text-black px-12 py-6 rounded-none text-2xl font-black border-4 border-black shadow-[8px_8px_0px_0px_rgba(255,255,255,0.2)] transition-all hover:scale-105 uppercase">
-                            Activar Ciclo de Pantalla
-                        </button>
-                        <div className="hazard-stripes w-full h-8 absolute bottom-0"></div>
-                    </div>
-                );
-            }
-
-            // VISTA 1: ESTAMOS CONSTRUYENDO (30 segundos)
-            if (viewMode === 'CONSTRUCTION') {
-                return (
-                    <div className="h-screen w-screen bg-oficina-dark flex flex-col items-center justify-center relative overflow-hidden border-[12px] border-black slide-enter">
-                        <div className="hazard-stripes h-[5vh] w-full absolute top-0"></div>
-                        
-                        <div className="text-center z-10 px-10">
-                            <div className="mb-10 flex justify-center">
-                                <div className="p-8 border-8 border-oficina-yellow rounded-full animate-pulse">
-                                    <svg className="w-32 h-32 text-oficina-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                                    </svg>
-                                </div>
-                            </div>
-                            
-                            <h1 className="text-[7vw] font-[900] text-white leading-none uppercase tracking-tighter mb-4">
-                                Estamos <br/>
-                                <span className="text-oficina-yellow">Construyendo</span><br/>
-                                la nueva oficina
-                            </h1>
-                            
-                            <div className="inline-flex items-center gap-6 bg-white text-black px-8 py-4 mt-8 rounded-full shadow-xl transform -rotate-2">
-                                <svg className="w-12 h-12" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-                                <span className="text-4xl font-black italic">@laoficinaanserma</span>
-                            </div>
-                        </div>
-
-                        <div className="bg-blueprint absolute inset-0 opacity-20"></div>
-                        <div className="hazard-stripes h-[5vh] w-full absolute bottom-0"></div>
-                    </div>
-                );
-            }
-
-            // VISTA 2: EL MENÚ / PRODUCTOS (15 segundos)
-            const current = items[currentIndex];
-
+        const App = () => {
             return (
-                <div className="h-screen w-screen bg-blueprint flex flex-col justify-between relative overflow-hidden text-white border-[12px] border-oficina-yellow slide-enter">
-                    {/* BARRA SUPERIOR */}
-                    <div className="w-full relative z-20">
-                        <div className="bg-oficina-yellow text-black py-4 flex items-center justify-center gap-6 px-4">
-                            <h1 className="text-[3.5vw] font-[900] uppercase tracking-tighter leading-none m-0">
-                                AVANCE DE OBRA: NUESTRO MENÚ
-                            </h1>
-                        </div>
-                    </div>
-
-                    {/* CARRUSEL CONTENIDO */}
-                    <div className="flex-grow flex items-center justify-center p-[4vw] relative z-10">
-                        {items.length > 0 ? (
-                            <div key={currentIndex} className="w-full max-w-[85vw] flex flex-row items-center gap-[6vw] slide-enter bg-black/80 p-10 border-l-8 border-oficina-yellow">
-                                
-                                <div className="w-[45vh] h-[45vh] rounded-none border-[8px] border-oficina-yellow overflow-hidden shadow-2xl relative">
-                                    <img src={current.imageUrl} className="w-full h-full object-cover" alt={current.name} />
-                                    <div className="absolute bottom-0 right-0 bg-oficina-yellow text-black px-4 py-2 font-black text-xl">
-                                        PROXIMAMENTE
-                                    </div>
-                                </div>
-                                
-                                <div className="flex-1 flex flex-col justify-center text-left">
-                                    <span className="text-oficina-yellow text-2xl font-bold uppercase tracking-[0.3em] mb-2">
-                                        {current.category}
-                                    </span>
-                                    <h2 className="text-white text-[6vw] font-black uppercase leading-[0.8] tracking-tighter mb-6">
-                                        {current.name}
-                                    </h2>
-                                    <p className="text-gray-400 text-[2.2vw] font-medium leading-tight max-w-2xl">
-                                        {current.description || "Un adelanto de lo que estamos preparando para ti."}
-                                    </p>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="text-oficina-yellow text-4xl font-black uppercase">Cargando Menú...</div>
-                        )}
-                    </div>
-
-                    {/* BARRA INFERIOR */}
-                    <div className="w-full relative z-20">
-                        <div className="bg-black border-t-4 border-oficina-yellow py-4 flex justify-between px-10 items-center">
-                            <span className="text-oficina-yellow font-black text-2xl uppercase italic pulse-slow">
-                                Gran Apertura: 1 de Mayo
-                            </span>
-                            <div className="flex items-center gap-3">
-                                <div className="w-4 h-4 bg-red-600 rounded-full animate-ping"></div>
-                                <span className="text-white font-bold text-xl uppercase">En Vivo</span>
-                            </div>
-                        </div>
-                        <div className="hazard-stripes h-[2vh] w-full"></div>
-                    </div>
+                <div className="flex flex-col items-center justify-center h-screen">
+                    <h1 className="text-5xl font-black mb-4">LA OFICINA</h1>
+                    <p className="text-xl tracking-widest text-brand-gold uppercase">En Obra</p>
                 </div>
             );
         };
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<ConstructionDisplay />);
+        root.render(<App />);
     </script>
 </body>
 </html>
