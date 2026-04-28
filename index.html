@@ -5,115 +5,128 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EN OBRA | LA OFICINA</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;400;700;900&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            gold: '#D4AF37',
+                            dark: '#080808'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Montserrat', 'sans-serif'],
+                    }
+                }
+            }
+        };
+    </script>
+
     <style>
-        /* 1. RESET Y FONDO (Obligamos al TV a pintar todo de negro) */
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #080808 !important; /* Negro profundo */
-            color: #ffffff;
-            font-family: 'Montserrat', Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden; /* Evita barras de scroll en el TV */
-        }
-
-        /* 2. CONTENEDOR PRINCIPAL */
-        .container {
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            padding: 0 20px;
-        }
-
-        /* 3. ETIQUETA SUPERIOR */
-        .badge {
-            border: 2px solid rgba(212, 175, 55, 0.5);
-            color: #D4AF37; /* Dorado */
-            padding: 12px 40px;
-            border-radius: 50px;
-            text-transform: uppercase;
-            letter-spacing: 6px;
-            font-size: 1.5rem; /* Tamaño adecuado para 55 pulgadas */
-            margin-bottom: 50px;
-            opacity: 0;
-            animation: fadeIn 2s ease-out forwards;
-        }
-
-        /* 4. TÍTULO PRINCIPAL (Letras gigantes) */
-        h1 {
-            font-size: 11vw; /* Ajuste dinámico masivo para la pantalla */
-            font-weight: 900;
-            margin: 0;
-            line-height: 1;
-            letter-spacing: -5px;
-            text-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            opacity: 0;
-            animation: fadeIn 2.5s ease-out 0.3s forwards;
-        }
-
-        /* 5. LÍNEA DECORATIVA DORADA */
-        .divider {
-            height: 8px;
-            width: 300px;
-            background-color: #D4AF37;
-            border-radius: 10px;
-            margin: 50px 0;
-            box-shadow: 0 0 25px rgba(212,175,55,0.5);
-            opacity: 0;
-            transform: translateY(20px);
-            animation: slideUp 2s ease-out 0.8s forwards;
-        }
-
-        /* 6. SUBTÍTULO ANIMADO */
-        h2 {
-            font-size: 4rem;
-            font-weight: 200;
-            text-transform: uppercase;
-            letter-spacing: 15px;
-            margin: 0;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: slideUp 2s ease-out 1s forwards, pulse 4s infinite 3s;
-        }
-
-        .gold-text {
-            color: #D4AF37;
-            font-weight: 700;
-        }
-
-        /* 7. ANIMACIONES NATIVAS */
-        @keyframes fadeIn { 
-            to { opacity: 1; } 
-        }
-        @keyframes slideUp { 
-            to { opacity: 1; transform: translateY(0); } 
-        }
-        @keyframes pulse { 
-            0%, 100% { opacity: 1; } 
-            50% { opacity: 0.5; } 
+        body { background-color: #080808; color: white; margin: 0; overflow: hidden; }
+        /* Efecto cristal premium para el contenedor central */
+        .glass-panel { 
+            background: rgba(20, 20, 20, 0.4); 
+            backdrop-filter: blur(12px); 
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(212, 175, 55, 0.15); 
         }
     </style>
 </head>
 <body>
-    
-    <div class="container">
-        <div class="badge">Próximamente</div>
-        
-        <h1>LA OFICINA</h1>
-        
-        <div class="divider"></div>
-        
-        <h2>En <span class="gold-text">Obra</span></h2>
-    </div>
+    <div id="root"></div>
 
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const App = () => {
+            // Lógica del contador para la fecha de apertura
+            const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0 });
+
+            useEffect(() => {
+                const targetDate = new Date('May 1, 2026 00:00:00').getTime();
+
+                const interval = setInterval(() => {
+                    const now = new Date().getTime();
+                    const distance = targetDate - now;
+
+                    if (distance > 0) {
+                        setTimeLeft({
+                            days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+                            hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+                            minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))
+                        });
+                    } else {
+                        clearInterval(interval);
+                    }
+                }, 1000);
+
+                return () => clearInterval(interval);
+            }, []);
+
+            return (
+                <div className="h-screen w-screen flex flex-col items-center justify-center relative">
+                    
+                    {/* Efectos de Iluminación de Fondo */}
+                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-black via-brand-dark to-black opacity-90 z-0"></div>
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-brand-gold rounded-full blur-[150px] opacity-10 z-0 animate-pulse"></div>
+
+                    {/* Contenedor Principal Glassmorphism */}
+                    <div className="z-10 flex flex-col items-center glass-panel p-16 md:p-24 rounded-[3rem] shadow-2xl w-11/12 max-w-5xl">
+                        
+                        <span className="px-8 py-3 border border-brand-gold/40 text-brand-gold text-xl md:text-2xl tracking-[0.5em] uppercase rounded-full mb-12">
+                            Próximamente
+                        </span>
+
+                        {/* Título - Aquí puedes reemplazar el <h1> por un <img src="tu-logo-adjunto.png" /> si prefieres usar el arte exacto del logo */}
+                        <h1 className="text-[6rem] md:text-[9rem] font-black leading-none tracking-tighter mb-8 drop-shadow-2xl text-center">
+                            LA OFICINA
+                        </h1>
+
+                        <div className="h-2 w-64 bg-brand-gold rounded-full mb-12 shadow-[0_0_20px_rgba(212,175,55,0.6)]"></div>
+
+                        <h2 className="text-4xl md:text-6xl font-light tracking-[0.4em] text-white uppercase mb-16 text-center">
+                            En <span className="text-brand-gold font-bold">Obra</span>
+                        </h2>
+
+                        {/* Contador */}
+                        <div className="flex gap-8 md:gap-16 text-center">
+                            <div className="flex flex-col">
+                                <span className="text-6xl md:text-8xl font-bold text-brand-gold drop-shadow-lg">{timeLeft.days}</span>
+                                <span className="text-lg md:text-xl tracking-widest text-gray-400 uppercase mt-4">Días</span>
+                            </div>
+                            <span className="text-6xl md:text-8xl text-gray-600 font-light">:</span>
+                            <div className="flex flex-col">
+                                <span className="text-6xl md:text-8xl font-bold text-brand-gold drop-shadow-lg">{timeLeft.hours.toString().padStart(2, '0')}</span>
+                                <span className="text-lg md:text-xl tracking-widest text-gray-400 uppercase mt-4">Horas</span>
+                            </div>
+                            <span className="text-6xl md:text-8xl text-gray-600 font-light">:</span>
+                            <div className="flex flex-col">
+                                <span className="text-6xl md:text-8xl font-bold text-brand-gold drop-shadow-lg">{timeLeft.minutes.toString().padStart(2, '0')}</span>
+                                <span className="text-lg md:text-xl tracking-widest text-gray-400 uppercase mt-4">Min</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
 </body>
 </html>
