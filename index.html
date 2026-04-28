@@ -24,7 +24,8 @@
                     colors: {
                         brand: {
                             gold: '#D4AF37',
-                            dark: '#080808'
+                            dark: '#080808',
+                            caution: '#FFCC00' /* Amarillo de precaución */
                         }
                     },
                     fontFamily: {
@@ -37,12 +38,31 @@
 
     <style>
         body { background-color: #080808; color: white; margin: 0; overflow: hidden; }
-        /* Efecto cristal premium para el contenedor central */
+        
+        /* Efecto cristal */
         .glass-panel { 
-            background: rgba(20, 20, 20, 0.4); 
-            backdrop-filter: blur(12px); 
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(212, 175, 55, 0.15); 
+            background: rgba(15, 15, 15, 0.7); 
+            backdrop-filter: blur(15px); 
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(212, 175, 55, 0.2); 
+        }
+
+        /* Animación infinita para las cintas de precaución */
+        .scroll-bg {
+            background-image: repeating-linear-gradient(
+                -45deg,
+                #000,
+                #000 30px,
+                transparent 30px,
+                transparent 60px
+            );
+            background-size: 85px 85px;
+            animation: moveStripes 3s linear infinite;
+        }
+
+        @keyframes moveStripes {
+            0% { background-position: 0 0; }
+            100% { background-position: 85px 0; }
         }
     </style>
 </head>
@@ -50,73 +70,85 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect } = React;
-
         const App = () => {
-            // Lógica del contador para la fecha de apertura
-            const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0 });
-
-            useEffect(() => {
-                const targetDate = new Date('May 1, 2026 00:00:00').getTime();
-
-                const interval = setInterval(() => {
-                    const now = new Date().getTime();
-                    const distance = targetDate - now;
-
-                    if (distance > 0) {
-                        setTimeLeft({
-                            days: Math.floor(distance / (1000 * 60 * 60 * 24)),
-                            hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-                            minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))
-                        });
-                    } else {
-                        clearInterval(interval);
-                    }
-                }, 1000);
-
-                return () => clearInterval(interval);
-            }, []);
-
             return (
-                <div className="h-screen w-screen flex flex-col items-center justify-center relative">
+                <div className="h-screen w-screen flex flex-col items-center justify-center relative overflow-hidden bg-brand-dark">
                     
-                    {/* Efectos de Iluminación de Fondo */}
-                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-black via-brand-dark to-black opacity-90 z-0"></div>
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-brand-gold rounded-full blur-[150px] opacity-10 z-0 animate-pulse"></div>
+                    {/* --- CINTAS DE PRECAUCIÓN ANIMADAS --- */}
+                    {/* Cinta Superior */}
+                    <div className="absolute top-10 -left-10 w-[120%] h-20 bg-brand-caution scroll-bg transform -rotate-3 z-20 flex items-center shadow-2xl border-y-4 border-black">
+                        <div className="w-full flex justify-around text-brand-caution bg-black/80 py-2 font-black text-3xl uppercase tracking-widest whitespace-nowrap">
+                            <span>PRECAUCIÓN EN OBRA</span>
+                            <span>•</span>
+                            <span>PRECAUCIÓN EN OBRA</span>
+                            <span>•</span>
+                            <span>PRECAUCIÓN EN OBRA</span>
+                            <span>•</span>
+                            <span>PRECAUCIÓN EN OBRA</span>
+                        </div>
+                    </div>
 
-                    {/* Contenedor Principal Glassmorphism */}
-                    <div className="z-10 flex flex-col items-center glass-panel p-16 md:p-24 rounded-[3rem] shadow-2xl w-11/12 max-w-5xl">
+                    {/* Cinta Inferior */}
+                    <div className="absolute bottom-10 -left-10 w-[120%] h-20 bg-brand-caution scroll-bg transform rotate-2 z-20 flex items-center shadow-2xl border-y-4 border-black">
+                        <div className="w-full flex justify-around text-brand-caution bg-black/80 py-2 font-black text-3xl uppercase tracking-widest whitespace-nowrap">
+                            <span>PELIGRO: ALTO SABOR</span>
+                            <span>•</span>
+                            <span>PELIGRO: ALTO SABOR</span>
+                            <span>•</span>
+                            <span>PELIGRO: ALTO SABOR</span>
+                            <span>•</span>
+                            <span>PELIGRO: ALTO SABOR</span>
+                        </div>
+                    </div>
+                    {/* ------------------------------------- */}
+
+                    {/* Fondo con brillo */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] bg-brand-gold rounded-full blur-[200px] opacity-15 z-0 animate-pulse"></div>
+
+                    {/* Contenedor Principal */}
+                    <div className="z-10 flex flex-col items-center glass-panel p-12 md:p-20 rounded-[3rem] shadow-2xl w-11/12 max-w-6xl mt-8">
                         
-                        <span className="px-8 py-3 border border-brand-gold/40 text-brand-gold text-xl md:text-2xl tracking-[0.5em] uppercase rounded-full mb-12">
-                            Próximamente
-                        </span>
-
-                        {/* Título - Aquí puedes reemplazar el <h1> por un <img src="tu-logo-adjunto.png" /> si prefieres usar el arte exacto del logo */}
-                        <h1 className="text-[6rem] md:text-[9rem] font-black leading-none tracking-tighter mb-8 drop-shadow-2xl text-center">
+                        {/* Título Principal - Recuerda que puedes cambiar este h1 por el logo oficial <img> */}
+                        <h1 className="text-[5rem] md:text-[8rem] font-black leading-none tracking-tighter mb-4 drop-shadow-2xl text-center text-white">
                             LA OFICINA
                         </h1>
 
-                        <div className="h-2 w-64 bg-brand-gold rounded-full mb-12 shadow-[0_0_20px_rgba(212,175,55,0.6)]"></div>
-
-                        <h2 className="text-4xl md:text-6xl font-light tracking-[0.4em] text-white uppercase mb-16 text-center">
+                        <h2 className="text-3xl md:text-5xl font-light tracking-[0.4em] text-white uppercase mb-10 text-center">
                             En <span className="text-brand-gold font-bold">Obra</span>
                         </h2>
 
-                        {/* Contador */}
-                        <div className="flex gap-8 md:gap-16 text-center">
-                            <div className="flex flex-col">
-                                <span className="text-6xl md:text-8xl font-bold text-brand-gold drop-shadow-lg">{timeLeft.days}</span>
-                                <span className="text-lg md:text-xl tracking-widest text-gray-400 uppercase mt-4">Días</span>
-                            </div>
-                            <span className="text-6xl md:text-8xl text-gray-600 font-light">:</span>
-                            <div className="flex flex-col">
-                                <span className="text-6xl md:text-8xl font-bold text-brand-gold drop-shadow-lg">{timeLeft.hours.toString().padStart(2, '0')}</span>
-                                <span className="text-lg md:text-xl tracking-widest text-gray-400 uppercase mt-4">Horas</span>
-                            </div>
-                            <span className="text-6xl md:text-8xl text-gray-600 font-light">:</span>
-                            <div className="flex flex-col">
-                                <span className="text-6xl md:text-8xl font-bold text-brand-gold drop-shadow-lg">{timeLeft.minutes.toString().padStart(2, '0')}</span>
-                                <span className="text-lg md:text-xl tracking-widest text-gray-400 uppercase mt-4">Min</span>
+                        {/* Mensaje "Acá se está cocinando" con íconos (Café y Licor) */}
+                        <div className="flex items-center justify-center gap-6 mb-12">
+                            {/* Ícono de Café (SVG Premium) */}
+                            <svg className="w-12 h-12 md:w-16 md:h-16 text-brand-gold opacity-80" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M2,21V19H20V21H2M20,8V5H18V8H20M20,3A2,2 0 0,1 22,5V8A2,2 0 0,1 20,10H18V13A4,4 0 0,1 14,17H8A4,4 0 0,1 4,13V3H20M16,5H6V13A2,2 0 0,0 8,15H14A2,2 0 0,0 16,13V5Z" />
+                            </svg>
+                            
+                            <p className="text-3xl md:text-5xl font-medium text-gray-300 italic tracking-wide text-center">
+                                Acá se está cocinando algo increíble...
+                            </p>
+
+                            {/* Ícono de Licor/Coctel (SVG Premium) */}
+                            <svg className="w-12 h-12 md:w-16 md:h-16 text-brand-gold opacity-80" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M7.5,7L5.5,5H18.5L16.5,7M11,13V19H6V21H18V19H13V13L21,5V3H3V5L11,13Z" />
+                            </svg>
+                        </div>
+
+                        {/* Caja de Llamado a la Acción (Instagram) */}
+                        <div className="mt-4 flex flex-col items-center bg-black/60 p-8 md:p-10 rounded-3xl border-2 border-brand-gold/30 hover:border-brand-gold/80 transition-colors duration-500">
+                            <span className="text-xl md:text-3xl text-brand-gold mb-6 uppercase tracking-[0.3em] font-light">
+                                Síguenos y entérate de todo
+                            </span>
+                            
+                            <div className="flex items-center gap-6">
+                                {/* Ícono de Instagram */}
+                                <svg className="w-16 h-16 md:w-20 md:h-20 text-white" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M7.8,2H16.2C19.4,2 22,4.6 22,7.8V16.2A5.8,5.8 0 0,1 16.2,22H7.8C4.6,22 2,19.4 2,16.2V7.8A5.8,5.8 0 0,1 7.8,2M7.6,4A3.6,3.6 0 0,0 4,7.6V16.4C4,18.39 5.61,20 7.6,20H16.4A3.6,3.6 0 0,0 20,16.4V7.6C20,5.61 18.39,4 16.4,4H7.6M12,6.75A5.25,5.25 0 1,1 6.75,12A5.25,5.25 0 0,1 12,6.75M12,9A3,3 0 1,0 15,12A3,3 0 0,0 12,9M17.25,5.5A1.25,1.25 0 1,1 16,6.75A1.25,1.25 0 0,1 17.25,5.5Z" />
+                                </svg>
+                                
+                                <span className="text-5xl md:text-7xl font-bold text-white tracking-wider drop-shadow-lg">
+                                    @laoficinaanserma
+                                </span>
                             </div>
                         </div>
 
