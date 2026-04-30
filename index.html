@@ -3,111 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EN OBRA | LA OFICINA</title>
+    <title>LA OFICINA - EN OBRA</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;500;700&display=swap" rel="stylesheet">
 
     <style>
-        /* VARIABLES Y RESET */
+        /* VARIABLES DE COLOR */
         :root {
-            --brand-gold: #D4AF37;
-            --brand-dark: #080808;
-            --brand-caution: #FFCC00;
+            --bg-color: #E4E6D9; /* Fondo claro crema/verdoso */
+            --text-color: #445132; /* Verde oliva oscuro */
         }
+
+        /* RESET Y CONFIGURACIÓN PARA TV */
         body, html {
-            margin: 0; padding: 0; width: 100%; height: 100%;
-            background-color: var(--brand-dark); color: white;
+            margin: 0; padding: 0; width: 100%; height: 100vh;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             font-family: 'Montserrat', sans-serif;
-            overflow: hidden; display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        /* FONDO LUMINOSO */
-        .glow {
-            position: absolute; width: 900px; height: 900px;
-            background: var(--brand-gold); border-radius: 50%;
-            filter: blur(200px); opacity: 0.15; z-index: 0;
-            animation: pulse 4s infinite;
+        /* PATRÓN DE FONDO SUTIL */
+        .bg-pattern {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0.05;
+            background-image: radial-gradient(var(--text-color) 2px, transparent 2px);
+            background-size: 4vw 4vw;
+            z-index: 0;
         }
 
-        /* CINTAS DE PRECAUCIÓN */
+        /* CINTAS DE PRECAUCIÓN (ESTÉTICA MINIMALISTA) */
         .tape-container {
-            position: absolute; width: 120%; height: 80px; z-index: 20;
-            display: flex; align-items: center; justify-content: space-around;
-            background-color: var(--brand-caution);
-            background-image: repeating-linear-gradient(-45deg, #000, #000 30px, transparent 30px, transparent 60px);
-            border-top: 4px solid black; border-bottom: 4px solid black;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.6);
-            animation: moveStripes 3s linear infinite;
+            position: absolute;
+            width: 120%;
+            height: 8vh;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            background-color: var(--bg-color);
+            background-image: repeating-linear-gradient(-45deg, var(--text-color), var(--text-color) 30px, transparent 30px, transparent 60px);
+            border-top: 2px solid var(--text-color);
+            border-bottom: 2px solid var(--text-color);
+            box-shadow: 0 1vh 3vh rgba(68, 81, 50, 0.15);
+            animation: moveStripes 4s linear infinite;
         }
-        .tape-top { top: 40px; left: -10%; transform: rotate(-3deg); }
-        .tape-bottom { bottom: 40px; left: -10%; transform: rotate(2deg); }
+        
+        .tape-top { top: 8vh; left: -10%; transform: rotate(-2deg); }
+        .tape-bottom { bottom: 8vh; left: -10%; transform: rotate(2deg); }
+        
         .tape-text {
-            background-color: rgba(0,0,0,0.85); width: 100%; padding: 10px 0;
-            display: flex; justify-content: space-around; align-items: center;
-            color: var(--brand-caution); font-weight: 900; font-size: 2rem;
-            text-transform: uppercase; letter-spacing: 5px; white-space: nowrap;
+            background-color: rgba(228, 230, 217, 0.95); /* Fondo crema con leve transparencia para ver las franjas */
+            width: 100%;
+            padding: 1.5vh 0;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            color: var(--text-color);
+            font-weight: 700;
+            font-size: 2vw;
+            text-transform: uppercase;
+            letter-spacing: 0.5vw;
+            white-space: nowrap;
+            border-top: 1px solid var(--text-color);
+            border-bottom: 1px solid var(--text-color);
         }
 
-        /* PANEL DE CRISTAL (Glassmorphism) */
-        .glass-panel {
-            z-index: 10; display: flex; flex-direction: column; align-items: center;
-            background: rgba(15, 15, 15, 0.7);
-            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            padding: 4rem 6rem; border-radius: 3rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
-            width: 90%; max-width: 1200px;
+        /* CONTENEDOR PRINCIPAL */
+        .main-container {
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 80%;
+            max-width: 1800px;
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(68, 81, 50, 0.1);
+            padding: 8vh 5vw;
+            border-radius: 3vw;
+            box-shadow: 0 2vw 4vw rgba(68, 81, 50, 0.08);
         }
 
-        /* TEXTOS PRINCIPALES */
+        /* TEXTOS */
         .title {
-            font-size: 8rem; font-weight: 900; margin: 0 0 1rem 0;
-            text-shadow: 0 10px 30px rgba(0,0,0,0.8); line-height: 1; letter-spacing: -3px;
+            font-size: 8.5vw;
+            font-weight: 300; /* Peso ligero para ser minimalista */
+            margin: 0;
+            letter-spacing: -1px;
+            line-height: 1;
         }
+
         .subtitle {
-            font-size: 4rem; font-weight: 200; text-transform: uppercase;
-            letter-spacing: 15px; margin: 0 0 3rem 0;
-        }
-        .gold-text { color: var(--brand-gold); font-weight: 700; }
-
-        /* SECCIÓN "COCINANDO" */
-        .cocinando-container {
-            display: flex; align-items: center; justify-content: center; gap: 2rem; margin-bottom: 3.5rem;
-        }
-        .icon { width: 60px; height: 60px; color: var(--brand-gold); opacity: 0.8; }
-        .cocinando-text {
-            font-size: 2.5rem; font-weight: 500; color: #d1d5db;
-            font-style: italic; letter-spacing: 2px; margin: 0; text-align: center;
+            font-size: 2vw;
+            font-weight: 400;
+            letter-spacing: 1vw;
+            margin: 2vh 0 7vh 0;
         }
 
-        /* CAJA DE INSTAGRAM */
+        /* BARRA DE CARGA MINIMALISTA */
+        .loading-wrapper {
+            width: 90%;
+            margin: 3vh 0;
+        }
+
+        .loading-text {
+            font-size: 2vw;
+            font-weight: 500;
+            margin-bottom: 2vh;
+            letter-spacing: 3px;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 1.5vh; /* Barra más delgada */
+            background-color: rgba(68, 81, 50, 0.15);
+            border-radius: 50px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background-color: var(--text-color);
+            border-radius: 50px;
+            animation: loadProgress 3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .apertura-text {
+            font-size: 3.5vw;
+            font-weight: 700;
+            margin: 7vh 0 4vh 0;
+            text-transform: uppercase;
+            letter-spacing: 0.2vw;
+            animation: pulseText 2.5s infinite;
+        }
+
+        /* INSTAGRAM ESTILO OUTLINE */
         .ig-box {
-            display: flex; flex-direction: column; align-items: center;
-            background: rgba(0,0,0,0.6); padding: 2.5rem 5rem;
-            border-radius: 2rem; border: 2px solid rgba(212, 175, 55, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 1vw;
+            padding: 1.5vh 3vw;
+            background: transparent;
+            border-radius: 50px;
+            border: 1px solid var(--text-color);
         }
-        .ig-label {
-            font-size: 1.5rem; color: var(--brand-gold); text-transform: uppercase;
-            letter-spacing: 5px; font-weight: 200; margin-bottom: 1.5rem; text-align: center;
+
+        .ig-icon {
+            width: 3vh;
+            height: 3vh;
+            fill: var(--text-color);
         }
-        .ig-handle-container { display: flex; align-items: center; gap: 1.5rem; }
-        .ig-icon { width: 70px; height: 70px; color: white; }
-        .ig-handle { font-size: 4.5rem; font-weight: 700; color: white; letter-spacing: 2px; }
+
+        .ig-handle {
+            font-size: 2vw;
+            font-weight: 400;
+            letter-spacing: 1px;
+        }
 
         /* ANIMACIONES */
         @keyframes moveStripes {
             0% { background-position: 0 0; }
-            100% { background-position: 85px 0; }
+            100% { background-position: 60px 0; }
         }
-        @keyframes pulse {
-            0%, 100% { opacity: 0.15; }
-            50% { opacity: 0.08; }
+
+        @keyframes loadProgress {
+            0% { width: 0%; }
+            100% { width: 90%; }
+        }
+
+        @keyframes pulseText {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.02); }
         }
     </style>
 </head>
 <body>
 
-    <div class="glow"></div>
+    <div class="bg-pattern"></div>
 
     <div class="tape-container tape-top">
         <div class="tape-text">
@@ -119,38 +199,34 @@
 
     <div class="tape-container tape-bottom">
         <div class="tape-text">
-            <span>PELIGRO:TE CONQUISTA</span> <span>•</span>
-            <span>PELIGRO: TE CONQUISTA</span> <span>•</span>
-            <span>PELIGRO: TE CONQUISTA</span>
+            <span>CASI LISTOS</span> <span>•</span>
+            <span>CASI LISTOS</span> <span>•</span>
+            <span>CASI LISTOS</span> <span>•</span>
+            <span>CASI LISTOS</span>
         </div>
     </div>
 
-    <div class="glass-panel">
+    <div class="main-container">
         
         <h1 class="title">LA OFICINA</h1>
-        
-        <h2 class="subtitle">En <span class="gold-text">Obra</span></h2>
+        <h2 class="subtitle">COFFEE BAR</h2>
 
-        <div class="cocinando-container">
-            <svg class="icon" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M2,21V19H20V21H2M20,8V5H18V8H20M20,3A2,2 0 0,1 22,5V8A2,2 0 0,1 20,10H18V13A4,4 0 0,1 14,17H8A4,4 0 0,1 4,13V3H20M16,5H6V13A2,2 0 0,0 8,15H14A2,2 0 0,0 16,13V5Z" />
-            </svg>
-            
-            <p class="cocinando-text">Acá se está haciendo Magia con cafe y alcohol...</p>
+        <div class="loading-wrapper">
+            <div class="loading-text">90% DE LA OBRA COMPLETADA</div>
+            <div class="progress-container">
+                <div class="progress-fill"></div>
+            </div>
+        </div>
 
-            <svg class="icon" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M7.5,7L5.5,5H18.5L16.5,7M11,13V19H6V21H18V19H13V13L21,5V3H3V5L11,13Z" />
-            </svg>
+        <div class="apertura-text">
+            ¡Mañana 1 de Mayo abrimos!
         </div>
 
         <div class="ig-box">
-            <span class="ig-label">Síguenos y entérate de todo</span>
-            <div class="ig-handle-container">
-                <svg class="ig-icon" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M7.8,2H16.2C19.4,2 22,4.6 22,7.8V16.2A5.8,5.8 0 0,1 16.2,22H7.8C4.6,22 2,19.4 2,16.2V7.8A5.8,5.8 0 0,1 7.8,2M7.6,4A3.6,3.6 0 0,0 4,7.6V16.4C4,18.39 5.61,20 7.6,20H16.4A3.6,3.6 0 0,0 20,16.4V7.6C20,5.61 18.39,4 16.4,4H7.6M12,6.75A5.25,5.25 0 1,1 6.75,12A5.25,5.25 0 0,1 12,6.75M12,9A3,3 0 1,0 15,12A3,3 0 0,0 12,9M17.25,5.5A1.25,1.25 0 1,1 16,6.75A1.25,1.25 0 0,1 17.25,5.5Z" />
-                </svg>
-                <span class="ig-handle">@laoficinaanserma</span>
-            </div>
+            <svg class="ig-icon" viewBox="0 0 24 24">
+                <path d="M7.8,2H16.2C19.4,2 22,4.6 22,7.8V16.2A5.8,5.8 0 0,1 16.2,22H7.8C4.6,22 2,19.4 2,16.2V7.8A5.8,5.8 0 0,1 7.8,2M7.6,4A3.6,3.6 0 0,0 4,7.6V16.4C4,18.39 5.61,20 7.6,20H16.4A3.6,3.6 0 0,0 20,16.4V7.6C20,5.61 18.39,4 16.4,4H7.6M12,6.75A5.25,5.25 0 1,1 6.75,12A5.25,5.25 0 0,1 12,6.75M12,9A3,3 0 1,0 15,12A3,3 0 0,0 12,9M17.25,5.5A1.25,1.25 0 1,1 16,6.75A1.25,1.25 0 0,1 17.25,5.5Z" />
+            </svg>
+            <span class="ig-handle">@laoficinaanserma</span>
         </div>
 
     </div>
