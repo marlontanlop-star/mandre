@@ -5,12 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TERMINAL INTELIGENTE | LA OFICINA</title>
     
-    <!-- Scripts de Compatibilidad Extrema -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/es6-shim/0.35.6/es6-shim.min.js"></script>
+    <!-- Cargamos solo lo esencial -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
-    
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
 
     <script>
@@ -32,179 +28,191 @@
             background-color: #1a1c0b; cursor: none;
             font-family: 'Montserrat', sans-serif; height: 100vh;
         }
-        .slide-enter { animation: slideIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        .price-tag { text-shadow: 4px 4px 0px rgba(75, 83, 32, 0.2); }
+        
+        /* Estética idéntica a tu diseño original */
         .bg-pattern {
             background-color: #e3e4d4;
             background-image: radial-gradient(#4b5320 0.5px, transparent 0.5px);
             background-size: 30px 30px;
         }
+
+        .price-tag { text-shadow: 4px 4px 0px rgba(75, 83, 32, 0.2); }
+
+        .slide-enter { animation: slideIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
         .tv-container {
             height: 100vh; width: 50vw; padding: 5vh 4vw;
-            display: flex; flex-direction: column; box-sizing: border-box; overflow: hidden;
+            display: flex; flex-direction: column; box-sizing: border-box;
         }
-        .no-word-break {
-            white-space: normal; word-break: keep-all;
-            overflow-wrap: normal; hyphens: none; display: block;
-        }
+
+        /* Ocultar elementos para las transiciones */
+        .hidden { display: none !important; }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
-    <div id="root"></div>
+
+    <!-- PANTALLA DE INICIO -->
+    <div id="start-screen" class="h-screen w-screen flex flex-col items-center justify-center bg-oficina-dark text-white p-10 text-center">
+        <h2 class="text-4xl mb-8 font-black uppercase tracking-tighter">Terminal Inteligente Mandré</h2>
+        <button onclick="startKiosk()" class="bg-oficina-verde text-white px-12 py-6 rounded-full text-2xl font-black border-4 border-white">
+            INICIAR KIOSCO
+        </button>
+    </div>
+
+    <!-- PANTALLA PRINCIPAL (PRODUCTOS) -->
+    <div id="main-display" class="hidden h-screen w-screen bg-pattern flex overflow-hidden">
+        <!-- Lado Izquierdo: Información -->
+        <div class="w-1/2 tv-container z-10">
+            <div>
+                <span id="ui-category" class="bg-oficina-verde text-white px-[1.5vw] py-[0.5vh] rounded-lg text-[1.4vw] font-bold uppercase tracking-widest">
+                    CATEGORÍA
+                </span>
+            </div>
+            
+            <div class="flex-grow flex flex-col justify-center overflow-hidden">
+                <h1 id="ui-name" class="font-[900] text-oficina-dark leading-[0.9] mb-[2vh] uppercase tracking-tighter text-[6vw]">
+                    NOMBRE
+                </h1>
+                <p id="ui-desc" class="text-[2.2vw] text-oficina-verde/90 font-bold max-w-[90%] leading-tight">
+                    Descripción...
+                </p>
+            </div>
+            
+            <div class="mt-auto">
+                <div id="ui-price" class="text-[7.5vw] font-black text-oficina-verde price-tag leading-none mb-[4vh]">
+                    $0
+                </div>
+                <div class="flex items-center gap-[2vw] border-t-[0.3vw] border-oficina-verde pt-[3vh]">
+                    <div class="bg-white p-[0.8vw] rounded-[1vw] shadow-xl">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://instagram.com/laoficinaanserma" class="w-[7vw] h-[7vw]">
+                    </div>
+                    <div>
+                        <p class="text-[1vw] font-bold text-oficina-dark/50 uppercase">Pide desde tu mesa</p>
+                        <p class="text-[2.2vw] font-black text-oficina-verde leading-none">@laoficinaanserma</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lado Derecho: Imagen -->
+        <div class="w-1/2 relative h-full overflow-hidden">
+            <img id="ui-image" src="" class="h-full w-full object-cover">
+            <div class="absolute inset-0 bg-gradient-to-r from-[#e3e4d4] via-transparent to-transparent opacity-60"></div>
+            <div class="absolute inset-0 bg-gradient-to-r from-[#e3e4d4] w-[12%]"></div>
+        </div>
+    </div>
+
+    <!-- PANTALLA CLUB (PROMOCIÓN) -->
+    <div id="club-display" class="hidden h-screen w-screen bg-oficina-dark flex flex-col items-center justify-center text-center p-10">
+        <div class="mb-6">
+            <svg class="w-[12vw] h-[12vw] text-oficina-verde mx-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <path d="M7 7h.01M17 7h.01M7 17h.01M17 17h.01M12 7v10M7 12h10"></path>
+            </svg>
+        </div>
+        <h2 class="text-[7vw] font-black text-white uppercase leading-none mb-6 tracking-tighter">¡ÚNETE AL CLUB!</h2>
+        <p class="text-[3.2vw] text-oficina-verde font-bold mb-10 max-w-[80vw] leading-tight text-center">
+            Escanea el <span class="text-white underline">CÓDIGO QR</span> de tu mesa y accede a beneficios exclusivos.
+        </p>
+    </div>
 
     <script type="text/javascript">
-        var el = React.createElement;
+        // VARIABLES GLOBALES (ES5 para LG TV)
+        var items = [];
+        var currentIndex = 0;
+        var rotationTimer = null;
 
-        // Función para limpiar datos de la API de Google sin usar ES6
-        function clean(fields) {
-            var obj = {};
-            for (var key in fields) {
-                var f = fields[key];
-                if (f.stringValue) obj[key] = f.stringValue;
-                else if (f.integerValue) obj[key] = parseInt(f.integerValue);
-                else if (f.doubleValue) obj[key] = parseFloat(f.doubleValue);
-                else if (f.booleanValue !== undefined) obj[key] = f.booleanValue;
-            }
-            return obj;
+        // Iniciar pantalla completa y carga
+        function startKiosk() {
+            var el = document.documentElement;
+            var r = el.requestFullscreen || el.webkitRequestFullScreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+            if (r) r.call(el);
+            
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('main-display').className = 'h-screen w-screen bg-pattern flex overflow-hidden fade-in';
+            loadFromFirebase();
         }
 
-        function AdsDisplay() {
-            var itemsState = React.useState([]);
-            var items = itemsState[0];
-            var setItems = itemsState[1];
-
-            var indexState = React.useState(0);
-            var currentIndex = indexState[0];
-            var setCurrentIndex = indexState[1];
-
-            var fullState = React.useState(false);
-            var isFullscreen = fullState[0];
-            var setIsFullscreen = fullState[1];
-
-            // Carga de datos usando XMLHttpRequest (Universal para TVs)
-            React.useEffect(function() {
-                function loadData() {
-                    var xhr = new XMLHttpRequest();
-                    xhr.open("GET", "https://firestore.googleapis.com/v1/projects/mandre-f9e43/databases/(default)/documents/inventory", true);
-                    xhr.onreadystatechange = function() {
-                        if (xhr.readyState === 4 && xhr.status === 200) {
-                            var data = JSON.parse(xhr.responseText);
-                            if (data.documents) {
-                                var filtered = [];
-                                for (var i = 0; i < data.documents.length; i++) {
-                                    var item = clean(data.documents[i].fields);
-                                    if (item.isPromoted === true && item.imageUrl) {
-                                        filtered.push(item);
-                                    }
-                                }
-                                setItems(filtered);
+        // Carga ligera vía REST API (Evita crasheos del SDK en LG)
+        function loadFromFirebase() {
+            var url = "https://firestore.googleapis.com/v1/projects/mandre-f9e43/databases/(default)/documents/inventory";
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", url, true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    items = [];
+                    if (response.documents) {
+                        for (var i = 0; i < response.documents.length; i++) {
+                            var fields = response.documents[i].fields;
+                            // Filtrar solo promocionados con imagen
+                            if (fields.isPromoted && fields.isPromoted.booleanValue && fields.imageUrl) {
+                                items.push({
+                                    name: fields.name.stringValue,
+                                    category: fields.category ? fields.category.stringValue : "ESPECIALIDAD",
+                                    price: fields.price ? (fields.price.integerValue || fields.price.doubleValue) : 0,
+                                    description: fields.description ? fields.description.stringValue : "",
+                                    imageUrl: fields.imageUrl.stringValue
+                                });
                             }
                         }
-                    };
-                    xhr.send();
+                    }
+                    if (items.length > 0) startRotation();
                 }
-                loadData();
-                var interval = setInterval(loadData, 60000);
-                return function() { clearInterval(interval); };
-            }, []);
-
-            var totalSlides = items.length > 0 ? items.length + Math.ceil(items.length / 4) : 0;
-
-            React.useEffect(function() {
-                if (totalSlides > 0) {
-                    var timer = setInterval(function() {
-                        setCurrentIndex(function(prev) { return (prev + 1) % totalSlides; });
-                    }, 8000);
-                    return function() { clearInterval(timer); };
-                }
-            }, [totalSlides]);
-
-            function getTitleSize(text) {
-                var len = text ? text.length : 0;
-                if (len < 8) return "text-[8vw]";
-                if (len < 15) return "text-[6.5vw]";
-                if (len < 22) return "text-[5vw]";
-                return "text-[4.2vw]";
-            }
-
-            function startKiosk() {
-                var doc = document.documentElement;
-                var req = doc.requestFullscreen || doc.webkitRequestFullScreen || doc.mozRequestFullScreen || doc.msRequestFullscreen;
-                if (req) req.call(doc);
-                setIsFullscreen(true);
-            }
-
-            if (!isFullscreen) {
-                return el("div", { className: "h-screen w-screen flex flex-col items-center justify-center bg-oficina-dark text-white p-10 text-center" },
-                    el("h2", { className: "text-4xl mb-8 font-black uppercase tracking-tighter" }, "Terminal Inteligente Mandré"),
-                    el("button", { onClick: startKiosk, className: "bg-oficina-verde text-white px-12 py-6 rounded-full text-2xl font-black border-4 border-white transition-all hover:scale-105" }, "INICIAR KIOSCO")
-                );
-            }
-
-            if (items.length === 0) {
-                return el("div", { className: "h-screen w-screen flex items-center justify-center bg-oficina-dark text-white" },
-                    el("div", { className: "text-center animate-pulse text-2xl font-bold uppercase tracking-widest" }, "Sincronizando Menú...")
-                );
-            }
-
-            var isClubSlide = (currentIndex + 1) % 5 === 0 || currentIndex === totalSlides - 1;
-            var itemIndex = currentIndex - Math.floor((currentIndex + 1) / 5);
-            var current = items[itemIndex % items.length];
-
-            // VISTA CLUB (IDÉNTICA A TU CÓDIGO INICIAL)
-            if (isClubSlide) {
-                return el("div", { className: "h-screen w-screen bg-oficina-dark flex flex-col items-center justify-center text-center p-10 slide-enter" },
-                    el("div", { className: "mb-6 animate-bounce" },
-                        el("svg", { className: "w-[12vw] h-[12vw] text-oficina-verde mx-auto", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2" },
-                            el("rect", { x: "3", y: "3", width: "18", height: "18", rx: "2", ry: "2" }),
-                            el("path", { d: "M7 7h.01M17 7h.01M7 17h.01M17 17h.01M12 7v10M7 12h10" })
-                        )
-                    ),
-                    el("h2", { className: "text-[7vw] font-black text-white uppercase leading-none mb-6 tracking-tighter" }, "¡ÚNETE AL CLUB!"),
-                    el("p", { className: "text-[3.2vw] text-oficina-verde font-bold mb-10 max-w-[80vw] leading-tight text-center" }, 
-                        "Escanea el ", el("span", { className: "text-white underline" }, "CÓDIGO QR"), " de tu mesa y accede a beneficios exclusivos."
-                    )
-                );
-            }
-
-            // VISTA PRODUCTO (IDÉNTICA A TU CÓDIGO INICIAL[cite: 2])
-            return el("div", { className: "h-screen w-screen bg-pattern flex overflow-hidden" },
-                el("div", { className: "w-1/2 tv-container z-10" },
-                    el("div", null, 
-                        el("span", { className: "bg-oficina-verde text-white px-[1.5vw] py-[0.5vh] rounded-lg text-[1.4vw] font-bold uppercase tracking-widest" }, current.category)
-                    ),
-                    el("div", { className: "flex-grow flex flex-col justify-center overflow-hidden" },
-                        el("h1", { className: getTitleSize(current.name) + " font-[900] text-oficina-dark leading-[0.9] mb-[2vh] uppercase tracking-tighter no-word-break" }, current.name),
-                        el("p", { className: "text-[2.2vw] text-oficina-verde/90 font-bold max-w-[90%] leading-tight" }, current.description || "Experiencia premium en cada preparación.")
-                    ),
-                    el("div", { className: "mt-auto" },
-                        el("div", { className: "text-[7.5vw] font-black text-oficina-verde price-tag leading-none mb-[4vh]" }, "$" + (current.price ? current.price.toLocaleString() : "0")),
-                        el("div", { className: "flex items-center gap-[2vw] border-t-[0.3vw] border-oficina-verde pt-[3vh]" },
-                            el("div", { className: "bg-white p-[0.8vw] rounded-[1vw] shadow-xl" },
-                                el("img", { src: "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://instagram.com/laoficinaanserma", className: "w-[7vw] h-[7vw]" })
-                            ),
-                            el("div", null,
-                                el("p", { className: "text-[1vw] font-bold text-oficina-dark/50 uppercase" }, "Pide desde tu mesa"),
-                                el("p", { className: "text-[2.2vw] font-black text-oficina-verde leading-none" }, "@laoficinaanserma")
-                            )
-                        )
-                    )
-                ),
-                el("div", { className: "w-1/2 relative h-full" },
-                    el("div", { key: currentIndex, className: "h-full w-full slide-enter" },
-                        el("img", { src: current.imageUrl, className: "h-full w-full object-cover" }),
-                        el("div", { className: "absolute inset-0 bg-gradient-to-r from-[#e3e4d4] via-transparent to-transparent opacity-60" }),
-                        el("div", { className: "absolute inset-0 bg-gradient-to-r from-[#e3e4d4] w-[12%]" })
-                    )
-                )
-            );
+            };
+            xhr.send();
         }
 
-        ReactDOM.render(el(AdsDisplay), document.getElementById('root'));
+        function startRotation() {
+            updateUI();
+            if (rotationTimer) clearInterval(rotationTimer);
+            rotationTimer = setInterval(function() {
+                currentIndex = (currentIndex + 1) % (items.length + 1); // +1 para el slide del Club[cite: 2]
+                updateUI();
+            }, 8000);
+        }
+
+        function updateUI() {
+            var mainView = document.getElementById('main-display');
+            var clubView = document.getElementById('club-display');
+            
+            // Cada 5 slides o al final, mostrar el Club[cite: 2]
+            var isClub = (currentIndex > 0 && currentIndex % 5 === 0) || currentIndex === items.length;
+
+            if (isClub) {
+                mainView.className = 'hidden';
+                clubView.className = 'h-screen w-screen bg-oficina-dark flex flex-col items-center justify-center text-center p-10 slide-enter';
+            } else {
+                clubView.className = 'hidden';
+                mainView.className = 'h-screen w-screen bg-pattern flex overflow-hidden';
+                
+                var data = items[currentIndex % items.length];
+                
+                // Actualizar Textos
+                document.getElementById('ui-category').innerText = data.category;
+                document.getElementById('ui-name').innerText = data.name;
+                document.getElementById('ui-desc').innerText = data.description || "Experiencia premium en cada preparación.";
+                document.getElementById('ui-price').innerText = "$" + Number(data.price).toLocaleString();
+                
+                // Actualizar Imagen con animación
+                var img = document.getElementById('ui-image');
+                img.src = data.imageUrl;
+                img.className = "h-full w-full object-cover slide-enter";
+                
+                // Ajustar tamaño de fuente dinámico según largo del nombre[cite: 2]
+                var nameEl = document.getElementById('ui-name');
+                var len = data.name.length;
+                if (len < 8) nameEl.style.fontSize = "8vw";
+                else if (len < 15) nameEl.style.fontSize = "6.5vw";
+                else nameEl.style.fontSize = "4.2vw";
+            }
+        }
     </script>
 </body>
 </html>
