@@ -5,15 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TERMINAL INTELIGENTE | LA OFICINA</title>
     
-    <!-- Scripts en versiones de alta compatibilidad -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/core-js/3.33.0/minified.js"></script>
+    <!-- Traductores para TVs viejos -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/es6-shim/0.35.6/es6-shim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/3.6.19/fetch.min.js"></script>
+
+    <!-- Tailwind y React (Versiones ultra-estables) -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script crossorigin src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
-    
-    <!-- Firebase 8 (El más estable para Smart TVs) -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
 
@@ -61,142 +60,115 @@
 
     <script type="text/javascript">
         var el = React.createElement;
-        var useState = React.useState;
-        var useEffect = React.useEffect;
-
-        var firebaseConfig = {
-            apiKey: "AIzaSyAutOqky0mpVmwDrqFsyZ0zRl_abrzgPvc",
-            authDomain: "mandre-f9e43.firebaseapp.com",
-            projectId: "mandre-f9e43",
-            storageBucket: "mandre-f9e43.firebasestorage.app",
-            messagingSenderId: "865403538422",
-            appId: "1:865403538422:web:0ee2fb754343de9bc015d7"
-        };
-
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        var db = firebase.firestore();
+        
+        // Helper para "limpiar" la respuesta rara de la API REST de Google
+        function flattenFirebase(fields) {
+            var obj = {};
+            for (var key in fields) {
+                var val = fields[key];
+                if (val.stringValue) obj[key] = val.stringValue;
+                else if (val.integerValue) obj[key] = parseInt(val.integerValue);
+                else if (val.doubleValue) obj[key] = parseFloat(val.doubleValue);
+                else if (val.booleanValue !== undefined) obj[key] = val.booleanValue;
+            }
+            return obj;
+        }
 
         function AdsDisplay() {
-            var state = useState([]);
-            var items = state[0];
-            var setItems = state[1];
+            var itemsState = React.useState([]);
+            var items = itemsState[0];
+            var setItems = itemsState[1];
 
-            var configState = useState(null);
+            var configState = React.useState(null);
             var tvConfig = configState[0];
             var setTvConfig = configState[1];
 
-            var indexState = useState(0);
+            var indexState = React.useState(0);
             var currentIndex = indexState[0];
             var setCurrentIndex = indexState[1];
 
-            var fullState = useState(false);
+            var fullState = React.useState(false);
             var isFullscreen = fullState[0];
             var setIsFullscreen = fullState[1];
 
-            useEffect(function() {
-                var unsub = db.collection('inventory').where('isPromoted', '==', true).onSnapshot(function(snap) {
-                    var data = snap.docs.map(function(doc) { return doc.data(); }).filter(function(i) { return i.imageUrl; });
-                    setItems(data);
-                });
-                var unsubConfig = db.collection('configuracionTV').doc('actual').onSnapshot(function(doc) {
-                    if (doc.exists) setTvConfig(doc.data());
-                });
-                return function() { unsub(); unsubConfig(); };
+            // Carga de datos mediante API REST (Mucho más ligero para TV)
+            React.useEffect(function() {
+                function fetchData() {
+                    // Cargar Inventario
+                    fetch('https://firestore.googleapis.com/v1/projects/mandre-f9e43/databases/(default)/documents/inventory')
+                        .then(function(res) { return res.json(); })
+                        .then(function(data) {
+                            if (data.documents) {
+                                var filtered = data.documents.map(function(doc) {
+                                    return flattenFirebase(doc.fields);
+                                }).filter(function(i) { 
+                                    return i.isPromoted === true && i.imageUrl; 
+                                });
+                                setItems(filtered);
+                            }
+                        });
+
+                    // Cargar Configuración
+                    fetch('https://firestore.googleapis.com/v1/projects/mandre-f9e43/databases/(default)/documents/configuracionTV/actual')
+                        .then(function(res) { return res.json(); })
+                        .then(function(data) {
+                            if (data.fields) setTvConfig(flattenFirebase(data.fields));
+                        });
+                }
+
+                fetchData();
+                var interval = setInterval(fetchData, 60000); // Actualiza cada minuto
+                return function() { clearInterval(interval); };
             }, []);
 
             var totalSlides = items.length > 0 ? items.length + Math.ceil(items.length / 4) : 0;
 
-            useEffect(function() {
+            React.useEffect(function() {
                 if (totalSlides > 0) {
                     var isPromo = (currentIndex + 1) % 5 === 0 || currentIndex === totalSlides - 1;
-                    var duration = isPromo ? 20000 : 8000; 
-
                     var timer = setTimeout(function() {
                         setCurrentIndex((currentIndex + 1) % totalSlides);
-                    }, duration);
+                    }, isPromo ? 20000 : 8000);
                     return function() { clearTimeout(timer); };
                 }
             }, [currentIndex, totalSlides]);
 
-            function enterFullscreen() {
-                var docEl = document.documentElement;
-                var request = docEl.requestFullscreen || docEl.webkitRequestFullscreen || docEl.mozRequestFullScreen || docEl.msRequestFullscreen;
-                if (request) request.call(docEl);
+            function toggleFull() {
+                var d = document.documentElement;
+                var r = d.requestFullscreen || d.webkitRequestFullScreen || d.mozRequestFullScreen || d.msRequestFullscreen;
+                if (r) r.call(d);
                 setIsFullscreen(true);
             }
 
             if (!isFullscreen) {
-                return el("div", { className: "h-screen w-screen flex flex-col items-center justify-center bg-oficina-dark text-white p-10 text-center" },
-                    el("h2", { className: "text-4xl mb-8 font-black uppercase tracking-tighter" }, "Terminal Inteligente Mandré"),
-                    el("button", { onClick: enterFullscreen, className: "bg-oficina-verde text-white px-12 py-6 rounded-full text-2xl font-black border-4 border-white transition-all hover:scale-105" }, "INICIAR KIOSCO")
+                return el("div", { className: "h-screen w-screen flex flex-col items-center justify-center bg-oficina-dark text-white p-10" },
+                    el("h2", { className: "text-4xl mb-8 font-black uppercase" }, "Terminal Inteligente Mandré"),
+                    el("button", { onClick: toggleFull, className: "bg-oficina-verde px-12 py-6 rounded-full text-2xl font-black border-4 border-white" }, "INICIAR")
                 );
             }
 
-            if (items.length === 0) {
-                return el("div", { className: "h-screen w-screen flex items-center justify-center bg-oficina-dark text-white text-2xl font-bold animate-pulse" }, "Sincronizando...");
-            }
+            if (items.length === 0) return el("div", { className: "h-screen w-screen flex items-center justify-center bg-oficina-dark text-white text-2xl" }, "Sincronizando...");
 
             var isPromoSlide = (currentIndex + 1) % 5 === 0 || currentIndex === totalSlides - 1;
-            var itemIndex = currentIndex - Math.floor((currentIndex + 1) / 5);
-            var current = items[itemIndex % items.length];
+            var current = items[(currentIndex - Math.floor((currentIndex + 1) / 5)) % items.length];
 
             if (isPromoSlide) {
-                var cafe = (tvConfig && tvConfig.cafePromocion) ? tvConfig.cafePromocion : {};
-                var promoText = (tvConfig && tvConfig.publicidadRecurrente && tvConfig.publicidadRecurrente.textoConfigurable) ? tvConfig.publicidadRecurrente.textoConfigurable : "NUESTRAS MONTAÑAS ANSERMEÑAS";
-
-                return el("div", { className: "h-screen w-screen bg-[#070803] flex items-center justify-center p-10 slide-enter overflow-hidden relative" },
-                    el("div", { className: "flex w-full h-full items-center gap-8 relative z-10" },
-                        el("div", { className: "w-[50%] flex flex-col justify-center space-y-6" },
+                return el("div", { className: "h-screen w-screen bg-[#070803] flex items-center justify-center p-10 slide-enter" },
+                    el("div", { className: "flex w-full h-full items-center gap-8" },
+                        el("div", { className: "w-1/2 flex flex-col space-y-6" },
                             el("div", { className: "border-l-[1.2vw] border-oficina-claro pl-8" },
-                                el("p", { className: "text-[1.8vw] text-oficina-claro font-black uppercase tracking-tight mb-2" }, "Todas nuestras bebidas a base de café están elaboradas con:"),
-                                el("h2", { className: "text-[4.5vw] font-black text-white uppercase leading-[0.85] tracking-tighter mb-4" }, "Café: " + promoText),
-                                el("p", { className: "text-[1.8vw] text-oficina-claro font-black uppercase tracking-[0.3em]" }, "Trazabilidad Total")
+                                el("p", { className: "text-[1.8vw] text-oficina-claro font-black uppercase" }, "Café de Especialidad"),
+                                el("h2", { className: "text-[4.5vw] font-black text-white uppercase leading-none" }, "Anserma, Caldas"),
+                                el("p", { className: "text-[1.8vw] text-oficina-claro font-black uppercase tracking-widest" }, "Trazabilidad Total")
                             ),
-                            el("p", { className: "text-[2vw] text-gray-300 font-medium leading-tight italic max-w-[95%]" }, "\"Cada taza rinde homenaje al esfuerzo inalcanzable de nuestros campesinos en las Montañas Ansermeñas.\""),
-                            el("div", { className: "grid grid-cols-2 gap-4 pt-2" },
-                                el("div", { className: "bg-white/5 p-4 rounded-2xl border border-oficina-claro/20" },
-                                    el("p", { className: "text-[0.8vw] text-oficina-claro font-bold uppercase tracking-widest" }, "Vereda"),
-                                    el("p", { className: "text-[1.6vw] text-white font-black truncate" }, cafe.vereda || '---')
-                                ),
-                                el("div", { className: "bg-white/5 p-4 rounded-2xl border border-oficina-claro/20" },
-                                    el("p", { className: "text-[0.8vw] text-oficina-claro font-bold uppercase tracking-widest" }, "Municipio"),
-                                    el("p", { className: "text-[1.6vw] text-white font-black" }, "Anserma, Caldas")
-                                ),
-                                el("div", { className: "bg-white/5 p-4 rounded-2xl border border-oficina-claro/20" },
-                                    el("p", { className: "text-[0.8vw] text-oficina-claro font-bold uppercase tracking-widest" }, "Altura"),
-                                    el("p", { className: "text-[1.6vw] text-white font-black" }, (cafe.altura || '---') + " MSNM")
-                                ),
-                                el("div", { className: "bg-white/5 p-4 rounded-2xl border border-oficina-claro/20" },
-                                    el("p", { className: "text-[0.8vw] text-oficina-claro font-bold uppercase tracking-widest" }, "Procesador"),
-                                    el("p", { className: "text-[1.6vw] text-white font-black truncate uppercase" }, cafe.procesador || '---')
-                                )
-                            )
+                            el("p", { className: "text-[2vw] text-gray-300 italic" }, "\"El esfuerzo de nuestros campesinos en cada taza.\"")
                         ),
-                        el("div", { className: "w-[50%] flex justify-center items-center h-full relative" },
-                            el("div", { className: "relative w-[36vw] h-[85vh] coffee-bag rounded-b-[70px] rounded-t-3xl flex flex-col items-center p-12 animate-float-slow border-2 border-oficina-claro/30 shadow-[0_0_80px_rgba(0,0,0,0.9)]" },
-                                el("div", { className: "absolute -top-16 w-48 h-48 bg-white rounded-full shadow-[0_0_60px_rgba(143,188,143,0.4)] border-8 border-oficina-claro z-20 flex items-center justify-center p-4 animate-seal-entrance overflow-hidden" },
-                                    cafe.logoUrl 
-                                        ? el("img", { src: cafe.logoUrl, className: "w-full h-full object-contain" })
-                                        : el("div", { className: "text-oficina-claro opacity-20" }, "LOGO")
-                                ),
-                                el("div", { className: "mt-20 w-full flex flex-col items-center flex-1" },
-                                    el("div", { className: "text-center bg-oficina-claro p-6 rounded-[2.5rem] shadow-xl w-full mb-8" },
-                                        el("p", { className: "text-oficina-dark font-black uppercase tracking-[0.3em] text-[0.9vw] mb-2 opacity-60" }, "Perfil de Taza"),
-                                        el("p", { className: "text-[1.8vw] text-oficina-dark font-black leading-tight italic" }, "\"" + (cafe.notas || 'Notas equilibradas') + "\"")
-                                    ),
-                                    el("div", { className: "bg-[#0a0b04] border-2 border-dashed border-oficina-claro/40 p-6 rounded-3xl text-center w-full" },
-                                        el("p", { className: "text-oficina-claro font-bold uppercase text-[1vw] tracking-[0.2em] mb-1" }, "Día de Tueste"),
-                                        el("p", { className: "text-white font-black text-[2.5vw]" }, cafe.diaTueste || 'RECIENTE')
-                                    )
-                                ),
-                                el("div", { className: "mt-auto flex items-center gap-4 bg-white/5 p-4 rounded-3xl border border-white/10 w-full" },
-                                    el("div", { className: "bg-white p-2 rounded-xl" },
-                                        el("img", { src: "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=laoficina", className: "w-16 h-16" })
-                                    ),
-                                    el("div", null,
-                                        el("p", { className: "text-oficina-claro font-black text-[1.2vw] leading-none uppercase" }, "@laoficinaanserma"),
-                                        el("p", { className: "text-[0.7vw] text-gray-400 font-bold uppercase tracking-widest mt-1 italic" }, "Sigue la historia")
-                                    )
+                        el("div", { className: "w-1/2 flex justify-center" },
+                            el("div", { className: "w-[36vw] h-[80vh] coffee-bag rounded-3xl flex flex-col items-center p-12 animate-float-slow border border-oficina-claro/30" },
+                                el("div", { className: "w-40 h-40 bg-white rounded-full flex items-center justify-center mb-8" }, el("img", {src: "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=laoficina", className: "w-32"})),
+                                el("div", { className: "bg-oficina-claro p-6 rounded-2xl w-full text-center" }, 
+                                    el("p", {className:"text-oficina-dark font-black text-[1.5vw]"}, "SÍGUENOS"),
+                                    el("p", {className:"text-oficina-dark font-bold"}, "@laoficinaanserma")
                                 )
                             )
                         )
@@ -204,38 +176,24 @@
                 );
             }
 
-            function getTitleSize(text) {
-                if (text.length < 8) return "text-[8vw]";
-                if (text.length < 15) return "text-[6.5vw]";
-                return "text-[5vw]";
-            }
-            
             return el("div", { className: "h-screen w-screen bg-pattern flex overflow-hidden" },
                 el("div", { className: "w-1/2 tv-container z-10" },
-                    el("div", null, el("span", { className: "bg-oficina-verde text-white px-[1.5vw] py-[0.5vh] rounded-lg text-[1.4vw] font-bold uppercase tracking-widest" }, current.category)),
-                    el("div", { className: "flex-grow flex flex-col justify-center overflow-hidden pr-8" },
-                        el("h1", { className: getTitleSize(current.name) + " font-[900] text-oficina-dark leading-[0.9] mb-[2vh] uppercase tracking-tighter no-word-break" }, current.name),
-                        el("p", { className: "text-[2.2vw] text-oficina-verde/90 font-bold max-w-[95%] leading-tight" }, current.description || "Experiencia premium.")
+                    el("span", { className: "bg-oficina-verde text-white px-4 py-2 rounded text-[1.4vw] font-bold uppercase" }, current.category),
+                    el("div", { className: "flex-grow flex flex-col justify-center" },
+                        el("h1", { className: "text-[6vw] font-black text-oficina-dark leading-none uppercase" }, current.name),
+                        el("p", { className: "text-[2.2vw] text-oficina-verde/90 font-bold mt-4" }, current.description || "Experiencia premium.")
                     ),
                     el("div", { className: "mt-auto" },
-                        el("div", { className: "text-[7.5vw] font-black text-oficina-verde price-tag leading-none mb-[4vh]" }, "$" + (current.price ? current.price.toLocaleString() : "0")),
-                        el("div", { className: "flex items-center gap-[2vw] border-t-[0.3vw] border-oficina-verde pt-[3vh]" },
-                            el("div", { className: "bg-white p-[0.8vw] rounded-[1vw] shadow-xl" },
-                                el("img", { src: "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=laoficina", className: "w-[7vw] h-[7vw]" })
-                            ),
-                            el("div", null,
-                                el("p", { className: "text-[1vw] font-bold text-oficina-dark/50 uppercase" }, "INSTAGRAM"),
-                                el("p", { className: "text-[2.2vw] font-black text-oficina-verde leading-none" }, "@laoficinaanserma")
-                            )
+                        el("div", { className: "text-[7.5vw] font-black text-oficina-verde price-tag" }, "$" + (current.price || 0).toLocaleString()),
+                        el("div", { className: "border-t-4 border-oficina-verde pt-4 flex items-center gap-4" },
+                            el("img", { src: "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=laoficina", className: "w-20" }),
+                            el("p", { className: "text-[2vw] font-black text-oficina-verde" }, "@laoficinaanserma")
                         )
                     )
                 ),
                 el("div", { className: "w-1/2 relative h-full" },
-                    el("div", { key: currentIndex, className: "h-full w-full slide-enter" },
-                        el("img", { src: current.imageUrl, className: "h-full w-full object-cover" }),
-                        el("div", { className: "absolute inset-0 bg-gradient-to-r from-[#e3e4d4] via-transparent to-transparent opacity-60" }),
-                        el("div", { className: "absolute inset-0 bg-gradient-to-r from-[#e3e4d4] w-[12%]" })
-                    )
+                    el("img", { key: currentIndex, src: current.imageUrl, className: "h-full w-full object-cover slide-enter" }),
+                    el("div", { className: "absolute inset-0 bg-gradient-to-r from-[#e3e4d4] w-[15%]" })
                 )
             );
         }
