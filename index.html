@@ -4,213 +4,189 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TERMINAL INTELIGENTE | LA OFICINA</title>
-    
-    <!-- Cargamos solo lo esencial -->
-    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'oficina-verde': '#4b5320',
-                        'oficina-dark': '#1a1c0b',
-                    }
-                }
-            }
-        }
-    </script>
-
+    
     <style>
+        /* CSS DISPUESTO PARA COMPATIBILIDAD TOTAL CON LG TV (SIN DEPENDER DE JS) */
+        :root {
+            --oficina-verde: #4b5320;
+            --oficina-dark: #1a1c0b;
+            --oficina-claro: #e3e4d4;
+        }
+
         body, html { 
             margin: 0; padding: 0; overflow: hidden; 
-            background-color: #1a1c0b; cursor: none;
+            background-color: var(--oficina-dark); 
             font-family: 'Montserrat', sans-serif; height: 100vh;
         }
-        
-        /* Estética idéntica a tu diseño original */
+
+        /* Fondo de puntos original */
         .bg-pattern {
-            background-color: #e3e4d4;
-            background-image: radial-gradient(#4b5320 0.5px, transparent 0.5px);
+            background-color: var(--oficina-claro);
+            background-image: radial-gradient(var(--oficina-verde) 0.5px, transparent 0.5px);
             background-size: 30px 30px;
-        }
-
-        .price-tag { text-shadow: 4px 4px 0px rgba(75, 83, 32, 0.2); }
-
-        .slide-enter { animation: slideIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+            color: var(--oficina-dark);
+            display: flex; height: 100vh; width: 100vw;
         }
 
         .tv-container {
-            height: 100vh; width: 50vw; padding: 5vh 4vw;
-            display: flex; flex-direction: column; box-sizing: border-box;
+            width: 50vw; height: 100vh; padding: 5vh 4vw;
+            display: flex; flex-direction: column; justify-content: space-between;
+            box-sizing: border-box; z-index: 10;
         }
 
-        /* Ocultar elementos para las transiciones */
+        .price-tag { 
+            text-shadow: 4px 4px 0px rgba(75, 83, 32, 0.2); 
+            color: var(--oficina-verde); font-weight: 900; font-size: 7.5vw;
+        }
+
+        .category-badge {
+            background-color: var(--oficina-verde); color: white;
+            padding: 0.5vh 1.5vw; border-radius: 8px;
+            font-size: 1.4vw; font-weight: bold; text-transform: uppercase;
+        }
+
+        /* Imagen y Gradientes originales */
+        .image-side { width: 50vw; height: 100vh; position: relative; overflow: hidden; }
+        .image-side img { width: 100%; height: 100%; object-fit: cover; }
+        .gradient-overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(to right, var(--oficina-claro) 0%, transparent 20%);
+        }
+
+        /* Animación de entrada suave[cite: 2] */
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .slide-enter { animation: slideIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+
         .hidden { display: none !important; }
-        .fade-in { animation: fadeIn 0.5s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .flex { display: flex; }
     </style>
 </head>
 <body>
 
-    <!-- PANTALLA DE INICIO -->
-    <div id="start-screen" class="h-screen w-screen flex flex-col items-center justify-center bg-oficina-dark text-white p-10 text-center">
-        <h2 class="text-4xl mb-8 font-black uppercase tracking-tighter">Terminal Inteligente Mandré</h2>
-        <button onclick="startKiosk()" class="bg-oficina-verde text-white px-12 py-6 rounded-full text-2xl font-black border-4 border-white">
-            INICIAR KIOSCO
-        </button>
+    <!-- Pantalla de Inicio -->
+    <div id="view-start" style="height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--oficina-dark); color: white;">
+        <h1 style="font-size: 3vw; font-weight: 900; margin-bottom: 2rem;">TERMINAL INTELIGENTE</h1>
+        <button onclick="iniciar()" style="background: var(--oficina-verde); color: white; padding: 2vh 4vw; border-radius: 50px; border: 4px solid white; font-weight: 900; font-size: 1.5vw; cursor: pointer;">INICIAR KIOSCO</button>
     </div>
 
-    <!-- PANTALLA PRINCIPAL (PRODUCTOS) -->
-    <div id="main-display" class="hidden h-screen w-screen bg-pattern flex overflow-hidden">
-        <!-- Lado Izquierdo: Información -->
-        <div class="w-1/2 tv-container z-10">
+    <!-- Pantalla Principal de Productos[cite: 2] -->
+    <div id="view-main" class="hidden bg-pattern">
+        <div class="tv-container">
+            <div><span id="ui-cat" class="category-badge">CATEGORIA</span></div>
+            
+            <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center;">
+                <h1 id="ui-name" style="line-height: 0.9; font-weight: 900; text-transform: uppercase; color: var(--oficina-dark);">NOMBRE</h1>
+                <p id="ui-desc" style="font-size: 2.2vw; font-weight: 700; color: #4b5320; opacity: 0.9; margin-top: 2vh;">Descripción...</p>
+            </div>
+            
             <div>
-                <span id="ui-category" class="bg-oficina-verde text-white px-[1.5vw] py-[0.5vh] rounded-lg text-[1.4vw] font-bold uppercase tracking-widest">
-                    CATEGORÍA
-                </span>
-            </div>
-            
-            <div class="flex-grow flex flex-col justify-center overflow-hidden">
-                <h1 id="ui-name" class="font-[900] text-oficina-dark leading-[0.9] mb-[2vh] uppercase tracking-tighter text-[6vw]">
-                    NOMBRE
-                </h1>
-                <p id="ui-desc" class="text-[2.2vw] text-oficina-verde/90 font-bold max-w-[90%] leading-tight">
-                    Descripción...
-                </p>
-            </div>
-            
-            <div class="mt-auto">
-                <div id="ui-price" class="text-[7.5vw] font-black text-oficina-verde price-tag leading-none mb-[4vh]">
-                    $0
-                </div>
-                <div class="flex items-center gap-[2vw] border-t-[0.3vw] border-oficina-verde pt-[3vh]">
-                    <div class="bg-white p-[0.8vw] rounded-[1vw] shadow-xl">
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://instagram.com/laoficinaanserma" class="w-[7vw] h-[7vw]">
+                <div id="ui-price" class="price-tag">$0</div>
+                <div style="display: flex; align-items: center; gap: 2vw; border-top: 0.3vw solid var(--oficina-verde); padding-top: 3vh;">
+                    <div style="background: white; padding: 0.8vw; border-radius: 1vw; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://instagram.com/laoficinaanserma" style="width: 7vw; height: 7vw;">
                     </div>
                     <div>
-                        <p class="text-[1vw] font-bold text-oficina-dark/50 uppercase">Pide desde tu mesa</p>
-                        <p class="text-[2.2vw] font-black text-oficina-verde leading-none">@laoficinaanserma</p>
+                        <p style="font-size: 1vw; font-weight: 700; opacity: 0.5; text-transform: uppercase; margin: 0;">Pide desde tu mesa</p>
+                        <p style="font-size: 2.2vw; font-weight: 900; color: var(--oficina-verde); margin: 0;">@laoficinaanserma</p>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Lado Derecho: Imagen -->
-        <div class="w-1/2 relative h-full overflow-hidden">
-            <img id="ui-image" src="" class="h-full w-full object-cover">
-            <div class="absolute inset-0 bg-gradient-to-r from-[#e3e4d4] via-transparent to-transparent opacity-60"></div>
-            <div class="absolute inset-0 bg-gradient-to-r from-[#e3e4d4] w-[12%]"></div>
+        <div class="image-side">
+            <img id="ui-img" class="slide-enter" src="">
+            <div class="gradient-overlay"></div>
         </div>
     </div>
 
-    <!-- PANTALLA CLUB (PROMOCIÓN) -->
-    <div id="club-display" class="hidden h-screen w-screen bg-oficina-dark flex flex-col items-center justify-center text-center p-10">
-        <div class="mb-6">
-            <svg class="w-[12vw] h-[12vw] text-oficina-verde mx-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                <path d="M7 7h.01M17 7h.01M7 17h.01M17 17h.01M12 7v10M7 12h10"></path>
-            </svg>
-        </div>
-        <h2 class="text-[7vw] font-black text-white uppercase leading-none mb-6 tracking-tighter">¡ÚNETE AL CLUB!</h2>
-        <p class="text-[3.2vw] text-oficina-verde font-bold mb-10 max-w-[80vw] leading-tight text-center">
-            Escanea el <span class="text-white underline">CÓDIGO QR</span> de tu mesa y accede a beneficios exclusivos.
-        </p>
+    <!-- Pantalla de Club[cite: 2] -->
+    <div id="view-club" class="hidden" style="height: 100vh; width: 100vw; background: var(--oficina-dark); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: white; padding: 5vw;">
+        <h2 style="font-size: 7vw; font-weight: 900; margin-bottom: 2vh;">¡ÚNETE AL CLUB!</h2>
+        <p style="font-size: 3.2vw; color: var(--oficina-verde); font-weight: 700; max-width: 80%;">Escanea el <span style="text-decoration: underline; color: white;">CÓDIGO QR</span> de tu mesa y accede a beneficios exclusivos.</p>
     </div>
 
-    <script type="text/javascript">
-        // VARIABLES GLOBALES (ES5 para LG TV)
+    <script>
         var items = [];
         var currentIndex = 0;
-        var rotationTimer = null;
 
-        // Iniciar pantalla completa y carga
-        function startKiosk() {
-            var el = document.documentElement;
-            var r = el.requestFullscreen || el.webkitRequestFullScreen || el.mozRequestFullScreen || el.msRequestFullscreen;
-            if (r) r.call(el);
+        function iniciar() {
+            var doc = document.documentElement;
+            var r = doc.requestFullscreen || doc.webkitRequestFullScreen || doc.mozRequestFullScreen || doc.msRequestFullscreen;
+            if (r) r.call(doc);
             
-            document.getElementById('start-screen').style.display = 'none';
-            document.getElementById('main-display').className = 'h-screen w-screen bg-pattern flex overflow-hidden fade-in';
-            loadFromFirebase();
+            document.getElementById('view-start').className = 'hidden';
+            document.getElementById('view-main').className = 'bg-pattern flex';
+            loadData();
         }
 
-        // Carga ligera vía REST API (Evita crasheos del SDK en LG)
-        function loadFromFirebase() {
-            var url = "https://firestore.googleapis.com/v1/projects/mandre-f9e43/databases/(default)/documents/inventory";
+        // Conexión ultraligera para LG WebOS
+        function loadData() {
             var xhr = new XMLHttpRequest();
-            xhr.open("GET", url, true);
+            xhr.open("GET", "https://firestore.googleapis.com/v1/projects/mandre-f9e43/databases/(default)/documents/inventory", true);
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4 && xhr.status === 200) {
-                    var response = JSON.parse(xhr.responseText);
+                    var data = JSON.parse(xhr.responseText);
                     items = [];
-                    if (response.documents) {
-                        for (var i = 0; i < response.documents.length; i++) {
-                            var fields = response.documents[i].fields;
-                            // Filtrar solo promocionados con imagen
-                            if (fields.isPromoted && fields.isPromoted.booleanValue && fields.imageUrl) {
+                    if (data.documents) {
+                        for (var i = 0; i < data.documents.length; i++) {
+                            var f = data.documents[i].fields;
+                            if (f.isPromoted && f.isPromoted.booleanValue && f.imageUrl) {
                                 items.push({
-                                    name: fields.name.stringValue,
-                                    category: fields.category ? fields.category.stringValue : "ESPECIALIDAD",
-                                    price: fields.price ? (fields.price.integerValue || fields.price.doubleValue) : 0,
-                                    description: fields.description ? fields.description.stringValue : "",
-                                    imageUrl: fields.imageUrl.stringValue
+                                    name: f.name.stringValue,
+                                    price: f.price ? (f.price.integerValue || f.price.doubleValue) : 0,
+                                    desc: f.description ? f.description.stringValue : "",
+                                    img: f.imageUrl.stringValue,
+                                    cat: f.category ? f.category.stringValue : "MENÚ"
                                 });
                             }
                         }
                     }
-                    if (items.length > 0) startRotation();
+                    if (items.length > 0) loop();
                 }
             };
             xhr.send();
         }
 
-        function startRotation() {
-            updateUI();
-            if (rotationTimer) clearInterval(rotationTimer);
-            rotationTimer = setInterval(function() {
-                currentIndex = (currentIndex + 1) % (items.length + 1); // +1 para el slide del Club[cite: 2]
-                updateUI();
+        function loop() {
+            render();
+            setInterval(function() {
+                currentIndex = (currentIndex + 1) % (items.length + 1);
+                render();
             }, 8000);
         }
 
-        function updateUI() {
-            var mainView = document.getElementById('main-display');
-            var clubView = document.getElementById('club-display');
+        function render() {
+            var isClub = currentIndex === items.length || (currentIndex > 0 && currentIndex % 5 === 0);
             
-            // Cada 5 slides o al final, mostrar el Club[cite: 2]
-            var isClub = (currentIndex > 0 && currentIndex % 5 === 0) || currentIndex === items.length;
-
             if (isClub) {
-                mainView.className = 'hidden';
-                clubView.className = 'h-screen w-screen bg-oficina-dark flex flex-col items-center justify-center text-center p-10 slide-enter';
+                document.getElementById('view-main').className = 'hidden';
+                document.getElementById('view-club').className = 'flex';
+                document.getElementById('view-club').style.display = 'flex';
+                document.getElementById('view-club').classList.add('slide-enter');
             } else {
-                clubView.className = 'hidden';
-                mainView.className = 'h-screen w-screen bg-pattern flex overflow-hidden';
+                document.getElementById('view-club').className = 'hidden';
+                document.getElementById('view-club').style.display = 'none';
+                document.getElementById('view-main').className = 'bg-pattern flex';
                 
                 var data = items[currentIndex % items.length];
                 
-                // Actualizar Textos
-                document.getElementById('ui-category').innerText = data.category;
+                document.getElementById('ui-cat').innerText = data.cat;
                 document.getElementById('ui-name').innerText = data.name;
-                document.getElementById('ui-desc').innerText = data.description || "Experiencia premium en cada preparación.";
+                document.getElementById('ui-desc').innerText = data.desc;
                 document.getElementById('ui-price').innerText = "$" + Number(data.price).toLocaleString();
                 
-                // Actualizar Imagen con animación
-                var img = document.getElementById('ui-image');
-                img.src = data.imageUrl;
-                img.className = "h-full w-full object-cover slide-enter";
+                var img = document.getElementById('ui-img');
+                img.src = data.img;
                 
-                // Ajustar tamaño de fuente dinámico según largo del nombre[cite: 2]
-                var nameEl = document.getElementById('ui-name');
-                var len = data.name.length;
-                if (len < 8) nameEl.style.fontSize = "8vw";
-                else if (len < 15) nameEl.style.fontSize = "6.5vw";
-                else nameEl.style.fontSize = "4.2vw";
+                // Ajuste de tamaño dinámico de fuente[cite: 2]
+                var n = data.name.length;
+                var size = n < 8 ? "8vw" : n < 15 ? "6.5vw" : n < 22 ? "5vw" : "4.2vw";
+                document.getElementById('ui-name').style.fontSize = size;
+                
+                // Reiniciar animación
+                img.style.animation = 'none';
+                img.offsetHeight; 
+                img.style.animation = null;
             }
         }
     </script>
