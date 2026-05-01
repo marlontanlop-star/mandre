@@ -5,17 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TERMINAL INTELIGENTE | LA OFICINA</title>
     
-    <!-- Polyfills para asegurar que navegadores de TV antiguos entiendan funciones modernas -->
+    <!-- Scripts en versiones de alta compatibilidad -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/core-js/3.33.0/minified.js"></script>
-
-    <!-- Tailwind CSS (Se mantiene para la estética intacta) -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
     
-    <!-- React en versión de producción (Más rápido para el TV) -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    
-    <!-- Firebase Versión 8 (Máxima compatibilidad con Smart TVs, tu API de Firestore funciona igual) -->
+    <!-- Firebase 8 (El más estable para Smart TVs) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     
@@ -63,13 +59,12 @@
 <body>
     <div id="root"></div>
 
-    <!-- Cambiamos type="text/babel" a "text/javascript" -->
     <script type="text/javascript">
-        // Atajo para evitar escribir React.createElement y mantener el código sin necesidad de Babel
-        const el = React.createElement;
-        const { useState, useEffect } = React;
+        var el = React.createElement;
+        var useState = React.useState;
+        var useEffect = React.useEffect;
 
-        const firebaseConfig = {
+        var firebaseConfig = {
             apiKey: "AIzaSyAutOqky0mpVmwDrqFsyZ0zRl_abrzgPvc",
             authDomain: "mandre-f9e43.firebaseapp.com",
             projectId: "mandre-f9e43",
@@ -79,49 +74,56 @@
         };
 
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+        var db = firebase.firestore();
 
-        const AdsDisplay = () => {
-            const [items, setItems] = useState([]);
-            const [tvConfig, setTvConfig] = useState(null); 
-            const [currentIndex, setCurrentIndex] = useState(0);
-            const [isFullscreen, setIsFullscreen] = useState(false);
+        function AdsDisplay() {
+            var state = useState([]);
+            var items = state[0];
+            var setItems = state[1];
 
-            useEffect(() => {
-                const unsub = db.collection('inventory').where('isPromoted', '==', true).onSnapshot(snap => {
-                    setItems(snap.docs.map(doc => doc.data()).filter(i => i.imageUrl));
+            var configState = useState(null);
+            var tvConfig = configState[0];
+            var setTvConfig = configState[1];
+
+            var indexState = useState(0);
+            var currentIndex = indexState[0];
+            var setCurrentIndex = indexState[1];
+
+            var fullState = useState(false);
+            var isFullscreen = fullState[0];
+            var setIsFullscreen = fullState[1];
+
+            useEffect(function() {
+                var unsub = db.collection('inventory').where('isPromoted', '==', true).onSnapshot(function(snap) {
+                    var data = snap.docs.map(function(doc) { return doc.data(); }).filter(function(i) { return i.imageUrl; });
+                    setItems(data);
                 });
-                const unsubConfig = db.collection('configuracionTV').doc('actual').onSnapshot(doc => {
+                var unsubConfig = db.collection('configuracionTV').doc('actual').onSnapshot(function(doc) {
                     if (doc.exists) setTvConfig(doc.data());
                 });
-                return () => { unsub(); unsubConfig(); };
+                return function() { unsub(); unsubConfig(); };
             }, []);
 
-            const totalSlides = items.length > 0 ? items.length + Math.ceil(items.length / 4) : 0;
+            var totalSlides = items.length > 0 ? items.length + Math.ceil(items.length / 4) : 0;
 
-            useEffect(() => {
+            useEffect(function() {
                 if (totalSlides > 0) {
-                    const isPromo = (currentIndex + 1) % 5 === 0 || currentIndex === totalSlides - 1;
-                    const duration = isPromo ? 20000 : 8000; 
+                    var isPromo = (currentIndex + 1) % 5 === 0 || currentIndex === totalSlides - 1;
+                    var duration = isPromo ? 20000 : 8000; 
 
-                    const timer = setTimeout(() => {
-                        setCurrentIndex(prev => (prev + 1) % totalSlides);
+                    var timer = setTimeout(function() {
+                        setCurrentIndex((currentIndex + 1) % totalSlides);
                     }, duration);
-                    return () => clearTimeout(timer);
+                    return function() { clearTimeout(timer); };
                 }
             }, [currentIndex, totalSlides]);
 
-            const enterFullscreen = () => {
-                const docEl = document.documentElement;
-                if (docEl.requestFullscreen) {
-                    docEl.requestFullscreen().catch(e => console.log(e));
-                } else if (docEl.webkitRequestFullscreen) { // Safari/Chrome antiguos (Tizen/WebOS)
-                    docEl.webkitRequestFullscreen();
-                } else if (docEl.mozRequestFullScreen) { // Firefox
-                    docEl.mozRequestFullScreen();
-                }
+            function enterFullscreen() {
+                var docEl = document.documentElement;
+                var request = docEl.requestFullscreen || docEl.webkitRequestFullscreen || docEl.mozRequestFullScreen || docEl.msRequestFullscreen;
+                if (request) request.call(docEl);
                 setIsFullscreen(true);
-            };
+            }
 
             if (!isFullscreen) {
                 return el("div", { className: "h-screen w-screen flex flex-col items-center justify-center bg-oficina-dark text-white p-10 text-center" },
@@ -134,14 +136,13 @@
                 return el("div", { className: "h-screen w-screen flex items-center justify-center bg-oficina-dark text-white text-2xl font-bold animate-pulse" }, "Sincronizando...");
             }
 
-            const isPromoSlide = (currentIndex + 1) % 5 === 0 || currentIndex === totalSlides - 1;
-            const itemIndex = currentIndex - Math.floor((currentIndex + 1) / 5);
-            const current = items[itemIndex % items.length];
+            var isPromoSlide = (currentIndex + 1) % 5 === 0 || currentIndex === totalSlides - 1;
+            var itemIndex = currentIndex - Math.floor((currentIndex + 1) / 5);
+            var current = items[itemIndex % items.length];
 
             if (isPromoSlide) {
-                // Reemplazo seguro para los televisores de la sintaxis tvConfig?.cafePromocion
-                const cafe = (tvConfig && tvConfig.cafePromocion) ? tvConfig.cafePromocion : {};
-                const promoText = (tvConfig && tvConfig.publicidadRecurrente && tvConfig.publicidadRecurrente.textoConfigurable) ? tvConfig.publicidadRecurrente.textoConfigurable : "NUESTRAS MONTAÑAS ANSERMEÑAS";
+                var cafe = (tvConfig && tvConfig.cafePromocion) ? tvConfig.cafePromocion : {};
+                var promoText = (tvConfig && tvConfig.publicidadRecurrente && tvConfig.publicidadRecurrente.textoConfigurable) ? tvConfig.publicidadRecurrente.textoConfigurable : "NUESTRAS MONTAÑAS ANSERMEÑAS";
 
                 return el("div", { className: "h-screen w-screen bg-[#070803] flex items-center justify-center p-10 slide-enter overflow-hidden relative" },
                     el("div", { className: "flex w-full h-full items-center gap-8 relative z-10" },
@@ -163,7 +164,7 @@
                                 ),
                                 el("div", { className: "bg-white/5 p-4 rounded-2xl border border-oficina-claro/20" },
                                     el("p", { className: "text-[0.8vw] text-oficina-claro font-bold uppercase tracking-widest" }, "Altura"),
-                                    el("p", { className: "text-[1.6vw] text-white font-black" }, cafe.altura || '---', " ", el("span", { className: "text-[0.9vw] opacity-50 font-bold" }, "MSNM"))
+                                    el("p", { className: "text-[1.6vw] text-white font-black" }, (cafe.altura || '---') + " MSNM")
                                 ),
                                 el("div", { className: "bg-white/5 p-4 rounded-2xl border border-oficina-claro/20" },
                                     el("p", { className: "text-[0.8vw] text-oficina-claro font-bold uppercase tracking-widest" }, "Procesador"),
@@ -175,22 +176,22 @@
                             el("div", { className: "relative w-[36vw] h-[85vh] coffee-bag rounded-b-[70px] rounded-t-3xl flex flex-col items-center p-12 animate-float-slow border-2 border-oficina-claro/30 shadow-[0_0_80px_rgba(0,0,0,0.9)]" },
                                 el("div", { className: "absolute -top-16 w-48 h-48 bg-white rounded-full shadow-[0_0_60px_rgba(143,188,143,0.4)] border-8 border-oficina-claro z-20 flex items-center justify-center p-4 animate-seal-entrance overflow-hidden" },
                                     cafe.logoUrl 
-                                        ? el("img", { src: cafe.logoUrl, className: "w-full h-full object-contain", alt: "Sello Calidad" })
-                                        : el("div", { className: "text-oficina-claro opacity-20" }, el("svg", { viewBox: "0 0 24 24", fill: "currentColor", width: "80" }, el("path", { d: "M12 2L2 7l10 5 10-5-10-5z" })))
+                                        ? el("img", { src: cafe.logoUrl, className: "w-full h-full object-contain" })
+                                        : el("div", { className: "text-oficina-claro opacity-20" }, "LOGO")
                                 ),
                                 el("div", { className: "mt-20 w-full flex flex-col items-center flex-1" },
                                     el("div", { className: "text-center bg-oficina-claro p-6 rounded-[2.5rem] shadow-xl w-full mb-8" },
                                         el("p", { className: "text-oficina-dark font-black uppercase tracking-[0.3em] text-[0.9vw] mb-2 opacity-60" }, "Perfil de Taza"),
-                                        el("p", { className: "text-[1.8vw] text-oficina-dark font-black leading-tight italic" }, "\"", cafe.notas || 'Notas equilibradas de alta montaña', "\"")
+                                        el("p", { className: "text-[1.8vw] text-oficina-dark font-black leading-tight italic" }, "\"" + (cafe.notas || 'Notas equilibradas') + "\"")
                                     ),
                                     el("div", { className: "bg-[#0a0b04] border-2 border-dashed border-oficina-claro/40 p-6 rounded-3xl text-center w-full" },
                                         el("p", { className: "text-oficina-claro font-bold uppercase text-[1vw] tracking-[0.2em] mb-1" }, "Día de Tueste"),
-                                        el("p", { className: "text-white font-black text-[2.5vw]" }, cafe.diaTueste ? cafe.diaTueste.split('-').reverse().join('/') : 'RECIENTE')
+                                        el("p", { className: "text-white font-black text-[2.5vw]" }, cafe.diaTueste || 'RECIENTE')
                                     )
                                 ),
                                 el("div", { className: "mt-auto flex items-center gap-4 bg-white/5 p-4 rounded-3xl border border-white/10 w-full" },
                                     el("div", { className: "bg-white p-2 rounded-xl" },
-                                        el("img", { src: "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://instagram.com/laoficinaanserma", className: "w-16 h-16", alt: "QR" })
+                                        el("img", { src: "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=laoficina", className: "w-16 h-16" })
                                     ),
                                     el("div", null,
                                         el("p", { className: "text-oficina-claro font-black text-[1.2vw] leading-none uppercase" }, "@laoficinaanserma"),
@@ -203,23 +204,27 @@
                 );
             }
 
-            const getTitleStyle = (text) => text.length < 8 ? "text-[8vw]" : text.length < 15 ? "text-[6.5vw]" : text.length < 22 ? "text-[5vw]" : "text-[4.2vw]";
+            function getTitleSize(text) {
+                if (text.length < 8) return "text-[8vw]";
+                if (text.length < 15) return "text-[6.5vw]";
+                return "text-[5vw]";
+            }
             
             return el("div", { className: "h-screen w-screen bg-pattern flex overflow-hidden" },
                 el("div", { className: "w-1/2 tv-container z-10" },
                     el("div", null, el("span", { className: "bg-oficina-verde text-white px-[1.5vw] py-[0.5vh] rounded-lg text-[1.4vw] font-bold uppercase tracking-widest" }, current.category)),
                     el("div", { className: "flex-grow flex flex-col justify-center overflow-hidden pr-8" },
-                        el("h1", { className: getTitleStyle(current.name) + " font-[900] text-oficina-dark leading-[0.9] mb-[2vh] uppercase tracking-tighter no-word-break" }, current.name),
-                        el("p", { className: "text-[2.2vw] text-oficina-verde/90 font-bold max-w-[95%] leading-tight" }, current.description || "Experiencia premium en cada preparación.")
+                        el("h1", { className: getTitleSize(current.name) + " font-[900] text-oficina-dark leading-[0.9] mb-[2vh] uppercase tracking-tighter no-word-break" }, current.name),
+                        el("p", { className: "text-[2.2vw] text-oficina-verde/90 font-bold max-w-[95%] leading-tight" }, current.description || "Experiencia premium.")
                     ),
                     el("div", { className: "mt-auto" },
-                        el("div", { className: "text-[7.5vw] font-black text-oficina-verde price-tag leading-none mb-[4vh]" }, "$" + (current.price ? current.price.toLocaleString() : '')),
+                        el("div", { className: "text-[7.5vw] font-black text-oficina-verde price-tag leading-none mb-[4vh]" }, "$" + (current.price ? current.price.toLocaleString() : "0")),
                         el("div", { className: "flex items-center gap-[2vw] border-t-[0.3vw] border-oficina-verde pt-[3vh]" },
                             el("div", { className: "bg-white p-[0.8vw] rounded-[1vw] shadow-xl" },
-                                el("img", { src: "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://instagram.com/laoficinaanserma", className: "w-[7vw] h-[7vw]" })
+                                el("img", { src: "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=laoficina", className: "w-[7vw] h-[7vw]" })
                             ),
                             el("div", null,
-                                el("p", { className: "text-[1vw] font-bold text-oficina-dark/50 uppercase" }, "SIGUENOS EN INSTAGRAM"),
+                                el("p", { className: "text-[1vw] font-bold text-oficina-dark/50 uppercase" }, "INSTAGRAM"),
                                 el("p", { className: "text-[2.2vw] font-black text-oficina-verde leading-none" }, "@laoficinaanserma")
                             )
                         )
@@ -233,15 +238,9 @@
                     )
                 )
             );
-        };
-
-        const rootNode = document.getElementById('root');
-        if (ReactDOM.createRoot) {
-            ReactDOM.createRoot(rootNode).render(el(AdsDisplay));
-        } else {
-            // Fallback por si la TV no soporta la API de React 18
-            ReactDOM.render(el(AdsDisplay), rootNode);
         }
+
+        ReactDOM.render(el(AdsDisplay), document.getElementById('root'));
     </script>
 </body>
 </html>
