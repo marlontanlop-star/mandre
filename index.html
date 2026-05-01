@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TERMINAL INTELIGENTE | LA OFICINA</title>
     
-    <!-- Scripts de alta compatibilidad -->
+    <!-- Scripts de Compatibilidad Extrema -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/es6-shim/0.35.6/es6-shim.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
@@ -59,7 +59,7 @@
     <script type="text/javascript">
         var el = React.createElement;
 
-        // Limpieza de datos de Firebase REST
+        // Función para limpiar datos de la API de Google sin usar ES6
         function clean(fields) {
             var obj = {};
             for (var key in fields) {
@@ -85,21 +85,31 @@
             var isFullscreen = fullState[0];
             var setIsFullscreen = fullState[1];
 
-            // Carga de datos idéntica a la lógica original
+            // Carga de datos usando XMLHttpRequest (Universal para TVs)
             React.useEffect(function() {
-                function load() {
-                    var url = "https://firestore.googleapis.com/v1/projects/mandre-f9e43/databases/(default)/documents/inventory";
-                    fetch(url).then(function(r){ return r.json(); }).then(function(data) {
-                        if (data.documents) {
-                            var mapped = data.documents.map(function(d){ return clean(d.fields); })
-                                .filter(function(i){ return i.isPromoted === true && i.imageUrl; });
-                            setItems(mapped);
+                function loadData() {
+                    var xhr = new XMLHttpRequest();
+                    xhr.open("GET", "https://firestore.googleapis.com/v1/projects/mandre-f9e43/databases/(default)/documents/inventory", true);
+                    xhr.onreadystatechange = function() {
+                        if (xhr.readyState === 4 && xhr.status === 200) {
+                            var data = JSON.parse(xhr.responseText);
+                            if (data.documents) {
+                                var filtered = [];
+                                for (var i = 0; i < data.documents.length; i++) {
+                                    var item = clean(data.documents[i].fields);
+                                    if (item.isPromoted === true && item.imageUrl) {
+                                        filtered.push(item);
+                                    }
+                                }
+                                setItems(filtered);
+                            }
                         }
-                    });
+                    };
+                    xhr.send();
                 }
-                load();
-                var itv = setInterval(load, 60000);
-                return function() { clearInterval(itv); };
+                loadData();
+                var interval = setInterval(loadData, 60000);
+                return function() { clearInterval(interval); };
             }, []);
 
             var totalSlides = items.length > 0 ? items.length + Math.ceil(items.length / 4) : 0;
@@ -113,7 +123,7 @@
                 }
             }, [totalSlides]);
 
-            function getTitleStyle(text) {
+            function getTitleSize(text) {
                 var len = text ? text.length : 0;
                 if (len < 8) return "text-[8vw]";
                 if (len < 15) return "text-[6.5vw]";
@@ -121,17 +131,17 @@
                 return "text-[4.2vw]";
             }
 
-            function goFull() {
-                var e = document.documentElement;
-                var r = e.requestFullscreen || e.webkitRequestFullScreen || e.mozRequestFullScreen || e.msRequestFullscreen;
-                if (r) r.call(e);
+            function startKiosk() {
+                var doc = document.documentElement;
+                var req = doc.requestFullscreen || doc.webkitRequestFullScreen || doc.mozRequestFullScreen || doc.msRequestFullscreen;
+                if (req) req.call(doc);
                 setIsFullscreen(true);
             }
 
             if (!isFullscreen) {
                 return el("div", { className: "h-screen w-screen flex flex-col items-center justify-center bg-oficina-dark text-white p-10 text-center" },
                     el("h2", { className: "text-4xl mb-8 font-black uppercase tracking-tighter" }, "Terminal Inteligente Mandré"),
-                    el("button", { onClick: goFull, className: "bg-oficina-verde text-white px-12 py-6 rounded-full text-2xl font-black border-4 border-white transition-all hover:scale-105" }, "INICIAR KIOSCO")
+                    el("button", { onClick: startKiosk, className: "bg-oficina-verde text-white px-12 py-6 rounded-full text-2xl font-black border-4 border-white transition-all hover:scale-105" }, "INICIAR KIOSCO")
                 );
             }
 
@@ -145,7 +155,7 @@
             var itemIndex = currentIndex - Math.floor((currentIndex + 1) / 5);
             var current = items[itemIndex % items.length];
 
-            // Slide de Beneficios (Club) restaurado de Source 2
+            // VISTA CLUB (IDÉNTICA A TU CÓDIGO INICIAL)
             if (isClubSlide) {
                 return el("div", { className: "h-screen w-screen bg-oficina-dark flex flex-col items-center justify-center text-center p-10 slide-enter" },
                     el("div", { className: "mb-6 animate-bounce" },
@@ -161,18 +171,18 @@
                 );
             }
 
-            // Diseño de producto restaurado exactamente de Source 2
+            // VISTA PRODUCTO (IDÉNTICA A TU CÓDIGO INICIAL[cite: 2])
             return el("div", { className: "h-screen w-screen bg-pattern flex overflow-hidden" },
                 el("div", { className: "w-1/2 tv-container z-10" },
                     el("div", null, 
                         el("span", { className: "bg-oficina-verde text-white px-[1.5vw] py-[0.5vh] rounded-lg text-[1.4vw] font-bold uppercase tracking-widest" }, current.category)
                     ),
                     el("div", { className: "flex-grow flex flex-col justify-center overflow-hidden" },
-                        el("h1", { className: getTitleStyle(current.name) + " font-[900] text-oficina-dark leading-[0.9] mb-[2vh] uppercase tracking-tighter no-word-break" }, current.name),
+                        el("h1", { className: getTitleSize(current.name) + " font-[900] text-oficina-dark leading-[0.9] mb-[2vh] uppercase tracking-tighter no-word-break" }, current.name),
                         el("p", { className: "text-[2.2vw] text-oficina-verde/90 font-bold max-w-[90%] leading-tight" }, current.description || "Experiencia premium en cada preparación.")
                     ),
                     el("div", { className: "mt-auto" },
-                        el("div", { className: "text-[7.5vw] font-black text-oficina-verde price-tag leading-none mb-[4vh]" }, "$" + (current.price ? current.price.toLocaleString() : '0')),
+                        el("div", { className: "text-[7.5vw] font-black text-oficina-verde price-tag leading-none mb-[4vh]" }, "$" + (current.price ? current.price.toLocaleString() : "0")),
                         el("div", { className: "flex items-center gap-[2vw] border-t-[0.3vw] border-oficina-verde pt-[3vh]" },
                             el("div", { className: "bg-white p-[0.8vw] rounded-[1vw] shadow-xl" },
                                 el("img", { src: "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://instagram.com/laoficinaanserma", className: "w-[7vw] h-[7vw]" })
