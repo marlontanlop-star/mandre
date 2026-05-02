@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     
     <style>
-        /* CSS DISPUESTO PARA COMPATIBILIDAD TOTAL CON LG TV (SIN DEPENDER DE JS) */
+        /* CSS ORIGINAL PRESERVADO PARA COMPATIBILIDAD LG TV */
         :root {
             --oficina-verde: #4b5320;
             --oficina-dark: #1a1c0b;
@@ -20,7 +20,6 @@
             font-family: 'Montserrat', sans-serif; height: 100vh;
         }
 
-        /* Fondo de puntos original */
         .bg-pattern {
             background-color: var(--oficina-claro);
             background-image: radial-gradient(var(--oficina-verde) 0.5px, transparent 0.5px);
@@ -46,7 +45,6 @@
             font-size: 1.4vw; font-weight: bold; text-transform: uppercase;
         }
 
-        /* Imagen y Gradientes originales */
         .image-side { width: 50vw; height: 100vh; position: relative; overflow: hidden; }
         .image-side img { width: 100%; height: 100%; object-fit: cover; }
         .gradient-overlay {
@@ -54,7 +52,6 @@
             background: linear-gradient(to right, var(--oficina-claro) 0%, transparent 20%);
         }
 
-        /* Animación de entrada suave[cite: 2] */
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         .slide-enter { animation: slideIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
 
@@ -64,20 +61,18 @@
 </head>
 <body>
 
-    <!-- Pantalla de Inicio -->
     <div id="view-start" style="height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--oficina-dark); color: white;">
         <h1 style="font-size: 3vw; font-weight: 900; margin-bottom: 2rem;">TERMINAL INTELIGENTE</h1>
         <button onclick="iniciar()" style="background: var(--oficina-verde); color: white; padding: 2vh 4vw; border-radius: 50px; border: 4px solid white; font-weight: 900; font-size: 1.5vw; cursor: pointer;">INICIAR KIOSCO</button>
     </div>
 
-    <!-- Pantalla Principal de Productos[cite: 2] -->
     <div id="view-main" class="hidden bg-pattern">
         <div class="tv-container">
             <div><span id="ui-cat" class="category-badge">CATEGORIA</span></div>
             
             <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center;">
                 <h1 id="ui-name" style="line-height: 0.9; font-weight: 900; text-transform: uppercase; color: var(--oficina-dark);">NOMBRE</h1>
-                <p id="ui-desc" style="font-size: 2.2vw; font-weight: 700; color: #4b5320; opacity: 0.9; margin-top: 2vh;">Descripción...</p>
+                <p id="ui-desc" style="font-size: 2.2vw; font-weight: 700; color: #4b5320; opacity: 0.9; margin-top: 2vh;">Cargando...</p>
             </div>
             
             <div>
@@ -99,7 +94,6 @@
         </div>
     </div>
 
-    <!-- Pantalla de Club[cite: 2] -->
     <div id="view-club" class="hidden" style="height: 100vh; width: 100vw; background: var(--oficina-dark); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: white; padding: 5vw;">
         <h2 style="font-size: 7vw; font-weight: 900; margin-bottom: 2vh;">¡ÚNETE AL CLUB!</h2>
         <p style="font-size: 3.2vw; color: var(--oficina-verde); font-weight: 700; max-width: 80%;">Escanea el <span style="text-decoration: underline; color: white;">CÓDIGO QR</span> de tu mesa y accede a beneficios exclusivos.</p>
@@ -119,7 +113,6 @@
             loadData();
         }
 
-        // Conexión ultraligera para LG WebOS
         function loadData() {
             var xhr = new XMLHttpRequest();
             xhr.open("GET", "https://firestore.googleapis.com/v1/projects/mandre-f9e43/databases/(default)/documents/inventory", true);
@@ -130,10 +123,14 @@
                     if (data.documents) {
                         for (var i = 0; i < data.documents.length; i++) {
                             var f = data.documents[i].fields;
-                            if (f.isPromoted && f.isPromoted.booleanValue && f.imageUrl) {
+                            
+                            // SINCRONIZACIÓN CON POS: Verifica que esté marcado en el admin y tenga imagen
+                            var seleccionadoEnAdmin = f.isPromoted && f.isPromoted.booleanValue === true;
+                            
+                            if (seleccionadoEnAdmin && f.imageUrl && f.name) {
                                 items.push({
                                     name: f.name.stringValue,
-                                    price: f.price ? (f.price.integerValue || f.price.doubleValue) : 0,
+                                    price: f.price ? (f.price.integerValue || f.price.doubleValue || 0) : 0,
                                     desc: f.description ? f.description.stringValue : "",
                                     img: f.imageUrl.stringValue,
                                     cat: f.category ? f.category.stringValue : "MENÚ"
@@ -141,7 +138,12 @@
                             }
                         }
                     }
-                    if (items.length > 0) loop();
+                    if (items.length > 0) {
+                        loop();
+                    } else {
+                        document.getElementById('ui-name').innerText = "SIN SELECCIÓN";
+                        document.getElementById('ui-desc').innerText = "Activa productos en 'Publicidad TV' desde el POS.";
+                    }
                 }
             };
             xhr.send();
@@ -156,13 +158,12 @@
         }
 
         function render() {
-            var isClub = currentIndex === items.length || (currentIndex > 0 && currentIndex % 5 === 0);
+            var isClub = currentIndex === items.length;
             
             if (isClub) {
                 document.getElementById('view-main').className = 'hidden';
                 document.getElementById('view-club').className = 'flex';
                 document.getElementById('view-club').style.display = 'flex';
-                document.getElementById('view-club').classList.add('slide-enter');
             } else {
                 document.getElementById('view-club').className = 'hidden';
                 document.getElementById('view-club').style.display = 'none';
@@ -178,12 +179,10 @@
                 var img = document.getElementById('ui-img');
                 img.src = data.img;
                 
-                // Ajuste de tamaño dinámico de fuente[cite: 2]
                 var n = data.name.length;
                 var size = n < 8 ? "8vw" : n < 15 ? "6.5vw" : n < 22 ? "5vw" : "4.2vw";
                 document.getElementById('ui-name').style.fontSize = size;
                 
-                // Reiniciar animación
                 img.style.animation = 'none';
                 img.offsetHeight; 
                 img.style.animation = null;
