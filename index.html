@@ -100,34 +100,51 @@
     </div>
 
     <script>
-        var items = [];
-        var currentIndex = 0;
+    var items = [];
+    var currentIndex = 0;
 
-        function iniciar() {
+    function iniciar() {
+        console.log("Iniciando Kiosco..."); // Para ver en consola si responde
+        
+        // Intentar pantalla completa, pero si falla, que siga con el código
+        try {
             var doc = document.documentElement;
             var r = doc.requestFullscreen || doc.webkitRequestFullScreen || doc.mozRequestFullScreen || doc.msRequestFullscreen;
             if (r) r.call(doc);
-            
-            document.getElementById('view-start').className = 'hidden';
-            document.getElementById('view-main').className = 'bg-pattern flex';
-            loadData();
+        } catch (e) {
+            console.log("Error en pantalla completa, continuando...");
         }
+        
+        // Cambiamos las vistas pase lo que pase
+        document.getElementById('view-start').style.display = 'none';
+        document.getElementById('view-main').classList.remove('hidden');
+        document.getElementById('view-main').classList.add('flex');
+        
+        loadData();
+    }
 
-        function loadData() {
-            var xhr = new XMLHttpRequest();
-            xhr.open("GET", "https://firestore.googleapis.com/v1/projects/mandre-f9e43/databases/(default)/documents/inventory", true);
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4 && xhr.status === 200) {
+    function loadData() {
+        var xhr = new XMLHttpRequest();
+        // Usamos Date.now() para que la TV siempre pida datos nuevos a Firebase
+        xhr.open("GET", "https://firestore.googleapis.com/v1/projects/mandre-f9e43/databases/(default)/documents/inventory?nocache=" + Date.now(), true);
+        
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
                     var data = JSON.parse(xhr.responseText);
                     items = [];
                     if (data.documents) {
                         for (var i = 0; i < data.documents.length; i++) {
                             var f = data.documents[i].fields;
                             
-                            // SINCRONIZACIÓN CON POS: Verifica que esté marcado en el admin y tenga imagen
-                            var seleccionadoEnAdmin = f.isPromoted && f.isPromoted.booleanValue === true;
+                            // Verificamos si el campo isPromoted existe y es true
+                            var esPromocionado = false;
+                            if (f.isPromoted && f.isPromoted.booleanValue === true) {
+                                esPromocionado = true;
+                            }
                             
-                            if (seleccionadoEnAdmin && f.imageUrl && f.name) {
+                            // Si es promocionado y tiene imagen, lo metemos a la lista
+                            if (esPromocionado && f.imageUrl && f.imageUrl.stringValue) {
                                 items.push({
                                     name: f.name.stringValue,
                                     price: f.price ? (f.price.integerValue || f.price.doubleValue || 0) : 0,
@@ -138,56 +155,64 @@
                             }
                         }
                     }
+
                     if (items.length > 0) {
-                        loop();
+                        render();
+                        startLoop();
                     } else {
-                        document.getElementById('ui-name').innerText = "SIN SELECCIÓN";
+                        document.getElementById('ui-name').innerText = "SIN PRODUCTOS";
                         document.getElementById('ui-desc').innerText = "Activa productos en 'Publicidad TV' desde el POS.";
                     }
+                } else {
+                    console.error("Error cargando datos de Firebase");
                 }
-            };
-            xhr.send();
-        }
-
-        function loop() {
-            render();
-            setInterval(function() {
-                currentIndex = (currentIndex + 1) % (items.length + 1);
-                render();
-            }, 8000);
-        }
-
-        function render() {
-            var isClub = currentIndex === items.length;
-            
-            if (isClub) {
-                document.getElementById('view-main').className = 'hidden';
-                document.getElementById('view-club').className = 'flex';
-                document.getElementById('view-club').style.display = 'flex';
-            } else {
-                document.getElementById('view-club').className = 'hidden';
-                document.getElementById('view-club').style.display = 'none';
-                document.getElementById('view-main').className = 'bg-pattern flex';
-                
-                var data = items[currentIndex % items.length];
-                
-                document.getElementById('ui-cat').innerText = data.cat;
-                document.getElementById('ui-name').innerText = data.name;
-                document.getElementById('ui-desc').innerText = data.desc;
-                document.getElementById('ui-price').innerText = "$" + Number(data.price).toLocaleString();
-                
-                var img = document.getElementById('ui-img');
-                img.src = data.img;
-                
-                var n = data.name.length;
-                var size = n < 8 ? "8vw" : n < 15 ? "6.5vw" : n < 22 ? "5vw" : "4.2vw";
-                document.getElementById('ui-name').style.fontSize = size;
-                
-                img.style.animation = 'none';
-                img.offsetHeight; 
-                img.style.animation = null;
             }
+        };
+        xhr.send();
+    }
+
+    function startLoop() {
+        // Limpiar cualquier intervalo previo para evitar que la música o el loop se vuelvan locos
+        if (window.miIntervalo) clearInterval(window.miIntervalo);
+        
+        window.miIntervalo = setInterval(function() {
+            currentIndex = (currentIndex + 1) % (items.length + 1);
+            render();
+        }, 8000);
+    }
+
+    function render() {
+        var isClub = currentIndex === items.length;
+        
+        if (isClub) {
+            document.getElementById('view-main').style.display = 'none';
+            document.getElementById('view-club').style.display = 'flex';
+        } else {
+            document.getElementById('view-club').style.display = 'none';
+            document.getElementById('view-main').style.display = 'flex';
+            
+            var data = items[currentIndex];
+            if (!data) return; // Seguridad
+
+            document.getElementById('ui-cat').innerText = data.cat;
+            document.getElementById('ui-name').innerText = data.name;
+            document.getElementById('ui-desc').innerText = data.desc;
+            document.getElementById('ui-price').innerText = "$" + Number(data.price).toLocaleString();
+            
+            var img = document.getElementById('ui-img');
+            img.src = data.img;
+            
+            // Ajuste de fuente dinámico
+            var n = data.name.length;
+            var size = n < 8 ? "8vw" : n < 15 ? "6.5vw" : n < 22 ? "5vw" : "4.2vw";
+            document.getElementById('ui-name').style.fontSize = size;
+            
+            // Reiniciar animación
+            img.style.animation = 'none';
+            img.offsetHeight; 
+            img.style.animation = null;
         }
-    </script>
+    }
+</script>
 </body>
 </html>
