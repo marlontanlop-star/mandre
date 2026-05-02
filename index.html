@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     
     <style>
-        /* CSS ORIGINAL PRESERVADO PARA COMPATIBILIDAD LG TV */
+        /* CSS PRESERVADO PARA DISEÑO MINIMALISTA Y COMPATIBILIDAD LG TV */
         :root {
             --oficina-verde: #4b5320;
             --oficina-dark: #1a1c0b;
@@ -47,6 +47,7 @@
 
         .image-side { width: 50vw; height: 100vh; position: relative; overflow: hidden; }
         .image-side img { width: 100%; height: 100%; object-fit: cover; }
+        
         .gradient-overlay {
             position: absolute; inset: 0;
             background: linear-gradient(to right, var(--oficina-claro) 0%, transparent 20%);
@@ -56,16 +57,18 @@
         .slide-enter { animation: slideIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
 
         .hidden { display: none !important; }
-        .flex { display: flex; }
+        .flex { display: flex !important; }
     </style>
 </head>
 <body>
 
+    <!-- VISTA INICIAL -->
     <div id="view-start" style="height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--oficina-dark); color: white;">
         <h1 style="font-size: 3vw; font-weight: 900; margin-bottom: 2rem;">TERMINAL INTELIGENTE</h1>
         <button onclick="iniciar()" style="background: var(--oficina-verde); color: white; padding: 2vh 4vw; border-radius: 50px; border: 4px solid white; font-weight: 900; font-size: 1.5vw; cursor: pointer;">INICIAR KIOSCO</button>
     </div>
 
+    <!-- VISTA PRINCIPAL DE PRODUCTOS -->
     <div id="view-main" class="hidden bg-pattern">
         <div class="tv-container">
             <div><span id="ui-cat" class="category-badge">CATEGORIA</span></div>
@@ -94,125 +97,132 @@
         </div>
     </div>
 
+    <!-- VISTA PUBLICIDAD CLUB -->
     <div id="view-club" class="hidden" style="height: 100vh; width: 100vw; background: var(--oficina-dark); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: white; padding: 5vw;">
         <h2 style="font-size: 7vw; font-weight: 900; margin-bottom: 2vh;">¡ÚNETE AL CLUB!</h2>
         <p style="font-size: 3.2vw; color: var(--oficina-verde); font-weight: 700; max-width: 80%;">Escanea el <span style="text-decoration: underline; color: white;">CÓDIGO QR</span> de tu mesa y accede a beneficios exclusivos.</p>
     </div>
 
     <script>
-    var items = [];
-    var currentIndex = 0;
+        var items = [];
+        var currentIndex = 0;
+        var loopInterval = null;
 
-    function iniciar() {
-        console.log("Iniciando Kiosco..."); // Para ver en consola si responde
-        
-        // Intentar pantalla completa, pero si falla, que siga con el código
-        try {
-            var doc = document.documentElement;
-            var r = doc.requestFullscreen || doc.webkitRequestFullScreen || doc.mozRequestFullScreen || doc.msRequestFullscreen;
-            if (r) r.call(doc);
-        } catch (e) {
-            console.log("Error en pantalla completa, continuando...");
+        function iniciar() {
+            // Manejo de pantalla completa seguro para TV
+            try {
+                var doc = document.documentElement;
+                var r = doc.requestFullscreen || doc.webkitRequestFullScreen || doc.mozRequestFullScreen || doc.msRequestFullscreen;
+                if (r) r.call(doc);
+            } catch (e) { console.log("Fullscreen no soportado"); }
+            
+            document.getElementById('view-start').classList.add('hidden');
+            document.getElementById('view-main').classList.remove('hidden');
+            document.getElementById('view-main').classList.add('flex');
+            
+            loadData();
         }
-        
-        // Cambiamos las vistas pase lo que pase
-        document.getElementById('view-start').style.display = 'none';
-        document.getElementById('view-main').classList.remove('hidden');
-        document.getElementById('view-main').classList.add('flex');
-        
-        loadData();
-    }
 
-    function loadData() {
-        var xhr = new XMLHttpRequest();
-        // Usamos Date.now() para que la TV siempre pida datos nuevos a Firebase
-        xhr.open("GET", "https://firestore.googleapis.com/v1/projects/mandre-f9e43/databases/(default)/documents/inventory?nocache=" + Date.now(), true);
-        
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4) {
-                if (xhr.status === 200) {
-                    var data = JSON.parse(xhr.responseText);
-                    items = [];
-                    if (data.documents) {
-                        for (var i = 0; i < data.documents.length; i++) {
-                            var f = data.documents[i].fields;
-                            
-                            // Verificamos si el campo isPromoted existe y es true
-                            var esPromocionado = false;
-                            if (f.isPromoted && f.isPromoted.booleanValue === true) {
-                                esPromocionado = true;
-                            }
-                            
-                            // Si es promocionado y tiene imagen, lo metemos a la lista
-                            if (esPromocionado && f.imageUrl && f.imageUrl.stringValue) {
-                                items.push({
-                                    name: f.name.stringValue,
-                                    price: f.price ? (f.price.integerValue || f.price.doubleValue || 0) : 0,
-                                    desc: f.description ? f.description.stringValue : "",
-                                    img: f.imageUrl.stringValue,
-                                    cat: f.category ? f.category.stringValue : "MENÚ"
-                                });
+        function loadData() {
+            var xhr = new XMLHttpRequest();
+            // URL LIMPIA: Se eliminó "?nocache" para evitar el Error 400 de Firestore REST API
+            var url = "https://firestore.googleapis.com/v1/projects/mandre-f9e43/databases/(default)/documents/inventory";
+            
+            xhr.open("GET", url, true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        var data = JSON.parse(xhr.responseText);
+                        items = [];
+                        if (data.documents) {
+                            for (var i = 0; i < data.documents.length; i++) {
+                                var f = data.documents[i].fields;
+                                
+                                // Validación del campo 'isPromoted'
+                                var esPromocionado = false;
+                                if (f.isPromoted && f.isPromoted.booleanValue === true) {
+                                    esPromocionado = true;
+                                }
+                                
+                                // Solo productos con imagen y marcados para publicidad
+                                if (esPromocionado && f.imageUrl && f.imageUrl.stringValue) {
+                                    items.push({
+                                        name: f.name ? f.name.stringValue : "PRODUCTO",
+                                        price: f.price ? (f.price.integerValue || f.price.doubleValue || 0) : 0,
+                                        desc: f.description ? f.description.stringValue : "",
+                                        img: f.imageUrl.stringValue,
+                                        cat: f.category ? f.category.stringValue : "MENÚ"
+                                    });
+                                }
                             }
                         }
-                    }
 
-                    if (items.length > 0) {
-                        render();
-                        startLoop();
+                        if (items.length > 0) {
+                            currentIndex = 0;
+                            render();
+                            startLoop();
+                        } else {
+                            document.getElementById('ui-name').innerText = "SIN PRODUCTOS";
+                            document.getElementById('ui-desc').innerText = "Activa la opción 'Publicidad TV' en el POS.";
+                        }
                     } else {
-                        document.getElementById('ui-name').innerText = "SIN PRODUCTOS";
-                        document.getElementById('ui-desc').innerText = "Activa productos en 'Publicidad TV' desde el POS.";
+                        document.getElementById('ui-desc').innerText = "Error de red: " + xhr.status;
+                        document.getElementById('ui-desc').style.color = "red";
                     }
-                } else {
-                    console.error("Error cargando datos de Firebase");
                 }
-            }
-        };
-        xhr.send();
-    }
-
-    function startLoop() {
-        // Limpiar cualquier intervalo previo para evitar que la música o el loop se vuelvan locos
-        if (window.miIntervalo) clearInterval(window.miIntervalo);
-        
-        window.miIntervalo = setInterval(function() {
-            currentIndex = (currentIndex + 1) % (items.length + 1);
-            render();
-        }, 8000);
-    }
-
-    function render() {
-        var isClub = currentIndex === items.length;
-        
-        if (isClub) {
-            document.getElementById('view-main').style.display = 'none';
-            document.getElementById('view-club').style.display = 'flex';
-        } else {
-            document.getElementById('view-club').style.display = 'none';
-            document.getElementById('view-main').style.display = 'flex';
-            
-            var data = items[currentIndex];
-            if (!data) return; // Seguridad
-
-            document.getElementById('ui-cat').innerText = data.cat;
-            document.getElementById('ui-name').innerText = data.name;
-            document.getElementById('ui-desc').innerText = data.desc;
-            document.getElementById('ui-price').innerText = "$" + Number(data.price).toLocaleString();
-            
-            var img = document.getElementById('ui-img');
-            img.src = data.img;
-            
-            // Ajuste de fuente dinámico
-            var n = data.name.length;
-            var size = n < 8 ? "8vw" : n < 15 ? "6.5vw" : n < 22 ? "5vw" : "4.2vw";
-            document.getElementById('ui-name').style.fontSize = size;
-            
-            // Reiniciar animación
-            img.style.animation = 'none';
-            img.offsetHeight; 
-            img.style.animation = null;
+            };
+            xhr.send();
         }
-    }
-</script>
+
+        function startLoop() {
+            if (loopInterval) clearInterval(loopInterval);
+            loopInterval = setInterval(function() {
+                currentIndex = (currentIndex + 1) % (items.length + 1);
+                render();
+            }, 8000);
+        }
+
+        function render() {
+            var isClub = currentIndex === items.length;
+            var viewMain = document.getElementById('view-main');
+            var viewClub = document.getElementById('view-club');
+            
+            if (isClub) {
+                viewMain.classList.add('hidden');
+                viewClub.classList.remove('hidden');
+                viewClub.classList.add('flex');
+            } else {
+                viewClub.classList.add('hidden');
+                viewMain.classList.remove('hidden');
+                viewMain.classList.add('flex');
+                
+                var data = items[currentIndex];
+                if (!data) return;
+
+                document.getElementById('ui-cat').innerText = data.cat;
+                document.getElementById('ui-name').innerText = data.name;
+                document.getElementById('ui-desc').innerText = data.desc;
+                
+                try {
+                    document.getElementById('ui-price').innerText = "$" + Number(data.price).toLocaleString();
+                } catch(e) {
+                    document.getElementById('ui-price').innerText = "$" + data.price;
+                }
+                
+                var img = document.getElementById('ui-img');
+                img.src = data.img;
+                
+                // Tipografía Montserrat: Ajuste dinámico de tamaño
+                var n = data.name.length;
+                var size = n < 8 ? "8vw" : n < 15 ? "6.5vw" : n < 22 ? "5vw" : "4.2vw";
+                document.getElementById('ui-name').style.fontSize = size;
+                
+                // Reiniciar animación de entrada
+                img.style.animation = 'none';
+                img.offsetHeight; 
+                img.style.animation = null;
+            }
+        }
+    </script>
 </body>
 </html>
