@@ -82,7 +82,7 @@
                 <div id="ui-price" class="price-tag">$0</div>
                 <div style="display: flex; align-items: center; gap: 2vw; border-top: 0.3vw solid var(--oficina-verde); padding-top: 3vh;">
                     <div style="background: white; padding: 0.8vw; border-radius: 1vw; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://instagram.com/laoficinaanserma" style="width: 7vw; height: 7vw;">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://instagram.com/laoficinaanserma" style="width: 7vw; height: 7vw;" alt="QR La Oficina">
                     </div>
                     <div>
                         <p style="font-size: 1vw; font-weight: 700; opacity: 0.5; text-transform: uppercase; margin: 0;">Pide desde tu mesa</p>
@@ -105,11 +105,11 @@
 
     <script>
         var items = [];
+        var allDocs = []; // Almacenará TODOS los productos antes de filtrar
         var currentIndex = 0;
         var loopInterval = null;
 
         function iniciar() {
-            // Manejo de pantalla completa seguro para TV
             try {
                 var doc = document.documentElement;
                 var r = doc.requestFullscreen || doc.webkitRequestFullScreen || doc.mozRequestFullScreen || doc.msRequestFullscreen;
@@ -120,58 +120,88 @@
             document.getElementById('view-main').classList.remove('hidden');
             document.getElementById('view-main').classList.add('flex');
             
-            loadData();
+            // Reiniciar arreglos y comenzar la carga recursiva
+            allDocs = [];
+            loadData(""); 
         }
 
-        function loadData() {
+        // NUEVA LÓGICA: Paginación Recursiva para asegurar que se lee TODO el inventario
+        function loadData(pageToken) {
             var xhr = new XMLHttpRequest();
-            // URL LIMPIA: Se eliminó "?nocache" para evitar el Error 400 de Firestore REST API
-            var url = "https://firestore.googleapis.com/v1/projects/mandre-f9e43/databases/(default)/documents/inventory";
+            var url = "https://firestore.googleapis.com/v1/projects/mandre-f9e43/databases/(default)/documents/inventory?pageSize=300";
+            
+            // Si hay un token de página siguiente, lo añadimos a la URL
+            if (pageToken) {
+                url += "&pageToken=" + pageToken;
+            }
             
             xhr.open("GET", url, true);
+            
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4) {
                     if (xhr.status === 200) {
-                        var data = JSON.parse(xhr.responseText);
-                        items = [];
-                        if (data.documents) {
-                            for (var i = 0; i < data.documents.length; i++) {
-                                var f = data.documents[i].fields;
-                                
-                                // Validación del campo 'isPromoted'
-                                var esPromocionado = false;
-                                if (f.isPromoted && f.isPromoted.booleanValue === true) {
-                                    esPromocionado = true;
-                                }
-                                
-                                // Solo productos con imagen y marcados para publicidad
-                                if (esPromocionado && f.imageUrl && f.imageUrl.stringValue) {
-                                    items.push({
-                                        name: f.name ? f.name.stringValue : "PRODUCTO",
-                                        price: f.price ? (f.price.integerValue || f.price.doubleValue || 0) : 0,
-                                        desc: f.description ? f.description.stringValue : "",
-                                        img: f.imageUrl.stringValue,
-                                        cat: f.category ? f.category.stringValue : "MENÚ"
-                                    });
-                                }
+                        try {
+                            var data = JSON.parse(xhr.responseText);
+                            
+                            // Acumular los documentos de esta página
+                            if (data.documents) {
+                                allDocs = allDocs.concat(data.documents);
                             }
-                        }
 
-                        if (items.length > 0) {
-                            currentIndex = 0;
-                            render();
-                            startLoop();
-                        } else {
-                            document.getElementById('ui-name').innerText = "SIN PRODUCTOS";
-                            document.getElementById('ui-desc').innerText = "Activa la opción 'Publicidad TV' en el POS.";
+                            // Si Firestore indica que hay MÁS páginas, vuelve a llamarse a sí misma
+                            if (data.nextPageToken) {
+                                loadData(data.nextPageToken);
+                            } else {
+                                // Si ya no hay más páginas, procedemos a procesar el total
+                                procesarDocumentos();
+                            }
+                        } catch (error) {
+                            console.error("Error procesando datos de Firestore:", error);
+                            document.getElementById('ui-desc').innerText = "Error leyendo base de datos.";
                         }
                     } else {
-                        document.getElementById('ui-desc').innerText = "Error de red: " + xhr.status;
+                        document.getElementById('ui-desc').innerText = "Error de conexión: " + xhr.status;
                         document.getElementById('ui-desc').style.color = "red";
                     }
                 }
             };
             xhr.send();
+        }
+
+        // Filtra los productos promocionados una vez se ha descargado todo el inventario
+        function procesarDocumentos() {
+            items = [];
+            
+            for (var i = 0; i < allDocs.length; i++) {
+                var f = allDocs[i].fields;
+                if (!f) continue;
+                
+                var isPromoted = f.isPromoted && (f.isPromoted.booleanValue === true || f.isPromoted.stringValue === "true");
+                var imageUrl = f.imageUrl ? f.imageUrl.stringValue : (f.imagen ? f.imagen.stringValue : null);
+                
+                if (isPromoted && imageUrl) {
+                    var rawPrice = f.price ? (f.price.integerValue || f.price.doubleValue || f.price.stringValue || 0) : 0;
+                    var finalPrice = Number(rawPrice);
+                    
+                    items.push({
+                        name: f.name ? f.name.stringValue : "PRODUCTO",
+                        price: isNaN(finalPrice) ? 0 : finalPrice,
+                        desc: f.description ? f.description.stringValue : "",
+                        img: imageUrl,
+                        cat: f.category ? f.category.stringValue : "MENÚ"
+                    });
+                }
+            }
+
+            if (items.length > 0) {
+                currentIndex = 0;
+                render();
+                startLoop();
+            } else {
+                document.getElementById('ui-name').innerText = "SIN PRODUCTOS";
+                document.getElementById('ui-desc').innerText = "No se encontraron productos promocionados en todo el inventario.";
+                document.getElementById('ui-img').src = "";
+            }
         }
 
         function startLoop() {
@@ -204,7 +234,7 @@
                 document.getElementById('ui-desc').innerText = data.desc;
                 
                 try {
-                    document.getElementById('ui-price').innerText = "$" + Number(data.price).toLocaleString();
+                    document.getElementById('ui-price').innerText = "$" + data.price.toLocaleString('es-CO');
                 } catch(e) {
                     document.getElementById('ui-price').innerText = "$" + data.price;
                 }
@@ -212,12 +242,10 @@
                 var img = document.getElementById('ui-img');
                 img.src = data.img;
                 
-                // Tipografía Montserrat: Ajuste dinámico de tamaño
                 var n = data.name.length;
                 var size = n < 8 ? "8vw" : n < 15 ? "6.5vw" : n < 22 ? "5vw" : "4.2vw";
                 document.getElementById('ui-name').style.fontSize = size;
                 
-                // Reiniciar animación de entrada
                 img.style.animation = 'none';
                 img.offsetHeight; 
                 img.style.animation = null;
