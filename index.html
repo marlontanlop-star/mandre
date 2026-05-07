@@ -14,6 +14,7 @@
             --rosa-claro: #fce4ec;
             --rosa-vibrante: #ff4081;
             --crema-floral: #fff5f8;
+            --spotify-green: #1DB954;
         }
 
         body, html { 
@@ -22,14 +23,13 @@
             font-family: 'Montserrat', sans-serif; height: 100vh;
         }
 
-        /* Fondo Animado */
+        /* Fondo Animado con Pétalos */
         .bg-floral {
             background-color: var(--crema-floral);
             display: flex; height: 100vh; width: 100vw;
             position: relative;
         }
 
-        /* Pétalos flotantes */
         .petal {
             position: absolute;
             background: var(--rosa-vibrante);
@@ -47,17 +47,16 @@
             100% { transform: translateY(-10vh) translateX(150px) rotate(360deg); opacity: 0; }
         }
 
-        /* Estructura Principal de Productos */
+        /* Contenedor de Información */
         .tv-container {
             width: 50vw; height: 100vh; padding: 5vh 4vw;
             display: flex; flex-direction: column; justify-content: space-between;
             box-sizing: border-box; z-index: 10;
-            background: rgba(255, 255, 248, 0.9);
-            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 248, 0.95);
+            backdrop-filter: blur(15px);
         }
 
         .price-tag { 
-            text-shadow: 3px 3px 0px rgba(212, 77, 141, 0.1); 
             color: var(--rosa-fuerte); font-weight: 900; font-size: 7.5vw;
         }
 
@@ -65,43 +64,49 @@
         .image-side img { width: 100%; height: 100%; object-fit: cover; transition: transform 15s linear; }
         .zoom-effect { transform: scale(1.25); }
 
-        /* VISTA MAMÁ: CENTRADO TOTAL */
+        /* Invitación Spotify JAM */
+        .jam-invitation {
+            background: white;
+            padding: 2vh 1.5vw;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            gap: 1.5vw;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            border: 2px solid var(--rosa-claro);
+            margin-top: 2vh;
+        }
+
+        .jam-text h4 {
+            margin: 0; font-size: 1.2vw; color: var(--spotify-green); font-weight: 900;
+        }
+        .jam-text p {
+            margin: 0; font-size: 0.9vw; color: #555; font-weight: 700;
+        }
+
+        /* Vista Mamá */
         #view-mama {
             height: 100vh; width: 100vw;
             display: flex; align-items: center; justify-content: center;
             background: radial-gradient(circle, #fff0f6 0%, #fce4ec 100%);
             position: relative;
-            z-index: 20;
         }
 
         .mama-card {
-            width: 80vw;
-            max-width: 1200px;
-            background: white;
-            padding: 8vh 5vw;
-            border-radius: 60px;
-            text-align: center;
+            width: 80vw; max-width: 1100px; background: white;
+            padding: 6vh 5vw; border-radius: 60px; text-align: center;
             box-shadow: 0 40px 100px rgba(212, 77, 141, 0.15);
-            border: 2px solid var(--rosa-claro);
-            position: relative;
-            animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+            animation: zoomIn 0.6s ease-out;
         }
 
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(50px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes zoomIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
         }
 
         .discount-badge {
-            display: inline-block;
-            background: var(--rosa-fuerte);
-            color: white;
-            padding: 1.5vh 3vw;
-            border-radius: 100px;
-            font-weight: 900;
-            font-size: 4vw;
-            margin: 3vh 0;
-            box-shadow: 0 10px 30px rgba(212, 77, 141, 0.4);
+            display: inline-block; background: var(--rosa-fuerte); color: white;
+            padding: 1.5vh 4vw; border-radius: 100px; font-weight: 900; font-size: 3.5vw; margin: 3vh 0;
         }
 
         .hidden { display: none !important; }
@@ -112,42 +117,47 @@
 
     <div id="view-start" style="height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--oficina-dark); color: white;">
         <h1 style="font-size: 3vw; font-weight: 900; letter-spacing: 10px;">LA OFICINA</h1>
-        <button onclick="iniciar()" style="background: var(--rosa-fuerte); color: white; padding: 2vh 4vw; border-radius: 50px; border: none; font-weight: 900; font-size: 1.5vw; cursor: pointer;">ACTIVAR TERMINAL</button>
+        <button onclick="iniciar()" style="background: var(--rosa-fuerte); color: white; padding: 2vh 4vw; border-radius: 50px; border: none; font-weight: 900; font-size: 1.5vw; cursor: pointer;">INICIAR TERMINAL</button>
     </div>
 
     <div id="view-main" class="hidden bg-floral">
         <div id="petals-container"></div>
+        
         <div class="tv-container">
             <div id="ui-cat" style="font-weight: 900; color: var(--rosa-fuerte); text-transform: uppercase; letter-spacing: 3px; font-size: 1.2vw;">CATEGORÍA</div>
+            
             <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center;">
                 <h1 id="ui-name" style="line-height: 0.9; font-weight: 900; text-transform: uppercase; color: var(--oficina-dark); margin: 0;">PRODUCTO</h1>
-                <p id="ui-desc" style="font-size: 2.2vw; font-weight: 400; color: #666; margin-top: 2vh;">Descripción detallada del producto.</p>
+                <p id="ui-desc" style="font-size: 2vw; font-weight: 400; color: #555; margin-top: 2vh; line-height: 1.3;">Descripción del producto.</p>
             </div>
+
             <div>
                 <div id="ui-price" class="price-tag">$0</div>
-                <div style="margin-top: 3vh; padding-top: 3vh; border-top: 2px solid var(--rosa-claro); display: flex; align-items: center; gap: 1.5vw;">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://instagram.com/laoficinaanserma" style="width: 5vw; height: 5vw;">
-                    <p style="font-weight: 900; font-size: 1.5vw; color: var(--rosa-fuerte); margin: 0;">@laoficinaanserma</p>
+                
+                <div class="jam-invitation">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://spotify.link/c8OrccmvX2b" style="width: 7vw; height: 7vw; border-radius: 10px;">
+                    <div class="jam-text">
+                        <h4>¡PON TU MÚSICA! 🎵</h4>
+                        <p>Escanea el QR y únete al JAM de La Oficina.</p>
+                        <p style="font-size: 0.7vw; opacity: 0.5; margin-top: 0.5vh;">Controla la lista de reproducción ahora.</p>
+                    </div>
                 </div>
             </div>
         </div>
+        
         <div class="image-side">
             <img id="ui-img" src="">
-            <div style="position: absolute; inset: 0; background: linear-gradient(to right, rgba(255,245,248,1) 0%, transparent 15%);"></div>
+            <div style="position: absolute; inset: 0; background: linear-gradient(to right, rgba(255,245,248,1) 0%, transparent 20%);"></div>
         </div>
     </div>
 
     <div id="view-mama" class="hidden">
         <div class="mama-card">
-            <p style="font-weight: 900; letter-spacing: 5px; color: var(--rosa-fuerte); margin-bottom: 2vh; font-size: 1.2vw;">ESTE 9 Y 10 DE MAYO</p>
-            <h2 style="font-size: 6.5vw; font-weight: 900; line-height: 0.9; color: var(--oficina-dark); margin: 0;">
-                CELEBRA A <br><span style="color: var(--rosa-fuerte);">MAMÁ</span> EN LA OFICINA
-            </h2>
+            <p style="font-weight: 900; letter-spacing: 5px; color: var(--rosa-fuerte); margin-bottom: 2vh; font-size: 1.2vw;">9 Y 10 DE MAYO</p>
+            <h2 style="font-size: 6vw; font-weight: 900; line-height: 0.9; color: var(--oficina-dark); margin: 0;"> CELEBRA A <br><span style="color: var(--rosa-fuerte);">MAMÁ</span> </h2>
             <div class="discount-badge">10% DE DESCUENTO</div>
-            <p style="font-size: 2.2vw; font-weight: 400; color: #555; max-width: 80%; margin: 0 auto; line-height: 1.4;">
-                Trae a la reina de la casa y recibe un beneficio exclusivo en el total de tu cuenta por venir con ella.
-            </p>
-            <div style="margin-top: 5vh; font-size: 1.5vw; font-weight: 900; color: var(--oficina-verde);">🌸 ¡TE ESPERAMOS! 🌸</div>
+            <p style="font-size: 2.2vw; font-weight: 400; color: #555; max-width: 85%; margin: 0 auto; line-height: 1.4;"> Recibe este beneficio especial en el total de tu cuenta por venir con ella a <strong>La Oficina</strong>. </p>
+            <div style="margin-top: 4vh; font-size: 1.2vw; font-weight: 900; color: var(--spotify-green);">Escanea el QR del JAM y dedica su canción favorita 🌸</div>
         </div>
     </div>
 
