@@ -3,44 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TERMINAL INTELIGENTE | LA OFICINA</title>
+    <title>ESPECIAL DÍA DE LA MADRE | LA OFICINA</title>
+    <!-- Mantenemos Montserrat para la identidad de La Oficina -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     
     <style>
-        /* CSS PRESERVADO PARA DISEÑO MINIMALISTA Y COMPATIBILIDAD LG TV */
         :root {
-            --oficina-verde: #4b5320;
-            --oficina-dark: #1a1c0b;
-            --oficina-claro: #e3e4d4;
+            --mom-rosa: #d81b60; 
+            --mom-suave: #fff5f7; 
+            --mom-dark: #2d0a14;  
         }
 
         body, html { 
             margin: 0; padding: 0; overflow: hidden; 
-            background-color: var(--oficina-dark); 
+            background-color: var(--mom-dark); 
             font-family: 'Montserrat', sans-serif; height: 100vh;
         }
 
         .bg-pattern {
-            background-color: var(--oficina-claro);
-            background-image: radial-gradient(var(--oficina-verde) 0.5px, transparent 0.5px);
-            background-size: 30px 30px;
-            color: var(--oficina-dark);
+            background-color: var(--mom-suave);
+            background-image: radial-gradient(var(--mom-rosa) 0.5px, transparent 0.5px);
+            background-size: 40px 40px;
             display: flex; height: 100vh; width: 100vw;
         }
 
+        /* Contenedor de producto */
         .tv-container {
             width: 50vw; height: 100vh; padding: 5vh 4vw;
             display: flex; flex-direction: column; justify-content: space-between;
-            box-sizing: border-box; z-index: 10;
+            box-sizing: border-box;
         }
 
         .price-tag { 
-            text-shadow: 4px 4px 0px rgba(75, 83, 32, 0.2); 
-            color: var(--oficina-verde); font-weight: 900; font-size: 7.5vw;
+            color: var(--mom-rosa); font-weight: 900; font-size: 7.5vw;
         }
 
         .category-badge {
-            background-color: var(--oficina-verde); color: white;
+            background-color: var(--mom-rosa); color: white;
             padding: 0.5vh 1.5vw; border-radius: 8px;
             font-size: 1.4vw; font-weight: bold; text-transform: uppercase;
         }
@@ -48,13 +47,9 @@
         .image-side { width: 50vw; height: 100vh; position: relative; overflow: hidden; }
         .image-side img { width: 100%; height: 100%; object-fit: cover; }
         
-        .gradient-overlay {
-            position: absolute; inset: 0;
-            background: linear-gradient(to right, var(--oficina-claro) 0%, transparent 20%);
-        }
-
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        .slide-enter { animation: slideIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+        /* Animación ultra-simple para compatibilidad LG */
+        .slide-enter { animation: fadeIn 0.5s ease-in forwards; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         .hidden { display: none !important; }
         .flex { display: flex !important; }
@@ -63,192 +58,163 @@
 <body>
 
     <!-- VISTA INICIAL -->
-    <div id="view-start" style="height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--oficina-dark); color: white;">
-        <h1 style="font-size: 3vw; font-weight: 900; margin-bottom: 2rem;">TERMINAL INTELIGENTE</h1>
-        <button onclick="iniciar()" style="background: var(--oficina-verde); color: white; padding: 2vh 4vw; border-radius: 50px; border: 4px solid white; font-weight: 900; font-size: 1.5vw; cursor: pointer;">INICIAR KIOSCO</button>
+    <div id="view-start" style="height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--mom-dark); color: white; text-align: center;">
+        <h1 style="font-size: 6vw; font-weight: 900; color: #ff85a2;">¡FELIZ DÍA <br>MAMÁ!</h1>
+        <button onclick="iniciar()" style="background: var(--mom-rosa); color: white; padding: 2vh 5vw; border-radius: 50px; border: 4px solid white; font-weight: 900; font-size: 1.8vw; cursor: pointer; margin-top: 20px;">INICIAR KIOSCO</button>
     </div>
 
     <!-- VISTA PRINCIPAL DE PRODUCTOS -->
     <div id="view-main" class="hidden bg-pattern">
         <div class="tv-container">
-            <div><span id="ui-cat" class="category-badge">CATEGORIA</span></div>
-            
+            <div><span id="ui-cat" class="category-badge">PARA MAMÁ</span></div>
             <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center;">
-                <h1 id="ui-name" style="line-height: 0.9; font-weight: 900; text-transform: uppercase; color: var(--oficina-dark);">NOMBRE</h1>
-                <p id="ui-desc" style="font-size: 2.2vw; font-weight: 700; color: #4b5320; opacity: 0.9; margin-top: 2vh;">Cargando...</p>
+                <h1 id="ui-name" style="line-height: 0.9; font-weight: 900; text-transform: uppercase;">PRODUCTO</h1>
+                <p id="ui-desc" style="font-size: 2.2vw; font-weight: 700; color: var(--mom-rosa); margin-top: 2vh;">Cargando...</p>
             </div>
-            
             <div>
                 <div id="ui-price" class="price-tag">$0</div>
-                <div style="display: flex; align-items: center; gap: 2vw; border-top: 0.3vw solid var(--oficina-verde); padding-top: 3vh;">
-                    <div style="background: white; padding: 0.8vw; border-radius: 1vw; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://instagram.com/laoficinaanserma" style="width: 7vw; height: 7vw;" alt="QR La Oficina">
-                    </div>
+                <div style="display: flex; align-items: center; gap: 2vw; border-top: 0.3vw solid var(--mom-rosa); padding-top: 3vh;">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://instagram.com/laoficinaanserma" style="width: 7vw; height: 7vw; background: white; padding: 5px; border-radius: 10px;">
                     <div>
-                        <p style="font-size: 1vw; font-weight: 700; opacity: 0.5; text-transform: uppercase; margin: 0;">Pide desde tu mesa</p>
-                        <p style="font-size: 2.2vw; font-weight: 900; color: var(--oficina-verde); margin: 0;">@laoficinaanserma</p>
+                        <p style="font-size: 1.1vw; font-weight: 700; opacity: 0.6; color: var(--mom-dark); margin: 0;">Pide un regalo para ella</p>
+                        <p style="font-size: 2.2vw; font-weight: 900; color: var(--mom-rosa); margin: 0;">@laoficinaanserma</p>
                     </div>
                 </div>
             </div>
         </div>
         <div class="image-side">
             <img id="ui-img" class="slide-enter" src="">
-            <div class="gradient-overlay"></div>
         </div>
     </div>
 
-    <!-- VISTA PUBLICIDAD CLUB -->
-    <div id="view-club" class="hidden" style="height: 100vh; width: 100vw; background: var(--oficina-dark); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: white; padding: 5vw;">
-        <h2 style="font-size: 7vw; font-weight: 900; margin-bottom: 2vh;">¡ÚNETE AL CLUB!</h2>
-        <p style="font-size: 3.2vw; color: var(--oficina-verde); font-weight: 700; max-width: 80%;">Escanea el <span style="text-decoration: underline; color: white;">CÓDIGO QR</span> de tu mesa y accede a beneficios exclusivos.</p>
+    <!-- VISTA MENSAJE DÍA DE LA MADRE (INTERCALADO) -->
+    <div id="view-message" class="hidden" style="height: 100vh; width: 100vw; background: var(--mom-dark); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: white;">
+        <h2 style="font-size: 8vw; font-weight: 900; color: #ff85a2; line-height: 1; margin: 0;">¡FELIZ DÍA <br>MAMÁ!</h2>
+        <!-- Contenedor de la frase: Aquí es donde se inyecta el texto -->
+        <div id="ui-msg-container" style="min-height: 15vh; display: flex; align-items: center; justify-content: center; width: 80%;">
+            <p id="ui-msg-text" style="font-size: 3.5vw; color: white; font-weight: 700; margin-top: 3vh; line-height: 1.2;">
+                Cargando mensaje...
+            </p>
+        </div>
+        <div style="margin-top: 5vh; border: 2px solid var(--mom-rosa); padding: 2vh 4vw; border-radius: 20px;">
+            <p style="font-size: 1.5vw; color: var(--mom-rosa); font-weight: 900; margin: 0;">ESPECIAL DE TEMPORADA | LA OFICINA</p>
+        </div>
     </div>
 
     <script>
-        var items = [];
-        var allDocs = []; // Almacenará TODOS los productos antes de filtrar
+        var displaySequence = [];
         var currentIndex = 0;
         var loopInterval = null;
+        var allDocs = [];
+
+        var frasesMama = [
+            "Gracias por llenar nuestros días de amor.",
+            "Hoy celebramos el amor más puro de todos.",
+            "Un brindis por ti, mamá. ¡Te mereces todo!",
+            "Tu sonrisa es nuestra mayor alegría.",
+            "Porque no hay amor más grande que el tuyo.",
+            "El mejor ingrediente de la vida es tu amor."
+        ];
+        var fraseIndex = 0;
 
         function iniciar() {
             try {
                 var doc = document.documentElement;
-                var r = doc.requestFullscreen || doc.webkitRequestFullScreen || doc.mozRequestFullScreen || doc.msRequestFullscreen;
-                if (r) r.call(doc);
-            } catch (e) { console.log("Fullscreen no soportado"); }
+                if (doc.requestFullscreen) doc.requestFullscreen();
+            } catch (e) {}
             
             document.getElementById('view-start').classList.add('hidden');
-            document.getElementById('view-main').classList.remove('hidden');
-            document.getElementById('view-main').classList.add('flex');
-            
-            // Reiniciar arreglos y comenzar la carga recursiva
-            allDocs = [];
             loadData(""); 
         }
 
-        // NUEVA LÓGICA: Paginación Recursiva para asegurar que se lee TODO el inventario
         function loadData(pageToken) {
             var xhr = new XMLHttpRequest();
             var url = "https://firestore.googleapis.com/v1/projects/mandre-f9e43/databases/(default)/documents/inventory?pageSize=300";
-            
-            // Si hay un token de página siguiente, lo añadimos a la URL
-            if (pageToken) {
-                url += "&pageToken=" + pageToken;
-            }
+            if (pageToken) url += "&pageToken=" + pageToken;
             
             xhr.open("GET", url, true);
-            
             xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        try {
-                            var data = JSON.parse(xhr.responseText);
-                            
-                            // Acumular los documentos de esta página
-                            if (data.documents) {
-                                allDocs = allDocs.concat(data.documents);
-                            }
-
-                            // Si Firestore indica que hay MÁS páginas, vuelve a llamarse a sí misma
-                            if (data.nextPageToken) {
-                                loadData(data.nextPageToken);
-                            } else {
-                                // Si ya no hay más páginas, procedemos a procesar el total
-                                procesarDocumentos();
-                            }
-                        } catch (error) {
-                            console.error("Error procesando datos de Firestore:", error);
-                            document.getElementById('ui-desc').innerText = "Error leyendo base de datos.";
-                        }
-                    } else {
-                        document.getElementById('ui-desc').innerText = "Error de conexión: " + xhr.status;
-                        document.getElementById('ui-desc').style.color = "red";
-                    }
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    var data = JSON.parse(xhr.responseText);
+                    if (data.documents) allDocs = allDocs.concat(data.documents);
+                    if (data.nextPageToken) loadData(data.nextPageToken);
+                    else procesarInventario();
                 }
             };
             xhr.send();
         }
 
-        // Filtra los productos promocionados una vez se ha descargado todo el inventario
-        function procesarDocumentos() {
-            items = [];
-            
+        function procesarInventario() {
+            var products = [];
             for (var i = 0; i < allDocs.length; i++) {
                 var f = allDocs[i].fields;
-                if (!f) continue;
-                
-                var isPromoted = f.isPromoted && (f.isPromoted.booleanValue === true || f.isPromoted.stringValue === "true");
-                var imageUrl = f.imageUrl ? f.imageUrl.stringValue : (f.imagen ? f.imagen.stringValue : null);
+                var isPromoted = f && f.isPromoted && (f.isPromoted.booleanValue === true || f.isPromoted.stringValue === "true");
+                var imageUrl = f && (f.imageUrl ? f.imageUrl.stringValue : (f.imagen ? f.imagen.stringValue : null));
                 
                 if (isPromoted && imageUrl) {
-                    var rawPrice = f.price ? (f.price.integerValue || f.price.doubleValue || f.price.stringValue || 0) : 0;
-                    var finalPrice = Number(rawPrice);
-                    
-                    items.push({
-                        name: f.name ? f.name.stringValue : "PRODUCTO",
-                        price: isNaN(finalPrice) ? 0 : finalPrice,
+                    products.push({
+                        isMessage: false,
+                        name: f.name ? f.name.stringValue : "ESPECIAL",
+                        price: Number(f.price ? (f.price.integerValue || f.price.doubleValue || f.price.stringValue || 0) : 0),
                         desc: f.description ? f.description.stringValue : "",
                         img: imageUrl,
-                        cat: f.category ? f.category.stringValue : "MENÚ"
+                        cat: f.category ? f.category.stringValue : "FELIZ DÍA"
                     });
                 }
             }
 
-            if (items.length > 0) {
-                currentIndex = 0;
+            // Crear secuencia: 2 productos + 1 mensaje
+            displaySequence = [];
+            for (var j = 0; j < products.length; j++) {
+                displaySequence.push(products[j]);
+                if ((j + 1) % 2 === 0) {
+                    displaySequence.push({ isMessage: true });
+                }
+            }
+            // Si el total es impar, añadir mensaje al final
+            if (products.length % 2 !== 0) displaySequence.push({ isMessage: true });
+
+            if (displaySequence.length > 0) {
                 render();
-                startLoop();
-            } else {
-                document.getElementById('ui-name').innerText = "SIN PRODUCTOS";
-                document.getElementById('ui-desc').innerText = "No se encontraron productos promocionados en todo el inventario.";
-                document.getElementById('ui-img').src = "";
+                if (loopInterval) clearInterval(loopInterval);
+                loopInterval = setInterval(function() {
+                    currentIndex = (currentIndex + 1) % displaySequence.length;
+                    render();
+                }, 8000);
             }
         }
 
-        function startLoop() {
-            if (loopInterval) clearInterval(loopInterval);
-            loopInterval = setInterval(function() {
-                currentIndex = (currentIndex + 1) % (items.length + 1);
-                render();
-            }, 8000);
-        }
-
         function render() {
-            var isClub = currentIndex === items.length;
-            var viewMain = document.getElementById('view-main');
-            var viewClub = document.getElementById('view-club');
+            var data = displaySequence[currentIndex];
+            var vMain = document.getElementById('view-main');
+            var vMsg = document.getElementById('view-message');
             
-            if (isClub) {
-                viewMain.classList.add('hidden');
-                viewClub.classList.remove('hidden');
-                viewClub.classList.add('flex');
-            } else {
-                viewClub.classList.add('hidden');
-                viewMain.classList.remove('hidden');
-                viewMain.classList.add('flex');
+            if (data.isMessage) {
+                vMain.classList.add('hidden');
+                vMain.classList.remove('flex');
+                vMsg.classList.remove('hidden');
+                vMsg.classList.add('flex');
                 
-                var data = items[currentIndex];
-                if (!data) return;
-
+                // Inyectar frase rotativa de forma segura
+                document.getElementById('ui-msg-text').innerHTML = frasesMama[fraseIndex];
+                fraseIndex = (fraseIndex + 1) % frasesMama.length;
+            } else {
+                vMsg.classList.add('hidden');
+                vMsg.classList.remove('flex');
+                vMain.classList.remove('hidden');
+                vMain.classList.add('flex');
+                
                 document.getElementById('ui-cat').innerText = data.cat;
                 document.getElementById('ui-name').innerText = data.name;
                 document.getElementById('ui-desc').innerText = data.desc;
-                
-                try {
-                    document.getElementById('ui-price').innerText = "$" + data.price.toLocaleString('es-CO');
-                } catch(e) {
-                    document.getElementById('ui-price').innerText = "$" + data.price;
-                }
+                document.getElementById('ui-price').innerText = "$" + data.price.toLocaleString('es-CO');
                 
                 var img = document.getElementById('ui-img');
                 img.src = data.img;
                 
+                // Ajuste de tamaño de fuente dinámico
                 var n = data.name.length;
-                var size = n < 8 ? "8vw" : n < 15 ? "6.5vw" : n < 22 ? "5vw" : "4.2vw";
-                document.getElementById('ui-name').style.fontSize = size;
-                
-                img.style.animation = 'none';
-                img.offsetHeight; 
-                img.style.animation = null;
+                img.style.fontSize = n < 8 ? "8vw" : n < 15 ? "6.5vw" : "4.5vw";
             }
         }
     </script>
