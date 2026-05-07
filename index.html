@@ -7,11 +7,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     
     <style>
-        /* CSS PRESERVADO PARA DISEÑO MINIMALISTA Y COMPATIBILIDAD LG TV */
         :root {
             --oficina-verde: #4b5320;
             --oficina-dark: #1a1c0b;
-            --oficina-claro: #e3e4d4;
+            --rosa-fuerte: #d44d8d;
+            --rosa-claro: #fce4ec;
+            --rosa-vibrante: #ff4081;
+            --crema-floral: #fff5f8;
         }
 
         body, html { 
@@ -20,41 +22,87 @@
             font-family: 'Montserrat', sans-serif; height: 100vh;
         }
 
-        .bg-pattern {
-            background-color: var(--oficina-claro);
-            background-image: radial-gradient(var(--oficina-verde) 0.5px, transparent 0.5px);
-            background-size: 30px 30px;
-            color: var(--oficina-dark);
+        /* Fondo Animado */
+        .bg-floral {
+            background-color: var(--crema-floral);
             display: flex; height: 100vh; width: 100vw;
+            position: relative;
         }
 
+        /* Pétalos flotantes */
+        .petal {
+            position: absolute;
+            background: var(--rosa-vibrante);
+            border-radius: 150% 0 150% 0;
+            opacity: 0.2;
+            pointer-events: none;
+            z-index: 1;
+            animation: float 12s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(110vh) translateX(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.3; }
+            90% { opacity: 0.3; }
+            100% { transform: translateY(-10vh) translateX(150px) rotate(360deg); opacity: 0; }
+        }
+
+        /* Estructura Principal de Productos */
         .tv-container {
             width: 50vw; height: 100vh; padding: 5vh 4vw;
             display: flex; flex-direction: column; justify-content: space-between;
             box-sizing: border-box; z-index: 10;
+            background: rgba(255, 255, 248, 0.9);
+            backdrop-filter: blur(10px);
         }
 
         .price-tag { 
-            text-shadow: 4px 4px 0px rgba(75, 83, 32, 0.2); 
-            color: var(--oficina-verde); font-weight: 900; font-size: 7.5vw;
-        }
-
-        .category-badge {
-            background-color: var(--oficina-verde); color: white;
-            padding: 0.5vh 1.5vw; border-radius: 8px;
-            font-size: 1.4vw; font-weight: bold; text-transform: uppercase;
+            text-shadow: 3px 3px 0px rgba(212, 77, 141, 0.1); 
+            color: var(--rosa-fuerte); font-weight: 900; font-size: 7.5vw;
         }
 
         .image-side { width: 50vw; height: 100vh; position: relative; overflow: hidden; }
-        .image-side img { width: 100%; height: 100%; object-fit: cover; }
-        
-        .gradient-overlay {
-            position: absolute; inset: 0;
-            background: linear-gradient(to right, var(--oficina-claro) 0%, transparent 20%);
+        .image-side img { width: 100%; height: 100%; object-fit: cover; transition: transform 15s linear; }
+        .zoom-effect { transform: scale(1.25); }
+
+        /* VISTA MAMÁ: CENTRADO TOTAL */
+        #view-mama {
+            height: 100vh; width: 100vw;
+            display: flex; align-items: center; justify-content: center;
+            background: radial-gradient(circle, #fff0f6 0%, #fce4ec 100%);
+            position: relative;
+            z-index: 20;
         }
 
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        .slide-enter { animation: slideIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+        .mama-card {
+            width: 80vw;
+            max-width: 1200px;
+            background: white;
+            padding: 8vh 5vw;
+            border-radius: 60px;
+            text-align: center;
+            box-shadow: 0 40px 100px rgba(212, 77, 141, 0.15);
+            border: 2px solid var(--rosa-claro);
+            position: relative;
+            animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .discount-badge {
+            display: inline-block;
+            background: var(--rosa-fuerte);
+            color: white;
+            padding: 1.5vh 3vw;
+            border-radius: 100px;
+            font-weight: 900;
+            font-size: 4vw;
+            margin: 3vh 0;
+            box-shadow: 0 10px 30px rgba(212, 77, 141, 0.4);
+        }
 
         .hidden { display: none !important; }
         .flex { display: flex !important; }
@@ -62,193 +110,138 @@
 </head>
 <body>
 
-    <!-- VISTA INICIAL -->
     <div id="view-start" style="height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--oficina-dark); color: white;">
-        <h1 style="font-size: 3vw; font-weight: 900; margin-bottom: 2rem;">TERMINAL INTELIGENTE</h1>
-        <button onclick="iniciar()" style="background: var(--oficina-verde); color: white; padding: 2vh 4vw; border-radius: 50px; border: 4px solid white; font-weight: 900; font-size: 1.5vw; cursor: pointer;">INICIAR KIOSCO</button>
+        <h1 style="font-size: 3vw; font-weight: 900; letter-spacing: 10px;">LA OFICINA</h1>
+        <button onclick="iniciar()" style="background: var(--rosa-fuerte); color: white; padding: 2vh 4vw; border-radius: 50px; border: none; font-weight: 900; font-size: 1.5vw; cursor: pointer;">ACTIVAR TERMINAL</button>
     </div>
 
-    <!-- VISTA PRINCIPAL DE PRODUCTOS -->
-    <div id="view-main" class="hidden bg-pattern">
+    <div id="view-main" class="hidden bg-floral">
+        <div id="petals-container"></div>
         <div class="tv-container">
-            <div><span id="ui-cat" class="category-badge">CATEGORIA</span></div>
-            
+            <div id="ui-cat" style="font-weight: 900; color: var(--rosa-fuerte); text-transform: uppercase; letter-spacing: 3px; font-size: 1.2vw;">CATEGORÍA</div>
             <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center;">
-                <h1 id="ui-name" style="line-height: 0.9; font-weight: 900; text-transform: uppercase; color: var(--oficina-dark);">NOMBRE</h1>
-                <p id="ui-desc" style="font-size: 2.2vw; font-weight: 700; color: #4b5320; opacity: 0.9; margin-top: 2vh;">Cargando...</p>
+                <h1 id="ui-name" style="line-height: 0.9; font-weight: 900; text-transform: uppercase; color: var(--oficina-dark); margin: 0;">PRODUCTO</h1>
+                <p id="ui-desc" style="font-size: 2.2vw; font-weight: 400; color: #666; margin-top: 2vh;">Descripción detallada del producto.</p>
             </div>
-            
             <div>
                 <div id="ui-price" class="price-tag">$0</div>
-                <div style="display: flex; align-items: center; gap: 2vw; border-top: 0.3vw solid var(--oficina-verde); padding-top: 3vh;">
-                    <div style="background: white; padding: 0.8vw; border-radius: 1vw; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://instagram.com/laoficinaanserma" style="width: 7vw; height: 7vw;" alt="QR La Oficina">
-                    </div>
-                    <div>
-                        <p style="font-size: 1vw; font-weight: 700; opacity: 0.5; text-transform: uppercase; margin: 0;">Pide desde tu mesa</p>
-                        <p style="font-size: 2.2vw; font-weight: 900; color: var(--oficina-verde); margin: 0;">@laoficinaanserma</p>
-                    </div>
+                <div style="margin-top: 3vh; padding-top: 3vh; border-top: 2px solid var(--rosa-claro); display: flex; align-items: center; gap: 1.5vw;">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://instagram.com/laoficinaanserma" style="width: 5vw; height: 5vw;">
+                    <p style="font-weight: 900; font-size: 1.5vw; color: var(--rosa-fuerte); margin: 0;">@laoficinaanserma</p>
                 </div>
             </div>
         </div>
         <div class="image-side">
-            <img id="ui-img" class="slide-enter" src="">
-            <div class="gradient-overlay"></div>
+            <img id="ui-img" src="">
+            <div style="position: absolute; inset: 0; background: linear-gradient(to right, rgba(255,245,248,1) 0%, transparent 15%);"></div>
         </div>
     </div>
 
-    <!-- VISTA PUBLICIDAD CLUB -->
-    <div id="view-club" class="hidden" style="height: 100vh; width: 100vw; background: var(--oficina-dark); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: white; padding: 5vw;">
-        <h2 style="font-size: 7vw; font-weight: 900; margin-bottom: 2vh;">¡ÚNETE AL CLUB!</h2>
-        <p style="font-size: 3.2vw; color: var(--oficina-verde); font-weight: 700; max-width: 80%;">Escanea el <span style="text-decoration: underline; color: white;">CÓDIGO QR</span> de tu mesa y accede a beneficios exclusivos.</p>
+    <div id="view-mama" class="hidden">
+        <div class="mama-card">
+            <p style="font-weight: 900; letter-spacing: 5px; color: var(--rosa-fuerte); margin-bottom: 2vh; font-size: 1.2vw;">ESTE 9 Y 10 DE MAYO</p>
+            <h2 style="font-size: 6.5vw; font-weight: 900; line-height: 0.9; color: var(--oficina-dark); margin: 0;">
+                CELEBRA A <br><span style="color: var(--rosa-fuerte);">MAMÁ</span> EN LA OFICINA
+            </h2>
+            <div class="discount-badge">10% DE DESCUENTO</div>
+            <p style="font-size: 2.2vw; font-weight: 400; color: #555; max-width: 80%; margin: 0 auto; line-height: 1.4;">
+                Trae a la reina de la casa y recibe un beneficio exclusivo en el total de tu cuenta por venir con ella.
+            </p>
+            <div style="margin-top: 5vh; font-size: 1.5vw; font-weight: 900; color: var(--oficina-verde);">🌸 ¡TE ESPERAMOS! 🌸</div>
+        </div>
     </div>
 
     <script>
         var items = [];
-        var allDocs = []; // Almacenará TODOS los productos antes de filtrar
+        var allDocs = [];
         var currentIndex = 0;
-        var loopInterval = null;
+        var prodCounter = 0;
 
         function iniciar() {
-            try {
-                var doc = document.documentElement;
-                var r = doc.requestFullscreen || doc.webkitRequestFullScreen || doc.mozRequestFullScreen || doc.msRequestFullscreen;
-                if (r) r.call(doc);
-            } catch (e) { console.log("Fullscreen no soportado"); }
-            
+            try { document.documentElement.requestFullscreen(); } catch (e) {}
+            createPetals();
             document.getElementById('view-start').classList.add('hidden');
-            document.getElementById('view-main').classList.remove('hidden');
-            document.getElementById('view-main').classList.add('flex');
-            
-            // Reiniciar arreglos y comenzar la carga recursiva
-            allDocs = [];
             loadData(""); 
         }
 
-        // NUEVA LÓGICA: Paginación Recursiva para asegurar que se lee TODO el inventario
+        function createPetals() {
+            const container = document.getElementById('petals-container');
+            for (let i = 0; i < 15; i++) {
+                const petal = document.createElement('div');
+                petal.className = 'petal';
+                petal.style.left = Math.random() * 100 + 'vw';
+                petal.style.width = Math.random() * 20 + 10 + 'px';
+                petal.style.height = petal.style.width;
+                petal.style.animationDelay = Math.random() * 10 + 's';
+                container.appendChild(petal);
+            }
+        }
+
         function loadData(pageToken) {
             var xhr = new XMLHttpRequest();
-            var url = "https://firestore.googleapis.com/v1/projects/mandre-f9e43/databases/(default)/documents/inventory?pageSize=300";
-            
-            // Si hay un token de página siguiente, lo añadimos a la URL
-            if (pageToken) {
-                url += "&pageToken=" + pageToken;
-            }
-            
+            var url = "https://firestore.googleapis.com/v1/projects/mandre-f9e43/databases/(default)/documents/inventory?pageSize=300" + (pageToken ? "&pageToken="+pageToken : "");
             xhr.open("GET", url, true);
-            
             xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        try {
-                            var data = JSON.parse(xhr.responseText);
-                            
-                            // Acumular los documentos de esta página
-                            if (data.documents) {
-                                allDocs = allDocs.concat(data.documents);
-                            }
-
-                            // Si Firestore indica que hay MÁS páginas, vuelve a llamarse a sí misma
-                            if (data.nextPageToken) {
-                                loadData(data.nextPageToken);
-                            } else {
-                                // Si ya no hay más páginas, procedemos a procesar el total
-                                procesarDocumentos();
-                            }
-                        } catch (error) {
-                            console.error("Error procesando datos de Firestore:", error);
-                            document.getElementById('ui-desc').innerText = "Error leyendo base de datos.";
-                        }
-                    } else {
-                        document.getElementById('ui-desc').innerText = "Error de conexión: " + xhr.status;
-                        document.getElementById('ui-desc').style.color = "red";
-                    }
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    var data = JSON.parse(xhr.responseText);
+                    if (data.documents) allDocs = allDocs.concat(data.documents);
+                    if (data.nextPageToken) loadData(data.nextPageToken);
+                    else procesarDocumentos();
                 }
             };
             xhr.send();
         }
 
-        // Filtra los productos promocionados una vez se ha descargado todo el inventario
         function procesarDocumentos() {
             items = [];
-            
             for (var i = 0; i < allDocs.length; i++) {
                 var f = allDocs[i].fields;
                 if (!f) continue;
-                
                 var isPromoted = f.isPromoted && (f.isPromoted.booleanValue === true || f.isPromoted.stringValue === "true");
                 var imageUrl = f.imageUrl ? f.imageUrl.stringValue : (f.imagen ? f.imagen.stringValue : null);
-                
                 if (isPromoted && imageUrl) {
-                    var rawPrice = f.price ? (f.price.integerValue || f.price.doubleValue || f.price.stringValue || 0) : 0;
-                    var finalPrice = Number(rawPrice);
-                    
                     items.push({
                         name: f.name ? f.name.stringValue : "PRODUCTO",
-                        price: isNaN(finalPrice) ? 0 : finalPrice,
+                        price: f.price ? Number(f.price.integerValue || f.price.doubleValue || f.price.stringValue || 0) : 0,
                         desc: f.description ? f.description.stringValue : "",
                         img: imageUrl,
                         cat: f.category ? f.category.stringValue : "MENÚ"
                     });
                 }
             }
-
-            if (items.length > 0) {
-                currentIndex = 0;
-                render();
-                startLoop();
-            } else {
-                document.getElementById('ui-name').innerText = "SIN PRODUCTOS";
-                document.getElementById('ui-desc').innerText = "No se encontraron productos promocionados en todo el inventario.";
-                document.getElementById('ui-img').src = "";
-            }
-        }
-
-        function startLoop() {
-            if (loopInterval) clearInterval(loopInterval);
-            loopInterval = setInterval(function() {
-                currentIndex = (currentIndex + 1) % (items.length + 1);
-                render();
-            }, 8000);
+            if (items.length > 0) { render(); setInterval(render, 10000); }
         }
 
         function render() {
-            var isClub = currentIndex === items.length;
-            var viewMain = document.getElementById('view-main');
-            var viewClub = document.getElementById('view-club');
-            
-            if (isClub) {
-                viewMain.classList.add('hidden');
-                viewClub.classList.remove('hidden');
-                viewClub.classList.add('flex');
+            document.getElementById('view-main').classList.add('hidden');
+            document.getElementById('view-mama').classList.add('hidden');
+            document.getElementById('view-main').classList.remove('flex');
+            document.getElementById('view-mama').classList.remove('flex');
+
+            if (prodCounter >= 2) {
+                document.getElementById('view-mama').classList.remove('hidden');
+                document.getElementById('view-mama').classList.add('flex');
+                prodCounter = 0;
             } else {
-                viewClub.classList.add('hidden');
-                viewMain.classList.remove('hidden');
-                viewMain.classList.add('flex');
+                document.getElementById('view-main').classList.remove('hidden');
+                document.getElementById('view-main').classList.add('flex');
                 
                 var data = items[currentIndex];
-                if (!data) return;
-
                 document.getElementById('ui-cat').innerText = data.cat;
                 document.getElementById('ui-name').innerText = data.name;
                 document.getElementById('ui-desc').innerText = data.desc;
-                
-                try {
-                    document.getElementById('ui-price').innerText = "$" + data.price.toLocaleString('es-CO');
-                } catch(e) {
-                    document.getElementById('ui-price').innerText = "$" + data.price;
-                }
+                document.getElementById('ui-price').innerText = "$" + data.price.toLocaleString('es-CO');
                 
                 var img = document.getElementById('ui-img');
                 img.src = data.img;
-                
+                img.classList.remove('zoom-effect');
+                setTimeout(() => { img.classList.add('zoom-effect'); }, 100);
+
                 var n = data.name.length;
-                var size = n < 8 ? "8vw" : n < 15 ? "6.5vw" : n < 22 ? "5vw" : "4.2vw";
-                document.getElementById('ui-name').style.fontSize = size;
+                document.getElementById('ui-name').style.fontSize = n < 8 ? "8vw" : n < 15 ? "6vw" : "4.5vw";
                 
-                img.style.animation = 'none';
-                img.offsetHeight; 
-                img.style.animation = null;
+                currentIndex = (currentIndex + 1) % items.length;
+                prodCounter++;
             }
         }
     </script>
