@@ -8,17 +8,25 @@
     
     <style>
         :root {
-            /* Gama de verdes para reemplazar el rosado */
-            --oficina-primario: #2e7d32; /* Verde principal para acentos y badges */
-            --oficina-suave: #e8f5e9;    /* Verde muy claro para el fondo */
-            --oficina-dark: #1b5e20;     /* Verde oscuro para el texto y elementos oscuros */
-            --oficina-destacado: #a5d6a7; /* Verde claro para destacar texto en fondo oscuro */
+            --oficina-primario: #2e7d32; 
+            --oficina-suave: #e8f5e9;    
+            --oficina-dark: #1b5e20;     
+            --oficina-destacado: #a5d6a7; 
         }
 
         body, html { 
             margin: 0; padding: 0; overflow: hidden; 
             background-color: var(--oficina-dark); 
             font-family: 'Montserrat', sans-serif; height: 100vh;
+            color: var(--oficina-dark);
+        }
+
+        /* Barra de progreso superior */
+        #progress-bar {
+            position: fixed;
+            top: 0; left: 0; height: 6px;
+            background: linear-gradient(90deg, var(--oficina-primario), var(--oficina-destacado));
+            width: 0%; z-index: 9999;
         }
 
         .bg-pattern {
@@ -29,26 +37,70 @@
         }
 
         .tv-container {
-            width: 50vw; height: 100vh; padding: 5vh 4vw;
+            width: 50vw; height: 100vh; padding: 6vh 4vw;
             display: flex; flex-direction: column; justify-content: space-between;
             box-sizing: border-box;
+            position: relative;
         }
 
         .price-tag { 
-            color: var(--oficina-primario); font-weight: 900; font-size: 7.5vw;
+            color: var(--oficina-primario); font-weight: 900; font-size: 7vw;
+            margin-bottom: 1vh;
+            text-shadow: 2px 2px 0px rgba(255,255,255,0.8);
         }
 
         .category-badge {
             background-color: var(--oficina-primario); color: white;
-            padding: 0.5vh 1.5vw; border-radius: 8px;
-            font-size: 1.4vw; font-weight: bold; text-transform: uppercase;
+            padding: 0.6vh 1.5vw; border-radius: 50px;
+            font-size: 1.2vw; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 2px;
+            display: inline-block;
         }
 
-        .image-side { width: 50vw; height: 100vh; position: relative; overflow: hidden; }
-        .image-side img { width: 100%; height: 100%; object-fit: cover; }
+        .image-side { 
+            width: 50vw; height: 100vh; 
+            position: relative; overflow: hidden; 
+            background-color: var(--oficina-dark);
+        }
         
-        .slide-enter { animation: fadeIn 0.5s ease-in forwards; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .image-side img { 
+            width: 100%; height: 100%; object-fit: cover; 
+            opacity: 0;
+            transform: scale(1.02);
+        }
+
+        .image-side img.active-slide {
+            animation: imageAnimate 8s linear forwards;
+        }
+
+        @keyframes imageAnimate {
+            0% { opacity: 0; transform: scale(1.02); }
+            6% { opacity: 1; }
+            100% { opacity: 1; transform: scale(1.10); }
+        }
+        
+        /* Animación de entrada de contenidos de texto escalonados */
+        .animate-up {
+            opacity: 0; transform: translateY(20px);
+        }
+        .active-text .animate-up {
+            animation: textIn 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+        .active-text .delay-1 { animation-delay: 0.1s; }
+        .active-text .delay-2 { animation-delay: 0.2s; }
+        .active-text .delay-3 { animation-delay: 0.3s; }
+
+        @keyframes textIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Transición de vistas generales */
+        .msg-content {
+            opacity: 0; transform: scale(0.95); transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        }
+        .flex .msg-content {
+            opacity: 1; transform: scale(1);
+        }
 
         .hidden { display: none !important; }
         .flex { display: flex !important; }
@@ -56,22 +108,24 @@
 </head>
 <body>
 
+    <div id="progress-bar"></div>
+
     <div id="view-start" style="height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--oficina-dark); color: white; text-align: center;">
-        <h1 style="font-size: 6vw; font-weight: 900; color: var(--oficina-destacado);">¡EL MEJOR LUGAR <br>EN ANSERMA!</h1>
-        <button onclick="iniciar()" style="background: var(--oficina-primario); color: white; padding: 2vh 5vw; border-radius: 50px; border: 4px solid white; font-weight: 900; font-size: 1.8vw; cursor: pointer; margin-top: 20px;">INICIAR KIOSCO</button>
+        <h1 style="font-size: 6vw; font-weight: 900; color: var(--oficina-destacado); line-height: 1.1;">¡EL MEJOR LUGAR <br>EN ANSERMA!</h1>
+        <button onclick="iniciar()" style="background: var(--oficina-primario); color: white; padding: 2vh 5vw; border-radius: 50px; border: 4px solid white; font-weight: 900; font-size: 1.8vw; cursor: pointer; margin-top: 30px; box-shadow: 0 10px 20px rgba(0,0,0,0.3);">INICIAR KIOSCO</button>
     </div>
 
     <div id="view-main" class="hidden bg-pattern">
-        <div class="tv-container">
-            <div><span id="ui-cat" class="category-badge">RECOMENDADO</span></div>
+        <div id="text-container-main" class="tv-container">
+            <div class="animate-up"><span id="ui-cat" class="category-badge">RECOMENDADO</span></div>
             <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center;">
-                <h1 id="ui-name" style="line-height: 0.9; font-weight: 900; text-transform: uppercase;">PRODUCTO</h1>
-                <p id="ui-desc" style="font-size: 2.2vw; font-weight: 700; color: var(--oficina-primario); margin-top: 2vh;">Cargando...</p>
+                <h1 id="ui-name" class="animate-up delay-1" style="line-height: 0.95; font-weight: 900; text-transform: uppercase; margin: 0; color: var(--oficina-dark);">PRODUCTO</h1>
+                <p id="ui-desc" class="animate-up delay-2" style="font-size: 2.2vw; font-weight: 700; color: var(--oficina-primario); margin-top: 2vh; line-height: 1.3;">Cargando...</p>
             </div>
-            <div>
+            <div class="animate-up delay-3">
                 <div id="ui-price" class="price-tag">$0</div>
                 <div style="display: flex; align-items: center; gap: 2vw; border-top: 0.3vw solid var(--oficina-primario); padding-top: 3vh;">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://instagram.com/laoficinaanserma" style="width: 7vw; height: 7vw; background: white; padding: 5px; border-radius: 10px;">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://instagram.com/laoficinaanserma" style="width: 7vw; height: 7vw; background: white; padding: 5px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
                     <div>
                         <p style="font-size: 1.1vw; font-weight: 700; opacity: 0.6; color: var(--oficina-dark); margin: 0;">Escanea y conoce más</p>
                         <p style="font-size: 2.2vw; font-weight: 900; color: var(--oficina-primario); margin: 0;">@laoficinaanserma</p>
@@ -80,19 +134,47 @@
             </div>
         </div>
         <div class="image-side">
-            <img id="ui-img" class="slide-enter" src="">
+            <img id="ui-img" src="">
         </div>
     </div>
 
     <div id="view-message" class="hidden" style="height: 100vh; width: 100vw; background: var(--oficina-dark); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: white;">
-        <h2 style="font-size: 7vw; font-weight: 900; color: var(--oficina-destacado); line-height: 1; margin: 0;">LA OFICINA</h2>
-        <div id="ui-msg-container" style="min-height: 15vh; display: flex; align-items: center; justify-content: center; width: 80%;">
-            <p id="ui-msg-text" style="font-size: 3.5vw; color: white; font-weight: 700; margin-top: 3vh; line-height: 1.2;">
-                Ven a La Oficina, el mejor lugar en Anserma, Caldas.
-            </p>
+        <div class="msg-content" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%;">
+            <h2 style="font-size: 7vw; font-weight: 900; color: var(--oficina-destacado); line-height: 1; margin: 0; letter-spacing: 2px;">LA OFICINA</h2>
+            <div id="ui-msg-container" style="min-height: 15vh; display: flex; align-items: center; justify-content: center; width: 80%;">
+                <p id="ui-msg-text" style="font-size: 3.5vw; color: white; font-weight: 700; margin-top: 3vh; line-height: 1.3; text-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+                    Ven a La Oficina, el mejor lugar en Anserma, Caldas.
+                </p>
+            </div>
+            <div style="margin-top: 6vh; background: rgba(255,255,255,0.05); border: 2px solid var(--oficina-primario); padding: 2vh 4vw; border-radius: 50px; backdrop-filter: blur(5px);">
+                <p style="font-size: 1.5vw; color: var(--oficina-destacado); font-weight: 900; margin: 0; letter-spacing: 1px;">EL MEJOR PARCHE DE ANSERMA, CALDAS</p>
+            </div>
         </div>
-        <div style="margin-top: 5vh; border: 2px solid var(--oficina-primario); padding: 2vh 4vw; border-radius: 20px;">
-            <p style="font-size: 1.5vw; color: var(--oficina-primario); font-weight: 900; margin: 0;">EL MEJOR PARCHE DE ANSERMA, CALDAS</p>
+    </div>
+
+    <div id="view-promo" class="hidden" style="height: 100vh; width: 100vw; background: linear-gradient(135deg, #0b1e36 0%, #11161d 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: white; position: relative; overflow: hidden;">
+        <div style="position: absolute; top: -20vh; right: -20vh; width: 60vh; height: 60vh; background: radial-gradient(circle, rgba(255,102,0,0.15) 0%, transparent 70%); pointer-events: none;"></div>
+        <div style="position: absolute; bottom: -20vh; left: -20vh; width: 60vh; height: 60vh; background: radial-gradient(circle, rgba(0,119,221,0.12) 0%, transparent 70%); pointer-events: none;"></div>
+        
+        <div class="msg-content" id="promo-content-box" style="width: 85%; max-width: 1300px; z-index: 2; display: flex; flex-direction: column; align-items: center;">
+            <span style="background: #ff6600; color: #0b1e36; padding: 0.8vh 2.5vw; border-radius: 50px; font-size: 1.2vw; font-weight: 900; letter-spacing: 3px; text-transform: uppercase;">IMPERDIBLE HOY</span>
+            
+            <h2 style="font-size: 5.8vw; font-weight: 900; color: #ffffff; margin: 3vh 0 0.5vh 0; line-height: 1; letter-spacing: -1px; text-shadow: 0 4px 20px rgba(255,102,0,0.2);">
+                BOMBAY ORANGE FREEZE
+            </h2>
+            <p style="font-size: 1.7vw; color: #ff9933; font-weight: 700; margin: 0 0 4vh 0; text-transform: uppercase; letter-spacing: 3px;">
+                Una reinterpretación del Gin Tonic clásico
+            </p>
+            
+            <p style="font-size: 2.3vw; color: #e2e8f0; font-weight: 400; line-height: 1.45; max-width: 95%; margin: 0 auto; text-wrap: balance;">
+                La elegancia botánica de la ginebra <span style="color: #4da6ff; font-weight: 700;">Bombay Sapphire</span> se fusiona con la efervescencia del agua tónica premium, coronado con un sedoso <span style="color: #ff6600; font-weight: 700;">slushy de naranja</span> que aporta textura y sabor en un balance cítrico perfecto.
+            </p>
+            
+            <div style="margin-top: 6vh; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,102,0,0.3); padding: 1.5vh 4vw; border-radius: 16px;">
+                <p style="font-size: 1.4vw; color: #ff9933; font-weight: 900; margin: 0; letter-spacing: 1px;">
+                    ¡PÍDELO AHORA Y SIENTE LA EXPERIENCIA EN LA OFICINA!
+                </p>
+            </div>
         </div>
     </div>
 
@@ -101,8 +183,9 @@
         var currentIndex = 0;
         var loopInterval = null;
         var allDocs = [];
+        var showingPromoNow = false; 
+        var promoStep = 0; // Control de ciclos para la duración extendida del Bombay
 
-        // Frases actualizadas para la invitación general
         var frasesOficina = [
             "Ven a La Oficina, el mejor lugar en Anserma, Caldas.",
             "El mejor ambiente para compartir con amigos.",
@@ -171,42 +254,108 @@
             if (displaySequence.length > 0) {
                 render();
                 if (loopInterval) clearInterval(loopInterval);
+                
+                // CONTROLADOR DEL LOOP INTERACTIVO CON DURACIÓN EXTENDIDA
                 loopInterval = setInterval(function() {
-                    currentIndex = (currentIndex + 1) % displaySequence.length;
-                    render();
+                    if (showingPromoNow) {
+                        if (promoStep === 0) {
+                            // Ha completado los primeros 8 segundos, reiniciamos barra para los segundos 8 segundos
+                            promoStep = 1;
+                            animateProgressBar();
+                        } else {
+                            // Ya completó los 16 segundos totales, avanzamos normalmente
+                            showingPromoNow = false;
+                            promoStep = 0;
+                            currentIndex = (currentIndex + 1) % displaySequence.length;
+                            render();
+                        }
+                    } else {
+                        // Si toca un número menor a 0.25, activa la promo extendida (25% de probabilidad)
+                        if (Math.random() < 0.25) {
+                            showingPromoNow = true;
+                            promoStep = 0;
+                            renderPromoBombay();
+                        } else {
+                            currentIndex = (currentIndex + 1) % displaySequence.length;
+                            render();
+                        }
+                    }
                 }, 8000);
             }
         }
 
+        function animateProgressBar() {
+            var bar = document.getElementById('progress-bar');
+            bar.style.transition = 'none';
+            bar.style.width = '0%';
+            void bar.offsetWidth; // Forzar reflow en Smart TVs
+            bar.style.transition = 'width 8000ms linear';
+            bar.style.width = '100%';
+        }
+
+        function hideAllViews() {
+            var views = ['view-main', 'view-message', 'view-promo'];
+            for (var i = 0; i < views.length; i++) {
+                var v = document.getElementById(views[i]);
+                v.classList.add('hidden');
+                v.classList.remove('flex');
+            }
+        }
+
+        function renderPromoBombay() {
+            hideAllViews();
+            animateProgressBar();
+            
+            var vPromo = document.getElementById('view-promo');
+            vPromo.classList.remove('hidden');
+            vPromo.classList.add('flex');
+            
+            var content = document.getElementById('promo-content-box');
+            content.style.opacity = '0';
+            content.style.transform = 'scale(0.96)';
+            void content.offsetWidth;
+            content.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+            content.style.opacity = '1';
+            content.style.transform = 'scale(1)';
+        }
+
         function render() {
             var data = displaySequence[currentIndex];
+            hideAllViews();
+            animateProgressBar();
+            
             var vMain = document.getElementById('view-main');
             var vMsg = document.getElementById('view-message');
             
             if (data.isMessage) {
-                vMain.classList.add('hidden');
-                vMain.classList.remove('flex');
                 vMsg.classList.remove('hidden');
                 vMsg.classList.add('flex');
                 
                 document.getElementById('ui-msg-text').innerHTML = frasesOficina[fraseIndex];
                 fraseIndex = (fraseIndex + 1) % frasesOficina.length;
             } else {
-                vMsg.classList.add('hidden');
-                vMsg.classList.remove('flex');
                 vMain.classList.remove('hidden');
                 vMain.classList.add('flex');
                 
+                var txtContainer = document.getElementById('text-container-main');
+                txtContainer.classList.remove('active-text');
+                void txtContainer.offsetWidth; 
+                txtContainer.classList.add('active-text');
+                
                 document.getElementById('ui-cat').innerText = data.cat;
-                document.getElementById('ui-name').innerText = data.name;
                 document.getElementById('ui-desc').innerText = data.desc;
                 document.getElementById('ui-price').innerText = "$" + data.price.toLocaleString('es-CO');
                 
-                var img = document.getElementById('ui-img');
-                img.src = data.img;
-                
+                var nameTitle = document.getElementById('ui-name');
+                nameTitle.innerText = data.name;
                 var n = data.name.length;
-                img.style.fontSize = n < 8 ? "8vw" : n < 15 ? "6.5vw" : "4.5vw";
+                nameTitle.style.fontSize = n < 8 ? "6.5vw" : n < 15 ? "5vw" : "3.8vw";
+                
+                var img = document.getElementById('ui-img');
+                img.classList.remove('active-slide');
+                img.src = data.img;
+                void img.offsetWidth; 
+                img.classList.add('active-slide');
             }
         }
     </script>
