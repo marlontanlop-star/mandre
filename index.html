@@ -3,159 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KIOSCO CINEMÁTICO | LA OFICINA</title>
+    <title>KIOSCO CINEMÁTICO INTELIGENTE | LA OFICINA</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800;900&display=swap" rel="stylesheet">
     
     <style>
         :root {
             --oficina-black: #050505;
-            --oficina-green: #2e7d32;       /* Verde institucional primario */
-            --oficina-green-light: #a5d6a7; /* Verde destacado para contrastar en fondo negro */
-            --oficina-orange: #ff5e00;
+            --oficina-green: #2e7d32;       
+            --oficina-green-light: #a5d6a7; 
             --oficina-white: #f8f9fa;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body, html { 
-            overflow: hidden; 
-            background-color: var(--oficina-black); 
-            font-family: 'Outfit', sans-serif; 
-            height: 100vh;
-            color: var(--oficina-white);
+            overflow: hidden; background-color: var(--oficina-black); 
+            font-family: 'Outfit', sans-serif; height: 100vh; color: var(--oficina-white);
         }
 
-        /* Barra de progreso inferior y sutil */
         #progress-bar {
             position: fixed; bottom: 0; left: 0; height: 6px;
             background: linear-gradient(90deg, transparent, var(--oficina-green-light));
             width: 0%; z-index: 9999;
         }
 
-        /* Contenedor general de vistas */
         .view-layer {
-            position: absolute; top: 0; left: 0;
-            width: 100vw; height: 100vh;
-            opacity: 0; visibility: hidden;
-            transition: opacity 1s ease-in-out, visibility 1s;
+            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
+            opacity: 0; visibility: hidden; transition: opacity 1s ease-in-out, visibility 1s;
         }
+        .view-layer.active { opacity: 1; visibility: visible; }
 
-        .view-layer.active {
-            opacity: 1; visibility: visible;
-        }
-
-        /* ================= VISTA PRINCIPAL (CINEMÁTICA) ================= */
+        /* MODO CINEMÁTICO FULL SCREEN */
         .cinematic-bg {
-            position: absolute; top: 0; left: 0;
-            width: 100%; height: 100%;
-            object-fit: cover;
-            transform: scale(1.05);
-            transition: transform 12s linear;
-            z-index: 1;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;
+            transform: scale(1.05); transition: transform 12s linear; z-index: 1;
         }
-
-        .view-layer.active .cinematic-bg {
-            transform: scale(1.15); /* Zoom lento y constante */
-        }
+        .view-layer.active .cinematic-bg { transform: scale(1.15); }
 
         .cinematic-overlay {
-            position: absolute; top: 0; left: 0;
-            width: 100%; height: 100%;
-            /* Degradado oscuro a la izquierda para el texto, transparente a la derecha */
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(90deg, rgba(5,5,5,0.95) 0%, rgba(5,5,5,0.8) 35%, rgba(5,5,5,0) 100%);
-            z-index: 2;
-            display: flex; align-items: center; padding-left: 6vw;
+            z-index: 2; display: flex; align-items: center; padding-left: 6vw;
         }
-
-        .content-block {
-            width: 45vw;
-        }
+        .content-block { width: 45vw; }
 
         .ui-badge {
-            display: inline-block;
-            border: 1px solid var(--oficina-green-light);
-            color: var(--oficina-green-light);
-            padding: 0.6vh 1.5vw; border-radius: 4px;
-            font-size: 1vw; font-weight: 800; letter-spacing: 3px; text-transform: uppercase;
-            margin-bottom: 2.5vh;
+            display: inline-block; border: 1px solid var(--oficina-green-light);
+            color: var(--oficina-green-light); padding: 0.6vh 1.5vw; border-radius: 4px;
+            font-size: 1vw; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 2.5vh;
         }
-
         .ui-title {
-            font-size: 6.5vw; font-weight: 900; line-height: 0.95; 
-            margin-bottom: 2vh; text-transform: uppercase;
-            text-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            font-size: 6.5vw; font-weight: 900; line-height: 0.95; margin-bottom: 2vh; 
+            text-transform: uppercase; text-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-
-        .ui-desc {
-            font-size: 2vw; font-weight: 300; color: rgba(255,255,255,0.7);
-            line-height: 1.4; margin-bottom: 5vh; max-width: 90%;
-        }
-
+        .ui-desc { font-size: 2vw; font-weight: 300; color: rgba(255,255,255,0.7); line-height: 1.4; margin-bottom: 5vh; max-width: 90%; }
+        
         .price-card {
-            background: rgba(255,255,255,0.05);
-            border-left: 4px solid var(--oficina-green-light);
-            padding: 2vh 2vw; display: inline-block;
-            backdrop-filter: blur(10px);
-            margin-bottom: 4vh;
+            background: rgba(255,255,255,0.05); border-left: 4px solid var(--oficina-green-light);
+            padding: 2vh 2vw; display: inline-block; backdrop-filter: blur(10px); margin-bottom: 4vh;
         }
+        .ui-price { font-size: 4vw; font-weight: 900; line-height: 1; }
 
-        .ui-price {
-            font-size: 4vw; font-weight: 900; color: var(--oficina-white);
-            line-height: 1;
-        }
-
-        .qr-section {
-            display: flex; align-items: center; gap: 1.5vw;
-            opacity: 0.8;
-        }
-
-        /* Animaciones escalonadas */
+        /* Animaciones en Cascada */
         .fade-slide { opacity: 0; transform: translateX(-30px); transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
         .view-layer.active .fade-slide { opacity: 1; transform: translateX(0); }
         .delay-1 { transition-delay: 0.15s; }
         .delay-2 { transition-delay: 0.3s; }
         .delay-3 { transition-delay: 0.45s; }
-        .delay-4 { transition-delay: 0.6s; }
 
-        /* ================= VISTAS ESPECIALES (PROMOS Y MENSAJES) ================= */
+        /* SECCIONES PUBLICITARIAS */
         .special-layout {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            text-align: center; z-index: 3; position: relative; height: 100%;
+            text-align: center; z-index: 3; position: relative; height: 100%; width: 100%;
         }
+        .special-title { font-size: 7.5vw; font-weight: 900; line-height: 0.95; text-transform: uppercase; margin-bottom: 2vh; }
+        .special-subtitle { font-size: 2vw; font-weight: 300; letter-spacing: 5px; text-transform: uppercase; margin-bottom: 1vh;}
 
-        .special-title { font-size: 8vw; font-weight: 900; line-height: 0.9; text-transform: uppercase; margin-bottom: 1vh; }
-        .special-subtitle { font-size: 2vw; font-weight: 300; letter-spacing: 5px; text-transform: uppercase; }
-
-        /* Tema Bombay */
-        #view-bombay { background: radial-gradient(circle at center, #1a0a00 0%, var(--oficina-black) 100%); }
-        #view-bombay .special-title { color: var(--oficina-white); text-shadow: 0 0 40px rgba(255,94,0,0.4); }
-        #view-bombay .accent { color: var(--oficina-orange); }
-
-        /* Tema Pedro */
-        #view-pedro { background: radial-gradient(circle at center, #0a170b 0%, var(--oficina-black) 100%); }
-        #view-pedro .special-title { color: var(--oficina-white); text-shadow: 0 0 40px rgba(165, 214, 167, 0.3); }
-        #view-pedro .accent { color: var(--oficina-green-light); }
-
-        /* Tema Mensaje */
         #view-message { background: var(--oficina-black); }
         .brand-text { font-size: 5vw; font-weight: 800; max-width: 80%; line-height: 1.2; color: var(--oficina-white); }
 
-        /* PANTALLA INICIO */
-        #view-start {
-            position: fixed; z-index: 10000; width: 100vw; height: 100vh;
-            background: var(--oficina-black); display: flex; flex-direction: column;
-            align-items: center; justify-content: center; text-align: center;
-        }
-        
-        .start-btn {
-            background: transparent; color: var(--oficina-green-light);
-            padding: 2vh 4vw; border: 1px solid var(--oficina-green-light);
-            font-family: 'Outfit'; font-weight: 800; font-size: 1.5vw;
-            cursor: pointer; text-transform: uppercase; letter-spacing: 2px;
-            transition: all 0.3s;
-        }
-        .start-btn:hover { background: var(--oficina-green-light); color: var(--oficina-black); }
-
+        #view-start { position: fixed; z-index: 10000; width: 100vw; height: 100vh; background: var(--oficina-black); display: flex; flex-direction: column; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
@@ -163,8 +90,8 @@
     <div id="progress-bar"></div>
 
     <div id="view-start">
-        <h1 style="font-size: 3vw; font-weight: 900; color: var(--oficina-white); letter-spacing: 8px; margin-bottom: 5vh;">LA OFICINA</h1>
-        <button class="start-btn" onclick="iniciar()">Iniciar Kiosco</button>
+        <h1 style="font-size: 3vw; font-weight: 900; letter-spacing: 8px; margin-bottom: 5vh;">LA OFICINA</h1>
+        <button onclick="iniciar()" style="background: transparent; color: var(--oficina-green-light); padding: 2vh 4vw; border: 1px solid var(--oficina-green-light); font-family: 'Outfit'; font-weight: 800; font-size: 1.5vw; cursor: pointer; text-transform: uppercase; letter-spacing: 2px;">Iniciar Kiosco</button>
     </div>
 
     <div id="view-main" class="view-layer">
@@ -173,19 +100,8 @@
             <div class="content-block">
                 <div id="ui-cat" class="ui-badge fade-slide">RECOMENDADO</div>
                 <h1 id="ui-name" class="ui-title fade-slide delay-1">CARGANDO...</h1>
-                <p id="ui-desc" class="ui-desc fade-slide delay-2">Preparando la experiencia.</p>
-                
-                <div class="price-card fade-slide delay-3">
-                    <div id="ui-price" class="ui-price">$0</div>
-                </div>
-                
-                <div class="qr-section fade-slide delay-4">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://instagram.com/laoficinaanserma" style="width: 5vw; height: 5vw; background: white; padding: 5px; border-radius: 4px;">
-                    <div>
-                        <p style="font-size: 1vw; font-weight: 300; margin: 0; letter-spacing: 1px;">SÍGUENOS EN INSTAGRAM</p>
-                        <p style="font-size: 1.5vw; font-weight: 800; margin: 0;">@laoficinaanserma</p>
-                    </div>
-                </div>
+                <p id="ui-desc" class="ui-desc fade-slide delay-2">Sincronizando menú comercial...</p>
+                <div class="price-card fade-slide delay-3"><div id="ui-price" class="ui-price">$0</div></div>
             </div>
         </div>
     </div>
@@ -193,23 +109,16 @@
     <div id="view-message" class="view-layer">
         <div class="special-layout">
             <p style="font-size: 1.2vw; font-weight: 800; letter-spacing: 10px; color: var(--oficina-green-light); margin-bottom: 4vh;" class="fade-slide">LA OFICINA</p>
-            <h2 id="ui-msg-text" class="brand-text fade-slide delay-1">El mejor ambiente en Anserma.</h2>
+            <h2 id="ui-msg-text" class="brand-text fade-slide delay-1">Disfrutando en Anserma.</h2>
         </div>
     </div>
 
-    <div id="view-bombay" class="view-layer">
-        <div class="special-layout">
-            <p class="special-subtitle accent fade-slide">Edición Limitada</p>
-            <h2 class="special-title fade-slide delay-1">BOMBAY<br>ORANGE</h2>
-            <p class="ui-desc fade-slide delay-2" style="text-align: center; margin: 3vh auto 0 auto;">Ginebra premium fusionada con tónica y un slushy sedoso de cítricos.</p>
-        </div>
-    </div>
-
-    <div id="view-pedro" class="view-layer">
-        <div class="special-layout">
-            <p class="special-subtitle accent fade-slide">Exclusivo de la Casa</p>
-            <h2 class="special-title fade-slide delay-1">PEDRO<br>EL FRÍO</h2>
-            <p class="ui-desc fade-slide delay-2" style="text-align: center; margin: 3vh auto 0 auto;">Granizado de café premium & Brandy Don Pedro 12 años.</p>
+    <div id="view-dynamic" class="view-layer">
+        <img id="dyn-bg" class="cinematic-bg" style="opacity: 0.25; filter: blur(1px);" src="">
+        <div id="dyn-layout" class="special-layout">
+            <p id="dyn-sub" class="special-subtitle fade-slide"></p>
+            <h2 id="dyn-title" class="special-title fade-slide delay-1"></h2>
+            <p id="dyn-desc" class="ui-desc fade-slide delay-2" style="text-align: center; margin-top: 2vh; max-width: 75%; color: white; opacity: 0.9;"></p>
         </div>
     </div>
 
@@ -219,19 +128,55 @@
         let currentIndex = 0;
         let playbackTimer = null;
 
-        const frasesOficina = [
-            "El mejor ambiente para compartir con amigos.",
-            "Tu lugar favorito para un buen café y el mejor parche.",
-            "Donde las mejores historias comienzan en Anserma.",
-            "Calidad, música y sabor en cada detalle."
-        ];
+        let configMaster = {
+            productTime: 8000, promoTime: 12000,
+            messages: ["El mejor ambiente en Anserma."], promotions: []
+        };
 
         function iniciar() {
             try { if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen(); } catch (e) {}
             document.getElementById('view-start').style.display = 'none';
-            loadData(""); 
+            obtenerConfiguracion(true);
         }
 
+        // 1. LEER AJUSTES SUPREMOS Y COLORES EN VIVO
+        function obtenerConfiguracion(cargarInventarioDespues) {
+            fetch("https://firestore.googleapis.com/v1/projects/mandre-f9e43/databases/(default)/documents/kiosk_settings/master")
+            .then(res => res.json())
+            .then(conf => {
+                if(conf.fields) {
+                    configMaster.productTime = Number(conf.fields.productTime.integerValue || 8000);
+                    configMaster.promoTime = Number(conf.fields.promoTime.integerValue || 12000);
+                    
+                    if(conf.fields.messages && conf.fields.messages.arrayValue.values) {
+                        configMaster.messages = conf.fields.messages.arrayValue.values.map(v => v.stringValue);
+                    }
+
+                    configMaster.promotions = [];
+                    if(conf.fields.promotions && conf.fields.promotions.arrayValue.values) {
+                        conf.fields.promotions.arrayValue.values.forEach(promo => {
+                            let pMap = promo.mapValue.fields;
+                            if(pMap.active && pMap.active.booleanValue === true) {
+                                configMaster.promotions.push({
+                                    title: pMap.title.stringValue,
+                                    subtitle: pMap.subtitle.stringValue,
+                                    desc: pMap.desc.stringValue,
+                                    image: pMap.image ? pMap.image.stringValue : "",
+                                    bgColor: pMap.bgColor ? pMap.bgColor.stringValue : "#050505",
+                                    accentColor: pMap.accentColor ? pMap.accentColor.stringValue : "#a5d6a7"
+                                });
+                            }
+                        });
+                    }
+                }
+                if(cargarInventarioDespues) loadData("");
+            })
+            .catch(err => {
+                if(cargarInventarioDespues) loadData("");
+            });
+        }
+
+        // 2. LEER INVENTARIO DINÁMICO
         function loadData(pageToken) {
             let url = "https://firestore.googleapis.com/v1/projects/mandre-f9e43/databases/(default)/documents/inventory?pageSize=300";
             if (pageToken) url += "&pageToken=" + pageToken;
@@ -239,16 +184,19 @@
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
-                    if (data.documents) allDocs = allDocs.concat(data.documents);
+                    if (data.documents) {
+                        if(!pageToken) allDocs = []; 
+                        allDocs = allDocs.concat(data.documents);
+                    }
                     if (data.nextPageToken) {
                         loadData(data.nextPageToken);
                     } else {
                         construirPlaylist();
                     }
-                })
-                .catch(err => console.error("Error cargando Firebase:", err));
+                });
         }
 
+        // 3. MEZCLAR PRODUCTOS ACTIVOS + PROMOS CON COLORES
         function construirPlaylist() {
             let products = [];
             allDocs.forEach(doc => {
@@ -258,23 +206,22 @@
                 
                 if (isPromoted && imageUrl) {
                     products.push({
-                        type: 'product',
-                        duration: 8000,
+                        type: 'product', duration: configMaster.productTime,
                         name: f.name ? f.name.stringValue : "RECOMENDADO",
                         price: Number(f.price ? (f.price.integerValue || f.price.doubleValue || f.price.stringValue || 0) : 0),
                         desc: f.description ? f.description.stringValue : "",
-                        img: imageUrl,
-                        cat: f.category ? f.category.stringValue : "LA OFICINA"
+                        img: imageUrl, cat: f.category ? f.category.stringValue : "LA OFICINA"
                     });
                 }
             });
 
-            let specialCards = [
-                { type: 'bombay', duration: 12000 },
-                { type: 'message', duration: 8000 },
-                { type: 'pedro', duration: 12000 },
-                { type: 'message', duration: 8000 }
-            ];
+            let specialCards = [];
+            configMaster.promotions.forEach(promo => {
+                specialCards.push({ type: 'dynamic-promo', duration: configMaster.promoTime, data: promo });
+                specialCards.push({ type: 'message', duration: configMaster.productTime }); 
+            });
+
+            if(specialCards.length === 0) specialCards.push({ type: 'message', duration: configMaster.productTime });
 
             playlist = [];
             let specialIndex = 0;
@@ -296,12 +243,16 @@
         function reproducirSiguiente() {
             if (playbackTimer) clearTimeout(playbackTimer);
 
+            // Sincronizar cambios del Admin silenciosamente al iniciar cada vuelta
+            if (currentIndex === 0 && playlist.length > 0) {
+                obtenerConfiguracion(false);
+            }
+
             let item = playlist[currentIndex];
             renderUI(item);
 
             let bar = document.getElementById('progress-bar');
-            bar.style.transition = 'none';
-            bar.style.width = '0%';
+            bar.style.transition = 'none'; bar.style.width = '0%';
             
             setTimeout(() => {
                 bar.style.transition = `width ${item.duration}ms linear`;
@@ -314,31 +265,47 @@
             }, item.duration);
         }
 
+        // 4. INYECCIÓN ATMOFÉRICA DE COLORES EN VIVO
         function renderUI(item) {
             document.querySelectorAll('.view-layer').forEach(el => el.classList.remove('active'));
 
             if (item.type === 'product') {
                 let titleEl = document.getElementById('ui-name');
                 titleEl.innerText = item.name;
+                titleEl.style.fontSize = item.name.length < 10 ? '7vw' : item.name.length < 18 ? '5.5vw' : '4vw';
                 
-                // Ajuste de texto responsivo
-                let titleSize = item.name.length < 10 ? '7vw' : item.name.length < 18 ? '5.5vw' : '4vw';
-                titleEl.style.fontSize = titleSize;
-
                 document.getElementById('ui-desc').innerText = item.desc;
                 document.getElementById('ui-price').innerText = "$" + item.price.toLocaleString('es-CO');
                 document.getElementById('ui-cat').innerText = item.cat;
-                
                 document.getElementById('ui-img').src = item.img;
                 document.getElementById('view-main').classList.add('active');
 
-            } else if (item.type === 'bombay') {
-                document.getElementById('view-bombay').classList.add('active');
-            } else if (item.type === 'pedro') {
-                document.getElementById('view-pedro').classList.add('active');
+            } else if (item.type === 'dynamic-promo') {
+                let p = item.data;
+                let viewDyn = document.getElementById('view-dynamic');
+                let layout = document.getElementById('dyn-layout');
+                let titleEl = document.getElementById('dyn-title');
+                let subEl = document.getElementById('dyn-sub');
+
+                // 🎨 Aplicación Dinámica de Colores procesada en el CPU del Smart TV
+                layout.style.background = `radial-gradient(circle at center, ${p.bgColor}cc 0%, var(--oficina-black) 100%)`;
+                viewDyn.style.backgroundColor = p.bgColor;
+                
+                titleEl.innerHTML = p.title.replace(/\n/g, '<br>');
+                titleEl.style.color = '#ffffff';
+                titleEl.style.textShadow = `0 0 35px ${p.accentColor}aa`;
+                
+                subEl.innerText = p.subtitle;
+                subEl.style.color = p.accentColor;
+
+                document.getElementById('dyn-desc').innerText = p.desc;
+                document.getElementById('dyn-bg').src = p.image || "";
+                
+                viewDyn.classList.add('active');
+
             } else if (item.type === 'message') {
-                let randomMsg = frasesOficina[Math.floor(Math.random() * frasesOficina.length)];
-                document.getElementById('ui-msg-text').innerText = randomMsg;
+                let arrayMsg = configMaster.messages.length > 0 ? configMaster.messages : ["LA OFICINA"];
+                document.getElementById('ui-msg-text').innerText = arrayMsg[Math.floor(Math.random() * arrayMsg.length)];
                 document.getElementById('view-message').classList.add('active');
             }
         }
