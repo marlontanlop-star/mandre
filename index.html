@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     
     <style>
-        /* --- BLINDAJE ABSOLUTO ANTI-DESBORDE PARA SMART TV LG --- */
+        /* --- BLINDAJE CON ZONAS DE SEGURIDAD MÁXIMA PARA NAVEGADOR LG --- */
         * {
             box-sizing: border-box !important;
             margin: 0;
@@ -26,24 +26,27 @@
             max-width: 100vw !important;
             max-height: 100vh !important;
             overflow: hidden !important;
-            background-color: #FFFFFF; /* Blanco anti-reflejos */
+            background-color: #FFFFFF; /* Blanco anti-reflejos para exterior */
             color: #111111;
             font-family: 'Montserrat', sans-serif;
-            position: fixed; /* Evita cualquier intento de scroll del navegador */
+            position: fixed;
             top: 0;
             left: 0;
             -webkit-user-select: none;
             user-select: none;
         }
 
-        /* Área central exacta controlada */
+        /* CONTENEDOR MAESTRO: Forzado a un tamaño central ultra seguro */
         main {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 88vh; /* Reserva el 12% restante para el footer de forma estricta */
-            overflow: hidden;
+            top: 6vh;      /* Deja 6% libre arriba */
+            left: 6vw;     /* Deja 6% libre a la izquierda */
+            width: 88vw;   /* Utiliza solo el 88% del ancho físico de la pantalla */
+            height: 78vh;  /* Utiliza solo el 78% del alto de la pantalla */
+            overflow: hidden !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         /* Transición por Hardware */
@@ -53,6 +56,9 @@
             transition: opacity 0.3s ease-in-out;
             width: 100%;
             height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .tv-fade-active {
             opacity: 1;
@@ -65,35 +71,29 @@
         .text-dark { color: #000000; }
         .text-muted { color: #666666; font-weight: 700; }
         
-        /* --- ESTRUCTURA DE CAPAS LIMITADAS GEOMÉTRICAMENTE --- */
-        .layout-container {
-            position: absolute;
-            top: 4vh;
-            left: 4vw;
-            width: 92vw;
-            height: 80vh;
+        /* --- ARQUITECTURA DE REJILLA PROTEGIDA POR PORCENTAJES --- */
+        .layout-table {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            align-items: center;
+            justify-content: space-between;
         }
 
-        /* Contenedor Izquierdo para la foto: Nunca medirá más del 44% del ancho del TV */
-        .col-left-photo {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 44vw;
-            height: 80vh;
+        /* Columna de la Imagen: Ocupa estrictamente el 45% del espacio central */
+        .col-photo-block {
+            width: 45%;
+            height: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
         }
 
-        /* Contenedor Derecho para la información: Crece sin empujar la foto */
-        .col-right-info {
-            position: absolute;
-            left: 49vw;
-            top: 0;
-            width: 43vw;
-            height: 80vh;
+        /* Columna de Textos: Ocupa el 50% restante sin empujar la imagen jamás */
+        .col-text-block {
+            width: 50%;
+            height: 100%;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -101,13 +101,14 @@
             overflow: hidden;
         }
 
-        /* CAJA PROTECTORA DE IMAGEN NATIVA */
+        /* CAJA CONTENEDORA DE IMAGEN INFINITA FLUIDA */
         .image-box-safe {
             width: 100%;
             height: 100%;
+            max-height: 68vh; /* Nunca más alta que el área segura */
             border-radius: 32px;
             overflow: hidden;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.05); 
+            box-shadow: 0 25px 50px rgba(0,0,0,0.04); 
             background-color: #FFFFFF;
             display: flex;
             align-items: center;
@@ -119,7 +120,7 @@
             max-height: 100% !important;
             width: auto !important;
             height: auto !important;
-            object-fit: contain !important; /* Mantiene la proporción exacta dentro de la caja */
+            object-fit: contain !important; /* Ajuste inteligente sin deformar */
             background-color: #FFFFFF;
             border-radius: 32px;
         }
@@ -131,81 +132,72 @@
             border-radius: 32px;
         }
 
-        /* Componentes del menú con fuentes ajustadas para webOS */
+        /* Componentes del menú optimizados en tamaño de fuente anti-colapso */
         .badge {
             display: inline-block;
-            padding: 6px 18px;
+            padding: 6px 16px;
             border-radius: 20px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 900;
             letter-spacing: 2px;
             text-transform: uppercase;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
         .badge-muted { background-color: #F1F3F5; color: #495057; }
         .badge-accent { background-color: #8C6239; color: #FFFFFF; margin-left: 8px; }
 
         .price-box {
             display: inline-block;
-            font-size: 56px; /* Ajustado de 72px para evitar desbordes */
+            font-size: 46px; /* Escalado para evitar desbordes visuales */
             font-weight: 900;
             color: #000000;
             background-color: #F8F9FA;
-            padding: 6px 32px;
+            padding: 6px 28px;
             border-radius: 20px;
-            margin-top: 12px;
+            margin-top: 10px;
             letter-spacing: -2px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.01);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.01);
         }
 
-        .cafe-grid { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 12px; }
-        .cafe-card { background: #F8F9FA; padding: 16px 20px; border-radius: 20px; flex: 1; min-width: 45%; }
-        .cafe-card-full { width: 100%; background: #F8F9FA; padding: 20px; border-radius: 20px; margin-top: 12px; }
+        .cafe-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px; }
+        .cafe-card { background: #F8F9FA; padding: 14px 18px; border-radius: 18px; flex: 1; min-width: 45%; }
+        .cafe-card-full { width: 100%; background: #F8F9FA; padding: 18px; border-radius: 18px; margin-top: 12px; }
 
-        /* Vistas de Texto en Pantalla Completa */
+        /* Estructuras de Texto Centrado */
         .center-layout {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 88vh;
+            width: 100%;
+            height: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 0 6vw;
         }
 
         .phrase-container {
             text-align: center;
             width: 100%;
-            max-width: 1000px;
-            padding: 40px;
+            max-width: 850px;
+            padding: 35px;
             background-color: #FFFDF9;
             border-radius: 32px;
-            box-shadow: 0 20px 50px rgba(140,98,57,0.03);
+            box-shadow: 0 15px 40px rgba(140,98,57,0.02);
         }
 
-        /* Footer Fijo en la Base */
+        /* Footer Fijo en un Área Blindada del Fondo */
         footer { 
             position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100vw;
-            height: 12vh;
-            padding: 0 5vw 3vh 0;
-            display: flex; 
-            justify-content: flex-end; 
-            align-items: center;
-            opacity: 0.6; 
+            bottom: 3vh;
+            right: 6vw;
+            opacity: 0.5; 
+            z-index: 50;
         }
-        .footer-brand { font-size: 12px; color: #111111; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+        .footer-brand { font-size: 11px; color: #111111; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
         .footer-brand b { color: #8C6239; font-weight: 900; }
 
         .btn-kiosk {
             position: fixed; bottom: 20px; left: 20px; z-index: 999;
             background: #111111; color: white; padding: 12px 24px;
             border-radius: 30px; font-weight: 900; border: none;
-            cursor: pointer; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;
+            cursor: pointer; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
         }
     </style>
 </head>
@@ -271,7 +263,7 @@
             if(loopState.currentPhase === 'product_focus' && (!dataset.config || !dataset.config.pautaExpressActiva)) renderCurrentScreen();
         });
 
-        // Escuchar Cambios de Configuración de la TV (Incluye interrupción Express)
+        // Escuchar Cambios de Configuración de la TV (Incluye pauta de temporada)
         db.collection('configuracionTV').doc('actual').onSnapshot(function(doc) {
             if (doc.exists) {
                 dataset.config = doc.data();
@@ -285,24 +277,24 @@
             }
         };
 
-        // --- MOTOR RENDER CON ARQUITECTURA MAESTRA ANTI-DESBORDES ---
+        // --- MOTOR RENDER CON ZONA DE SEGURIDAD MÁXIMA ---
         function renderCurrentScreen() {
             kioskMain.classList.remove('tv-fade-active');
             
             setTimeout(function() {
                 let html = '';
 
-                // CASO ESPECIAL: PAUTA DE TEMPORADA FIJA DESDE EL ADMIN
+                // CASO ESPECIAL: ANUNCIO DE TEMPORADA REFORZADO INTERRUPTOR
                 if (dataset.config && dataset.config.pautaExpressActiva === true) {
                     let tituloExpress = dataset.config.pautaExpressTitulo || "ANUNCIO ESPECIAL";
                     let textoExpress = dataset.config.pautaExpressTexto || "Promoción exclusiva disponible ahora.";
                     html = `
                         <div class="center-layout">
                             <div class="phrase-container" style="border: 4px solid #8C6239; background-color: #FFFDF9;">
-                                <span class="badge badge-accent" style="margin-bottom:15px; padding: 8px 20px; font-size:13px;">DESTACADO DE LA SEMANA 🚨</span>
-                                <h2 style="font-size: 46px; font-weight: 900; line-height: 1.1; color: #8C6239; text-transform: uppercase; letter-spacing: -1px; margin: 0 0 15px 0;">${tituloExpress}</h2>
-                                <p style="font-size: 24px; font-weight: 700; color: #111111; line-height: 1.4; margin: 0; max-width:850px; margin: 0 auto;">${textoExpress}</p>
-                                <p class="text-muted" style="font-size: 11px; margin-top: 25px; letter-spacing: 3px; text-transform: uppercase;">La Oficina Anserma • Sabores de Temporada</p>
+                                <span class="badge badge-accent" style="margin-bottom:12px; padding: 6px 16px; font-size:12px;">DESTACADO DE LA SEMANA 🚨</span>
+                                <h2 style="font-size: 38px; font-weight: 900; line-height: 1.1; color: #8C6239; text-transform: uppercase; letter-spacing: -1px; margin: 0 0 12px 0;">${tituloExpress}</h2>
+                                <p style="font-size: 20px; font-weight: 700; color: #111111; line-height: 1.4; margin: 0; max-width:750px; margin: 0 auto;">${textoExpress}</p>
+                                <p class="text-muted" style="font-size: 10px; margin-top: 20px; letter-spacing: 2px; text-transform: uppercase;">La Oficina Anserma • Sabores de Temporada</p>
                             </div>
                         </div>
                     `;
@@ -316,16 +308,16 @@
                     let texto = (dataset.config && dataset.config.publicidadRecurrente) ? dataset.config.publicidadRecurrente.textoConfigurable : "Bienvenidos a una experiencia exclusiva";
                     html = `
                         <div class="center-layout">
-                            <div style="text-align: center; max-width: 900px;">
-                                <span class="text-accent" style="font-size: 14px; font-weight: 900; letter-spacing: 5px; text-transform: uppercase; display: block; margin-bottom: 20px;">Recomendación Especial</span>
-                                <h2 style="font-size: 54px; font-weight: 900; line-height: 1.1; text-transform: uppercase; color: #000000; letter-spacing: -2px; margin: 0;">${texto}</h2>
-                                <div style="width: 120px; height: 4px; background-color: #8C6239; margin: 25px auto 0 auto;"></div>
+                            <div style="text-align: center; max-width: 800px;">
+                                <span class="text-accent" style="font-size: 13px; font-weight: 900; letter-spacing: 4px; text-transform: uppercase; display: block; margin-bottom: 15px;">Recomendación Especial</span>
+                                <h2 style="font-size: 44px; font-weight: 900; line-height: 1.1; text-transform: uppercase; color: #000000; letter-spacing: -1px; margin: 0;">${texto}</h2>
+                                <div style="width: 100px; height: 3px; background-color: #8C6239; margin: 20px auto 0 auto;"></div>
                             </div>
                         </div>
                     `;
                 }
                 
-                // CASO 2: CAFÉ DE ORIGEN DEL DÍA
+                // CASO 2: CAFÉ DE ORIGEN DEL DÍA (REJILLA PROTEGIDA)
                 else if (loopState.currentPhase === 'cafe_dia' && dataset.config && dataset.config.cafePromocion) {
                     let cafe = dataset.config.cafePromocion;
                     let cafeImg = cafe.logoUrl || cafe.logourl || cafe.imageUrl || cafe.imageurl || "";
@@ -334,37 +326,37 @@
                         : `<div class="image-box-safe"><div class="image-placeholder"></div></div>`;
                     
                     html = `
-                        <div class="layout-container">
-                            <div class="col-left-photo">${imgSection}</div>
-                            <div class="col-right-info">
+                        <div class="layout-table">
+                            <div class="col-photo-block">${imgSection}</div>
+                            <div class="col-text-block">
                                 <div class="badge badge-accent" style="margin-left: 0; width: fit-content;">FILTRADO HOY</div>
-                                <h2 style="font-size: 52px; font-weight: 900; letter-spacing: -2px; margin: 0 0 10px 0; line-height: 1; color:#000;">CAFÉ DE ORIGEN</h2>
+                                <h2 style="font-size: 42px; font-weight: 900; letter-spacing: -2px; margin: 0 0 10px 0; line-height: 1; color:#000;">CAFÉ DE ORIGEN</h2>
                                 <div class="cafe-grid">
                                     <div class="cafe-card">
-                                        <p class="text-muted" style="font-size: 10px; text-transform: uppercase; letter-spacing: 1px; margin: 0;">Procedencia</p>
-                                        <p style="font-size: 22px; font-weight: 900; text-transform: uppercase; margin: 4px 0 0 0; color:#000;">${cafe.municipio || ''}</p>
-                                        <p class="text-accent" style="font-size: 13px; font-weight: 900; text-transform: uppercase; margin: 2px 0 0 0;">${cafe.vereda || ''}</p>
+                                        <p class="text-muted" style="font-size: 9px; text-transform: uppercase; letter-spacing: 1px; margin: 0;">Procedencia</p>
+                                        <p style="font-size: 18px; font-weight: 900; text-transform: uppercase; margin: 4px 0 0 0; color:#000;">${cafe.municipio || ''}</p>
+                                        <p class="text-accent" style="font-size: 12px; font-weight: 900; text-transform: uppercase; margin: 2px 0 0 0;">${cafe.vereda || ''}</p>
                                     </div>
                                     <div class="cafe-card">
-                                        <p class="text-muted" style="font-size: 10px; text-transform: uppercase; letter-spacing: 1px; margin: 0;">Altura Cultivo</p>
-                                        <p style="font-size: 22px; font-weight: 900; text-transform: uppercase; margin: 4px 0 0 0; color:#000;">${cafe.altura || ''} <span style="font-size: 13px; font-weight: 700; color:#666;">m</span></p>
+                                        <p class="text-muted" style="font-size: 9px; text-transform: uppercase; letter-spacing: 1px; margin: 0;">Altura Cultivo</p>
+                                        <p style="font-size: 18px; font-weight: 900; text-transform: uppercase; margin: 4px 0 0 0; color:#000;">${cafe.altura || ''} <span style="font-size: 11px; font-weight: 700; color:#666;">m</span></p>
                                     </div>
                                 </div>
                                 <div class="cafe-card-full">
-                                    <p class="text-muted" style="font-size: 10px; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 4px 0;">Notas de Cata Detectadas</p>
-                                    <p class="text-accent" style="font-size: 24px; font-weight: 900; text-transform: uppercase; letter-spacing: -1px; margin: 0;">${cafe.notas || ''}</p>
+                                    <p class="text-muted" style="font-size: 9px; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 4px 0;">Notas de Cata Detectadas</p>
+                                    <p class="text-accent" style="font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: -1px; margin: 0;">${cafe.notas || ''}</p>
                                 </div>
                             </div>
                         </div>
                     `;
                 }
                 
-                // CASO 3: PASARELA INDIVIDUAL DE PRODUCTOS
+                // CASO 3: PASARELA INDIVIDUAL DE PRODUCTOS (REJILLA PROTEGIDA)
                 else if (loopState.currentPhase === 'product_focus' && dataset.products.length > 0) {
                     let prod = dataset.products[loopState.productIndex];
                     if (prod) {
                         let badgeDestacado = prod.isPromoted ? `<span class="badge badge-accent">Recomendado ⭐</span>` : '';
-                        let descripcionHtml = prod.description ? `<p class="text-dark" style="font-size: 20px; font-weight: 700; line-height: 1.4; margin: 12px 0; border-left: 4px solid #8C6239; padding-left: 15px;">${prod.description}</p>` : '';
+                        let descripcionHtml = prod.description ? `<p class="text-dark" style="font-size: 16px; font-weight: 700; line-height: 1.4; margin: 10px 0; border-left: 3px solid #8C6239; padding-left: 12px;">${prod.description}</p>` : '';
                         
                         let linkFoto = prod.imageUrl || prod.imageurl || prod.image || prod.url || "";
                         let imgSection = (linkFoto && linkFoto.length > 10)
@@ -372,18 +364,18 @@
                             : `<div class="image-box-safe"><div class="image-placeholder"></div></div>`;
 
                         html = `
-                            <div class="layout-container">
-                                <div class="col-left-photo">${imgSection}</div>
-                                <div class="col-right-info">
+                            <div class="layout-table">
+                                <div class="col-photo-block">${imgSection}</div>
+                                <div class="col-text-block">
                                     <div style="display: flex; align-items: center; width: fit-content;">
                                         <span class="badge badge-muted">${prod.category}</span>
                                         ${badgeDestacado}
                                     </div>
-                                    <h2 style="font-size: 54px; font-weight: 900; letter-spacing: -2px; text-transform: uppercase; margin: 0; line-height: 1.1; color:#000;">${prod.name}</h2>
+                                    <h2 style="font-size: 44px; font-weight: 900; letter-spacing: -1px; text-transform: uppercase; margin: 0; line-height: 1.1; color:#000;">${prod.name}</h2>
                                     ${descripcionHtml}
-                                    <div style="margin-top: 12px;">
-                                        <span class="text-muted" style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom:4px;">Precio de Venta</span>
-                                        <div class="price-box"><span style="font-size: 28px; font-weight: 400; margin-right: 4px; color:#555;">$</span>${Number(prod.price).toLocaleString()}</div>
+                                    <div style="margin-top: 10px;">
+                                        <span class="text-muted" style="font-size: 10px; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom:3px;">Precio de Venta</span>
+                                        <div class="price-box"><span style="font-size: 24px; font-weight: 400; margin-right: 4px; color:#555;">$</span>${Number(prod.price).toLocaleString()}</div>
                                     </div>
                                 </div>
                             </div>
@@ -397,9 +389,9 @@
                     html = `
                         <div class="center-layout">
                             <div class="phrase-container">
-                                <span class="text-accent" style="font-size: 14px; font-weight: 900; letter-spacing: 5px; text-transform: uppercase; display: block; margin-bottom: 20px;">La Oficina Anserma</span>
-                                <h2 style="font-size: 38px; font-weight: 900; line-height: 1.3; color: #000000; margin: 0; letter-spacing:-1px;">"${fraseActual}"</h2>
-                                <p class="text-muted" style="font-size: 12px; margin-top: 20px; letter-spacing: 2px; text-transform: uppercase;">Specialty Coffee & Wellness • Caldas</p>
+                                <span class="text-accent" style="font-size: 13px; font-weight: 900; letter-spacing: 4px; text-transform: uppercase; display: block; margin-bottom: 15px;">La Oficina Anserma</span>
+                                <h2 style="font-size: 32px; font-weight: 900; line-height: 1.3; color: #000000; margin: 0; letter-spacing:-1px;">"${fraseActual}"</h2>
+                                <p class="text-muted" style="font-size: 11px; margin-top: 15px; letter-spacing: 2px; text-transform: uppercase;">Specialty Coffee & Wellness • Caldas</p>
                             </div>
                         </div>
                     `;
