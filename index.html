@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kiosco Digital Exterior | LA OFICINA Anserma</title>
+    <title>Kiosco Digital Inteligente | LA OFICINA Anserma</title>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     
     <style>
-        /* --- BLINDAJE CON ZONAS DE SEGURIDAD MÁXIMA PARA NAVEGADOR LG --- */
+        /* --- BLINDAJE ABSOLUTO GENERAL --- */
         * {
             box-sizing: border-box !important;
             margin: 0;
@@ -26,7 +26,7 @@
             max-width: 100vw !important;
             max-height: 100vh !important;
             overflow: hidden !important;
-            background-color: #FFFFFF; /* Blanco anti-reflejos para exterior */
+            background-color: #FFFFFF; /* Blanco exterior */
             color: #111111;
             font-family: 'Montserrat', sans-serif;
             position: fixed;
@@ -36,20 +36,36 @@
             user-select: none;
         }
 
-        /* CONTENEDOR MAESTRO: Forzado a un tamaño central ultra seguro */
-        main {
+        /* --- EL CONTENEDOR INTELIGENTE ---
+           Este bloque mantendrá una proporción interna de 1920x1080 fija en memoria.
+           El script de abajo lo centrará y lo escalará matemáticamente según el TV. */
+        #tv-scale-canvas {
             position: absolute;
-            top: 6vh;      /* Deja 6% libre arriba */
-            left: 6vw;     /* Deja 6% libre a la izquierda */
-            width: 88vw;   /* Utiliza solo el 88% del ancho físico de la pantalla */
-            height: 78vh;  /* Utiliza solo el 78% del alto de la pantalla */
+            width: 1920px;
+            height: 1080px;
+            top: 50%;
+            left: 50%;
+            margin-left: -960px;
+            margin-top: -540px;
             overflow: hidden !important;
+            -webkit-transform-origin: center center;
+            transform-origin: center center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 80px 100px; /* Margen interno de seguridad de diseño */
+        }
+
+        main {
+            flex: 1;
+            width: 100%;
+            height: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
+            overflow: hidden !important;
         }
 
-        /* Transición por Hardware */
         .tv-fade {
             opacity: 0;
             -webkit-transition: opacity 0.3s ease-in-out;
@@ -71,29 +87,27 @@
         .text-dark { color: #000000; }
         .text-muted { color: #666666; font-weight: 700; }
         
-        /* --- ARQUITECTURA DE REJILLA PROTEGIDA POR PORCENTAJES --- */
-        .layout-table {
+        /* Layout de Rejilla Estricto dentro de la Matriz Virtual */
+        .grid-layout {
             display: flex;
             width: 100%;
-            height: 100%;
+            height: 760px; /* Altura segura fija dentro de los 1080px */
             align-items: center;
             justify-content: space-between;
         }
 
-        /* Columna de la Imagen: Ocupa estrictamente el 45% del espacio central */
-        .col-photo-block {
-            width: 45%;
-            height: 100%;
+        .col-left-photo {
+            width: 760px;
+            height: 760px;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
         }
 
-        /* Columna de Textos: Ocupa el 50% restante sin empujar la imagen jamás */
-        .col-text-block {
-            width: 50%;
-            height: 100%;
+        .col-right-info {
+            width: 880px;
+            height: 760px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -101,14 +115,13 @@
             overflow: hidden;
         }
 
-        /* CAJA CONTENEDORA DE IMAGEN INFINITA FLUIDA */
+        /* CAJA CONTENEDORA DE IMAGEN REFORZADA */
         .image-box-safe {
-            width: 100%;
-            height: 100%;
-            max-height: 68vh; /* Nunca más alta que el área segura */
-            border-radius: 32px;
+            width: 760px;
+            height: 760px;
+            border-radius: 40px;
             overflow: hidden;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.04); 
+            box-shadow: 0 30px 60px rgba(0,0,0,0.05); 
             background-color: #FFFFFF;
             display: flex;
             align-items: center;
@@ -120,50 +133,75 @@
             max-height: 100% !important;
             width: auto !important;
             height: auto !important;
-            object-fit: contain !important; /* Ajuste inteligente sin deformar */
+            object-fit: contain !important;
             background-color: #FFFFFF;
-            border-radius: 32px;
+            border-radius: 40px;
         }
 
         .image-placeholder {
             width: 100%;
             height: 100%;
             background: linear-gradient(135deg, #F8F9FA 0%, #E9ECEF 100%);
-            border-radius: 32px;
+            border-radius: 40px;
         }
 
-        /* Componentes del menú optimizados en tamaño de fuente anti-colapso */
+        /* Tamaños de fuentes e indicadores perfectos basados en el Canvas de 1920x1080 */
         .badge {
             display: inline-block;
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 11px;
+            padding: 12px 28px;
+            border-radius: 30px;
+            font-size: 18px;
             font-weight: 900;
-            letter-spacing: 2px;
+            letter-spacing: 3px;
             text-transform: uppercase;
-            margin-bottom: 10px;
+            margin-bottom: 25px;
         }
         .badge-muted { background-color: #F1F3F5; color: #495057; }
-        .badge-accent { background-color: #8C6239; color: #FFFFFF; margin-left: 8px; }
+        .badge-accent { background-color: #8C6239; color: #FFFFFF; margin-left: 15px; }
+
+        h2.item-title {
+            font-size: 78px; 
+            font-weight: 900; 
+            letter-spacing: -2px; 
+            text-transform: uppercase; 
+            margin: 0; 
+            line-height: 1.1; 
+            color:#000000;
+        }
+
+        p.item-desc {
+            font-size: 28px; 
+            font-weight: 700; 
+            line-height: 1.5; 
+            margin: 25px 0; 
+            border-left: 6px solid #8C6239; 
+            padding-left: 25px;
+            color: #222222;
+        }
 
         .price-box {
             display: inline-block;
-            font-size: 46px; /* Escalado para evitar desbordes visuales */
+            font-size: 82px; 
             font-weight: 900;
             color: #000000;
             background-color: #F8F9FA;
-            padding: 6px 28px;
-            border-radius: 20px;
-            margin-top: 10px;
-            letter-spacing: -2px;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.01);
+            padding: 10px 45px;
+            border-radius: 28px;
+            margin-top: 20px;
+            letter-spacing: -3px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.01);
         }
 
-        .cafe-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px; }
-        .cafe-card { background: #F8F9FA; padding: 14px 18px; border-radius: 18px; flex: 1; min-width: 45%; }
-        .cafe-card-full { width: 100%; background: #F8F9FA; padding: 18px; border-radius: 18px; margin-top: 12px; }
+        .cafe-grid { display: flex; gap: 25px; margin-top: 25px; width: 100%; }
+        .cafe-card { background: #F8F9FA; padding: 25px 30px; border-radius: 28px; flex: 1; }
+        .cafe-card p { font-size: 16px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
+        .cafe-card h3 { font-size: 32px; font-weight: 900; text-transform: uppercase; color: #000; }
+        .cafe-card h4 { font-size: 20px; font-weight: 900; text-transform: uppercase; }
+        
+        .cafe-card-full { width: 100%; background: #F8F9FA; padding: 30px; border-radius: 28px; margin-top: 25px; }
+        .cafe-card-full p { font-size: 16px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+        .cafe-card-full h3 { font-size: 38px; font-weight: 900; text-transform: uppercase; letter-spacing: -1px; }
 
-        /* Estructuras de Texto Centrado */
         .center-layout {
             width: 100%;
             height: 100%;
@@ -175,46 +213,79 @@
         .phrase-container {
             text-align: center;
             width: 100%;
-            max-width: 850px;
-            padding: 35px;
+            max-width: 1300px;
+            padding: 70px;
             background-color: #FFFDF9;
-            border-radius: 32px;
-            box-shadow: 0 15px 40px rgba(140,98,57,0.02);
+            border-radius: 50px;
+            box-shadow: 0 25px 60px rgba(140,98,57,0.03);
         }
+        .phrase-container h2 { font-size: 58px; font-weight: 900; line-height: 1.4; color: #000000; margin-bottom: 20px; }
+        .phrase-container p { font-size: 18px; letter-spacing: 4px; text-transform: uppercase; }
 
-        /* Footer Fijo en un Área Blindada del Fondo */
+        /* Footer estático controlado en coordenadas de matriz */
         footer { 
-            position: absolute;
-            bottom: 3vh;
-            right: 6vw;
+            width: 100%;
+            display: flex; 
+            justify-content: flex-end; 
             opacity: 0.5; 
-            z-index: 50;
+            padding-top: 20px;
         }
-        .footer-brand { font-size: 11px; color: #111111; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+        .footer-brand { font-size: 18px; color: #111111; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; }
         .footer-brand b { color: #8C6239; font-weight: 900; }
 
         .btn-kiosk {
-            position: fixed; bottom: 20px; left: 20px; z-index: 999;
-            background: #111111; color: white; padding: 12px 24px;
-            border-radius: 30px; font-weight: 900; border: none;
-            cursor: pointer; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
+            position: fixed; bottom: 30px; left: 30px; z-index: 999;
+            background: #111111; color: white; padding: 16px 32px;
+            border-radius: 40px; font-weight: 900; border: none;
+            cursor: pointer; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
         }
     </style>
 </head>
 <body>
 
-    <main id="kiosk-main" class="tv-fade">
-        </main>
+    <div id="tv-scale-canvas">
+        
+        <main id="kiosk-main" class="tv-fade">
+            </main>
 
-    <footer>
-        <div class="footer-brand">
-            Power By <span>Tan<b>Alza</b></span>
-        </div>
-    </footer>
+        <footer>
+            <div class="footer-brand">
+                Power By <span>Tan<b>Alza</b></span>
+            </div>
+        </footer>
+
+    </div>
 
     <button id="btn-fullscreen" class="btn-kiosk">Iniciar Kiosko Exterior</button>
 
     <script>
+        // --- ALGORITMO INTEGRADO DE ESCALA INTELIGENTE (ANTI-DESBORDES Y AJUSTE DE TV GIGANTE) ---
+        function ajustarEscalaPantallaTV() {
+            var canvas = document.getElementById('tv-scale-canvas');
+            if (!canvas) return;
+            
+            // Obtener el tamaño exacto actual del navegador del TV LG
+            var windowWidth = window.innerWidth;
+            var windowHeight = window.innerHeight;
+            
+            // Calcular factor matemático de escala tomando como base fija 1920x1080
+            var scaleX = windowWidth / 1920;
+            var scaleY = windowHeight / 1080;
+            
+            // Utilizar la menor escala para asegurar que el contenido quepa al 100% sin importar la resolución
+            var scaleFinal = Math.min(scaleX, scaleY);
+            
+            // Aplicar la matriz de escala por hardware nativo de webOS
+            canvas.style.transform = 'scale(' + scaleFinal + ')';
+            canvas.style.webkitTransform = 'scale(' + scaleFinal + ')';
+        }
+
+        // Ejecutar al cargar la página y cada vez que cambie el tamaño (como al entrar a pantalla completa)
+        window.addEventListener('resize', ajustarEscalaPantallaTV);
+        window.addEventListener('load', ajustarEscalaPantallaTV);
+        setTimeout(ajustarEscalaPantallaTV, 100); // Disparo de seguridad para webOS antiguos
+
         // --- CONFIGURACIÓN DE TU FIREBASE ---
         const firebaseConfig = {
             apiKey: "AIzaSyAutOqky0mpVmwDrqFsyZ0zRl_abrzgPvc",
@@ -263,7 +334,7 @@
             if(loopState.currentPhase === 'product_focus' && (!dataset.config || !dataset.config.pautaExpressActiva)) renderCurrentScreen();
         });
 
-        // Escuchar Cambios de Configuración de la TV (Incluye pauta de temporada)
+        // Escuchar Configuración TV
         db.collection('configuracionTV').doc('actual').onSnapshot(function(doc) {
             if (doc.exists) {
                 dataset.config = doc.data();
@@ -277,29 +348,30 @@
             }
         };
 
-        // --- MOTOR RENDER CON ZONA DE SEGURIDAD MÁXIMA ---
+        // --- MOTOR RENDER NATIVO BAJO MATRIZ DE SEGURIDAD ---
         function renderCurrentScreen() {
             kioskMain.classList.remove('tv-fade-active');
             
             setTimeout(function() {
                 let html = '';
 
-                // CASO ESPECIAL: ANUNCIO DE TEMPORADA REFORZADO INTERRUPTOR
+                // INTERRUPTOR: ANUNCIO EXPRESS DE TEMPORADA
                 if (dataset.config && dataset.config.pautaExpressActiva === true) {
                     let tituloExpress = dataset.config.pautaExpressTitulo || "ANUNCIO ESPECIAL";
                     let textoExpress = dataset.config.pautaExpressTexto || "Promoción exclusiva disponible ahora.";
                     html = `
                         <div class="center-layout">
-                            <div class="phrase-container" style="border: 4px solid #8C6239; background-color: #FFFDF9;">
-                                <span class="badge badge-accent" style="margin-bottom:12px; padding: 6px 16px; font-size:12px;">DESTACADO DE LA SEMANA 🚨</span>
-                                <h2 style="font-size: 38px; font-weight: 900; line-height: 1.1; color: #8C6239; text-transform: uppercase; letter-spacing: -1px; margin: 0 0 12px 0;">${tituloExpress}</h2>
-                                <p style="font-size: 20px; font-weight: 700; color: #111111; line-height: 1.4; margin: 0; max-width:750px; margin: 0 auto;">${textoExpress}</p>
-                                <p class="text-muted" style="font-size: 10px; margin-top: 20px; letter-spacing: 2px; text-transform: uppercase;">La Oficina Anserma • Sabores de Temporada</p>
+                            <div class="phrase-container" style="border: 6px solid #8C6239;">
+                                <span class="badge badge-accent" style="margin-bottom:25px; padding: 12px 28px; font-size:16px;">DESTACADO DE LA SEMANA 🚨</span>
+                                <h2 style="font-size: 64px; font-weight: 900; line-height: 1.2; color: #8C6239; text-transform: uppercase; margin-bottom:25px;">${tituloExpress}</h2>
+                                <p style="font-size: 32px; font-weight: 700; color: #111111; line-height: 1.5; max-width:1000px; margin: 0 auto;">${textoExpress}</p>
+                                <p class="text-muted" style="font-size: 14px; margin-top: 35px; letter-spacing: 4px; text-transform: uppercase;">La Oficina Anserma • Sabores de Temporada</p>
                             </div>
                         </div>
                     `;
                     kioskMain.innerHTML = html;
                     kioskMain.classList.add('tv-fade-active');
+                    ajustarEscalaPantallaTV();
                     return;
                 }
 
@@ -308,16 +380,16 @@
                     let texto = (dataset.config && dataset.config.publicidadRecurrente) ? dataset.config.publicidadRecurrente.textoConfigurable : "Bienvenidos a una experiencia exclusiva";
                     html = `
                         <div class="center-layout">
-                            <div style="text-align: center; max-width: 800px;">
-                                <span class="text-accent" style="font-size: 13px; font-weight: 900; letter-spacing: 4px; text-transform: uppercase; display: block; margin-bottom: 15px;">Recomendación Especial</span>
-                                <h2 style="font-size: 44px; font-weight: 900; line-height: 1.1; text-transform: uppercase; color: #000000; letter-spacing: -1px; margin: 0;">${texto}</h2>
-                                <div style="width: 100px; height: 3px; background-color: #8C6239; margin: 20px auto 0 auto;"></div>
+                            <div style="text-align: center; max-width: 1200px;">
+                                <span class="text-accent" style="font-size: 20px; font-weight: 900; letter-spacing: 6px; text-transform: uppercase; display: block; margin-bottom: 25px;">Recomendación Especial</span>
+                                <h2 style="font-size: 72px; font-weight: 900; line-height: 1.2; text-transform: uppercase; color: #000000; letter-spacing: -1px; margin: 0;">${texto}</h2>
+                                <div style="width: 160px; height: 5px; background-color: #8C6239; margin: 30px auto 0 auto;"></div>
                             </div>
                         </div>
                     `;
                 }
                 
-                // CASO 2: CAFÉ DE ORIGEN DEL DÍA (REJILLA PROTEGIDA)
+                // CASO 2: CAFÉ DE ORIGEN
                 else if (loopState.currentPhase === 'cafe_dia' && dataset.config && dataset.config.cafePromocion) {
                     let cafe = dataset.config.cafePromocion;
                     let cafeImg = cafe.logoUrl || cafe.logourl || cafe.imageUrl || cafe.imageurl || "";
@@ -326,37 +398,37 @@
                         : `<div class="image-box-safe"><div class="image-placeholder"></div></div>`;
                     
                     html = `
-                        <div class="layout-table">
-                            <div class="col-photo-block">${imgSection}</div>
-                            <div class="col-text-block">
+                        <div class="grid-layout">
+                            <div class="col-left-photo">${imgSection}</div>
+                            <div class="col-right-info">
                                 <div class="badge badge-accent" style="margin-left: 0; width: fit-content;">FILTRADO HOY</div>
-                                <h2 style="font-size: 42px; font-weight: 900; letter-spacing: -2px; margin: 0 0 10px 0; line-height: 1; color:#000;">CAFÉ DE ORIGEN</h2>
+                                <h2 class="item-title" style="font-size:74px; margin-bottom:15px;">CAFÉ DE ORIGEN</h2>
                                 <div class="cafe-grid">
                                     <div class="cafe-card">
-                                        <p class="text-muted" style="font-size: 9px; text-transform: uppercase; letter-spacing: 1px; margin: 0;">Procedencia</p>
-                                        <p style="font-size: 18px; font-weight: 900; text-transform: uppercase; margin: 4px 0 0 0; color:#000;">${cafe.municipio || ''}</p>
-                                        <p class="text-accent" style="font-size: 12px; font-weight: 900; text-transform: uppercase; margin: 2px 0 0 0;">${cafe.vereda || ''}</p>
+                                        <p class="text-muted">Procedencia</p>
+                                        <h3>${cafe.municipio || ''}</h3>
+                                        <h4 class="text-accent">${cafe.vereda || ''}</h4>
                                     </div>
                                     <div class="cafe-card">
-                                        <p class="text-muted" style="font-size: 9px; text-transform: uppercase; letter-spacing: 1px; margin: 0;">Altura Cultivo</p>
-                                        <p style="font-size: 18px; font-weight: 900; text-transform: uppercase; margin: 4px 0 0 0; color:#000;">${cafe.altura || ''} <span style="font-size: 11px; font-weight: 700; color:#666;">m</span></p>
+                                        <p class="text-muted">Altura Cultivo</p>
+                                        <h3>${cafe.altura || ''} <span style="font-size: 20px; font-weight: 700; color:#666;">m</span></h3>
                                     </div>
                                 </div>
                                 <div class="cafe-card-full">
-                                    <p class="text-muted" style="font-size: 9px; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 4px 0;">Notas de Cata Detectadas</p>
-                                    <p class="text-accent" style="font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: -1px; margin: 0;">${cafe.notas || ''}</p>
+                                    <p class="text-muted">Notas de Cata Detectadas</p>
+                                    <h3 class="text-accent">${cafe.notas || ''}</h3>
                                 </div>
                             </div>
                         </div>
                     `;
                 }
                 
-                // CASO 3: PASARELA INDIVIDUAL DE PRODUCTOS (REJILLA PROTEGIDA)
+                // CASO 3: PASARELA INDIVIDUAL DE PRODUCTOS
                 else if (loopState.currentPhase === 'product_focus' && dataset.products.length > 0) {
                     let prod = dataset.products[loopState.productIndex];
                     if (prod) {
                         let badgeDestacado = prod.isPromoted ? `<span class="badge badge-accent">Recomendado ⭐</span>` : '';
-                        let descripcionHtml = prod.description ? `<p class="text-dark" style="font-size: 16px; font-weight: 700; line-height: 1.4; margin: 10px 0; border-left: 3px solid #8C6239; padding-left: 12px;">${prod.description}</p>` : '';
+                        let descripcionHtml = prod.description ? `<p class="item-desc">${prod.description}</p>` : '';
                         
                         let linkFoto = prod.imageUrl || prod.imageurl || prod.image || prod.url || "";
                         let imgSection = (linkFoto && linkFoto.length > 10)
@@ -364,18 +436,18 @@
                             : `<div class="image-box-safe"><div class="image-placeholder"></div></div>`;
 
                         html = `
-                            <div class="layout-table">
-                                <div class="col-photo-block">${imgSection}</div>
-                                <div class="col-text-block">
+                            <div class="grid-layout">
+                                <div class="col-left-photo">${imgSection}</div>
+                                <div class="col-right-info">
                                     <div style="display: flex; align-items: center; width: fit-content;">
                                         <span class="badge badge-muted">${prod.category}</span>
                                         ${badgeDestacado}
                                     </div>
-                                    <h2 style="font-size: 44px; font-weight: 900; letter-spacing: -1px; text-transform: uppercase; margin: 0; line-height: 1.1; color:#000;">${prod.name}</h2>
+                                    <h2 class="item-title">${prod.name}</h2>
                                     ${descripcionHtml}
-                                    <div style="margin-top: 10px;">
-                                        <span class="text-muted" style="font-size: 10px; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom:3px;">Precio de Venta</span>
-                                        <div class="price-box"><span style="font-size: 24px; font-weight: 400; margin-right: 4px; color:#555;">$</span>${Number(prod.price).toLocaleString()}</div>
+                                    <div style="margin-top: 15px;">
+                                        <span class="text-muted" style="font-size: 14px; text-transform: uppercase; letter-spacing: 2px; display: block; margin-bottom:5px;">Precio de Venta</span>
+                                        <div class="price-box"><span style="font-size: 38px; font-weight: 400; margin-right: 5px; color:#555;">$</span>${Number(prod.price).toLocaleString()}</div>
                                     </div>
                                 </div>
                             </div>
@@ -383,15 +455,15 @@
                     }
                 }
 
-                // CASO 4: BANCO DE FRASES DE ANSERMA
+                // CASO 4: FRASES DE ANSERMA CALDAS
                 else if (loopState.currentPhase === 'local_phrase') {
                     let fraseActual = localPhrases[loopState.phraseIndex];
                     html = `
                         <div class="center-layout">
                             <div class="phrase-container">
-                                <span class="text-accent" style="font-size: 13px; font-weight: 900; letter-spacing: 4px; text-transform: uppercase; display: block; margin-bottom: 15px;">La Oficina Anserma</span>
-                                <h2 style="font-size: 32px; font-weight: 900; line-height: 1.3; color: #000000; margin: 0; letter-spacing:-1px;">"${fraseActual}"</h2>
-                                <p class="text-muted" style="font-size: 11px; margin-top: 15px; letter-spacing: 2px; text-transform: uppercase;">Specialty Coffee & Wellness • Caldas</p>
+                                <span class="text-accent" style="font-size: 18px; font-weight: 900; letter-spacing: 6px; text-transform: uppercase; display: block; margin-bottom: 25px;">La Oficina Anserma</span>
+                                <h2>"${fraseActual}"</h2>
+                               <p class="text-muted">Specialty Coffee & Wellness • Caldas</p>
                             </div>
                         </div>
                     `;
@@ -399,6 +471,7 @@
 
                 kioskMain.innerHTML = html;
                 kioskMain.classList.add('tv-fade-active');
+                ajustarEscalaPantallaTV(); // Forzar recalculo tras pintar el HTML
             }, 50); 
         }
 
@@ -458,8 +531,12 @@
         });
 
         function checkFullscreen() {
-            if (document.fullscreenElement || document.webkitFullscreenElement) { btnFullscreen.style.display = 'none'; } 
-            else { btnFullscreen.style.display = 'block'; }
+            if (document.fullscreenElement || document.webkitFullscreenElement) { 
+                btnFullscreen.style.display = 'none'; 
+            } else { 
+                btnFullscreen.style.display = 'block'; 
+            }
+            setTimeout(ajustarEscalaPantallaTV, 150); // Recalcular la matriz al cambiar de estado
         }
         document.addEventListener('fullscreenchange', checkFullscreen);
         document.addEventListener('webkitfullscreenchange', checkFullscreen);
