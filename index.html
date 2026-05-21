@@ -2,46 +2,48 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Kiosco Digital Exterior | LA OFICINA Anserma</title>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     
     <style>
-        /* --- AJUSTES ANTI-DESBORDE MAESTROS PARA NAVEGADORES LG --- */
+        /* --- BLINDAJE ABSOLUTO ANTI-DESBORDE PARA SMART TV LG --- */
         * {
-            box-sizing: border-box;
+            box-sizing: border-box !important;
+            margin: 0;
+            padding: 0;
             -webkit-transform: translate3d(0,0,0);
             transform: translate3d(0,0,0); 
             -webkit-backface-visibility: hidden;
             backface-visibility: hidden;
         }
         
-        body { 
-            font-family: 'Montserrat', sans-serif; 
+        html, body {
+            width: 100vw !important;
+            height: 100vh !important;
+            max-width: 100vw !important;
+            max-height: 100vh !important;
+            overflow: hidden !important;
             background-color: #FFFFFF; /* Blanco anti-reflejos */
-            color: #111111; 
-            overflow: hidden; 
-            margin: 0;
-            padding: 0;
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            color: #111111;
+            font-family: 'Montserrat', sans-serif;
+            position: fixed; /* Evita cualquier intento de scroll del navegador */
+            top: 0;
+            left: 0;
             -webkit-user-select: none;
             user-select: none;
         }
 
-        /* Área central contenedora */
+        /* Área central exacta controlada */
         main {
-            position: relative;
-            flex: 1;
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100vw;
-            height: 82vh; 
-            margin: 0;
-            padding: 0;
+            height: 88vh; /* Reserva el 12% restante para el footer de forma estricta */
+            overflow: hidden;
         }
 
         /* Transición por Hardware */
@@ -63,48 +65,49 @@
         .text-dark { color: #000000; }
         .text-muted { color: #666666; font-weight: 700; }
         
-        /* --- NUEVO LAYOUT DE CAPAS ABSOLUTAS: BLINDAJE TOTAL CONTRA DESBORDES --- */
+        /* --- ESTRUCTURA DE CAPAS LIMITADAS GEOMÉTRICAMENTE --- */
         .layout-container {
             position: absolute;
-            top: 5vh;
-            left: 5vw;
-            width: 90vw;
-            height: 72vh;
-            display: block;
+            top: 4vh;
+            left: 4vw;
+            width: 92vw;
+            height: 80vh;
         }
 
-        /* COLUMNA IZQUIERDA FIJA: La imagen se amolda estrictamente a este espacio */
+        /* Contenedor Izquierdo para la foto: Nunca medirá más del 44% del ancho del TV */
         .col-left-photo {
             position: absolute;
             left: 0;
             top: 0;
-            width: 42vw;
-            height: 72vh;
+            width: 44vw;
+            height: 80vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            overflow: hidden;
         }
 
-        /* COLUMNA DERECHA FIJA: El texto crece de forma independiente sin empujar la foto */
+        /* Contenedor Derecho para la información: Crece sin empujar la foto */
         .col-right-info {
             position: absolute;
-            left: 46vw;
+            left: 49vw;
             top: 0;
-            width: 44vw;
-            height: 72vh;
+            width: 43vw;
+            height: 80vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             text-align: left;
+            overflow: hidden;
         }
 
-        /* CONTENEDOR DE IMAGEN RIGIDO: No se puede estirar ni deformar */
+        /* CAJA PROTECTORA DE IMAGEN NATIVA */
         .image-box-safe {
             width: 100%;
             height: 100%;
-            border-radius: 40px;
+            border-radius: 32px;
             overflow: hidden;
-            box-shadow: 0 35px 70px rgba(0,0,0,0.06); 
+            box-shadow: 0 30px 60px rgba(0,0,0,0.05); 
             background-color: #FFFFFF;
             display: flex;
             align-items: center;
@@ -112,88 +115,97 @@
         }
         
         .image-box-safe img {
-            max-width: 100%;
-            max-height: 100%;
-            width: auto;
-            height: auto;
-            object-fit: contain; /* Encaja la foto de forma inteligente sin recortar ni desbordar */
+            max-width: 100% !important;
+            max-height: 100% !important;
+            width: auto !important;
+            height: auto !important;
+            object-fit: contain !important; /* Mantiene la proporción exacta dentro de la caja */
             background-color: #FFFFFF;
-            border-radius: 40px;
+            border-radius: 32px;
         }
 
         .image-placeholder {
             width: 100%;
             height: 100%;
             background: linear-gradient(135deg, #F8F9FA 0%, #E9ECEF 100%);
-            border-radius: 40px;
+            border-radius: 32px;
         }
 
-        /* Tipografías y componentes */
+        /* Componentes del menú con fuentes ajustadas para webOS */
         .badge {
             display: inline-block;
-            padding: 8px 22px;
-            border-radius: 25px;
-            font-size: 14px;
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-size: 12px;
             font-weight: 900;
             letter-spacing: 2px;
             text-transform: uppercase;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
         .badge-muted { background-color: #F1F3F5; color: #495057; }
-        .badge-accent { background-color: #8C6239; color: #FFFFFF; margin-left: 10px; }
+        .badge-accent { background-color: #8C6239; color: #FFFFFF; margin-left: 8px; }
 
         .price-box {
             display: inline-block;
-            font-size: 76px;
+            font-size: 56px; /* Ajustado de 72px para evitar desbordes */
             font-weight: 900;
             color: #000000;
             background-color: #F8F9FA;
-            padding: 8px 38px;
-            border-radius: 24px;
-            margin-top: 15px;
-            letter-spacing: -3px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.01);
+            padding: 6px 32px;
+            border-radius: 20px;
+            margin-top: 12px;
+            letter-spacing: -2px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.01);
         }
 
-        .cafe-grid { display: flex; flex-wrap: wrap; gap: 20px; margin-top: 15px; }
-        .cafe-card { background: #F8F9FA; padding: 18px 22px; border-radius: 24px; flex: 1; min-width: 45%; }
-        .cafe-card-full { width: 100%; background: #F8F9FA; padding: 22px; border-radius: 24px; margin-top: 15px; }
+        .cafe-grid { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 12px; }
+        .cafe-card { background: #F8F9FA; padding: 16px 20px; border-radius: 20px; flex: 1; min-width: 45%; }
+        .cafe-card-full { width: 100%; background: #F8F9FA; padding: 20px; border-radius: 20px; margin-top: 12px; }
 
-        /* Centro de la pantalla para pantallas completas de texto */
+        /* Vistas de Texto en Pantalla Completa */
         .center-layout {
-            width: 100%;
-            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 88vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 0 6vw;
         }
 
         .phrase-container {
             text-align: center;
-            max-width: 1100px;
-            padding: 50px;
+            width: 100%;
+            max-width: 1000px;
+            padding: 40px;
             background-color: #FFFDF9;
-            border-radius: 40px;
-            box-shadow: 0 20px 50px rgba(140,98,57,0.04);
+            border-radius: 32px;
+            box-shadow: 0 20px 50px rgba(140,98,57,0.03);
         }
 
-        /* Ajuste de Footer */
+        /* Footer Fijo en la Base */
         footer { 
-            width: 100vw; 
-            padding: 0 5vw 2.5vh 5vw; 
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100vw;
+            height: 12vh;
+            padding: 0 5vw 3vh 0;
             display: flex; 
             justify-content: flex-end; 
+            align-items: center;
             opacity: 0.6; 
-            box-sizing: border-box;
         }
-        .footer-brand { font-size: 13px; color: #111111; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+        .footer-brand { font-size: 12px; color: #111111; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
         .footer-brand b { color: #8C6239; font-weight: 900; }
 
         .btn-kiosk {
-            position: fixed; bottom: 25px; left: 25px; z-index: 999;
-            background: #111111; color: white; padding: 14px 28px;
+            position: fixed; bottom: 20px; left: 20px; z-index: 999;
+            background: #111111; color: white; padding: 12px 24px;
             border-radius: 30px; font-weight: 900; border: none;
-            cursor: pointer; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;
+            cursor: pointer; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;
         }
     </style>
 </head>
@@ -286,11 +298,11 @@
                     let textoExpress = dataset.config.pautaExpressTexto || "Promoción exclusiva disponible ahora.";
                     html = `
                         <div class="center-layout">
-                            <div class="phrase-container" style="border: 6px solid #8C6239; background-color: #FFFDF9;">
-                                <span class="badge badge-accent" style="margin-bottom:20px; padding: 10px 25px; font-size:15px;">DESTACADO DE LA SEMANA 🚨</span>
-                                <h2 style="font-size: 64px; font-weight: 900; line-height: 1.1; color: #8C6239; text-transform: uppercase; letter-spacing: -2px; margin: 0 0 20px 0;">${tituloExpress}</h2>
-                                <p style="font-size: 32px; font-weight: 700; color: #111111; line-height: 1.4; margin: 0; max-width:900px; margin: 0 auto;">${textoExpress}</p>
-                                <p class="text-muted" style="font-size: 13px; margin-top: 35px; letter-spacing: 4px; text-transform: uppercase;">La Oficina Anserma • Sabores de Temporada</p>
+                            <div class="phrase-container" style="border: 4px solid #8C6239; background-color: #FFFDF9;">
+                                <span class="badge badge-accent" style="margin-bottom:15px; padding: 8px 20px; font-size:13px;">DESTACADO DE LA SEMANA 🚨</span>
+                                <h2 style="font-size: 46px; font-weight: 900; line-height: 1.1; color: #8C6239; text-transform: uppercase; letter-spacing: -1px; margin: 0 0 15px 0;">${tituloExpress}</h2>
+                                <p style="font-size: 24px; font-weight: 700; color: #111111; line-height: 1.4; margin: 0; max-width:850px; margin: 0 auto;">${textoExpress}</p>
+                                <p class="text-muted" style="font-size: 11px; margin-top: 25px; letter-spacing: 3px; text-transform: uppercase;">La Oficina Anserma • Sabores de Temporada</p>
                             </div>
                         </div>
                     `;
@@ -304,10 +316,10 @@
                     let texto = (dataset.config && dataset.config.publicidadRecurrente) ? dataset.config.publicidadRecurrente.textoConfigurable : "Bienvenidos a una experiencia exclusiva";
                     html = `
                         <div class="center-layout">
-                            <div style="text-align: center; max-width: 1000px;">
-                                <span class="text-accent" style="font-size: 16px; font-weight: 900; letter-spacing: 6px; text-transform: uppercase; display: block; margin-bottom: 25px;">Recomendación Especial</span>
-                                <h2 style="font-size: 72px; font-weight: 900; line-height: 1.1; text-transform: uppercase; color: #000000; letter-spacing: -2px; margin: 0;">${texto}</h2>
-                                <div style="width: 140px; height: 4px; background-color: #8C6239; margin: 35px auto 0 auto;"></div>
+                            <div style="text-align: center; max-width: 900px;">
+                                <span class="text-accent" style="font-size: 14px; font-weight: 900; letter-spacing: 5px; text-transform: uppercase; display: block; margin-bottom: 20px;">Recomendación Especial</span>
+                                <h2 style="font-size: 54px; font-weight: 900; line-height: 1.1; text-transform: uppercase; color: #000000; letter-spacing: -2px; margin: 0;">${texto}</h2>
+                                <div style="width: 120px; height: 4px; background-color: #8C6239; margin: 25px auto 0 auto;"></div>
                             </div>
                         </div>
                     `;
@@ -326,21 +338,21 @@
                             <div class="col-left-photo">${imgSection}</div>
                             <div class="col-right-info">
                                 <div class="badge badge-accent" style="margin-left: 0; width: fit-content;">FILTRADO HOY</div>
-                                <h2 style="font-size: 68px; font-weight: 900; letter-spacing: -3px; margin: 0 0 15px 0; line-height: 1; color:#000;">CAFÉ DE ORIGEN</h2>
+                                <h2 style="font-size: 52px; font-weight: 900; letter-spacing: -2px; margin: 0 0 10px 0; line-height: 1; color:#000;">CAFÉ DE ORIGEN</h2>
                                 <div class="cafe-grid">
                                     <div class="cafe-card">
-                                        <p class="text-muted" style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin: 0;">Procedencia</p>
-                                        <p style="font-size: 28px; font-weight: 900; text-transform: uppercase; margin: 5px 0 0 0; color:#000;">${cafe.municipio || ''}</p>
-                                        <p class="text-accent" style="font-size: 16px; font-weight: 900; text-transform: uppercase; margin: 2px 0 0 0;">${cafe.vereda || ''}</p>
+                                        <p class="text-muted" style="font-size: 10px; text-transform: uppercase; letter-spacing: 1px; margin: 0;">Procedencia</p>
+                                        <p style="font-size: 22px; font-weight: 900; text-transform: uppercase; margin: 4px 0 0 0; color:#000;">${cafe.municipio || ''}</p>
+                                        <p class="text-accent" style="font-size: 13px; font-weight: 900; text-transform: uppercase; margin: 2px 0 0 0;">${cafe.vereda || ''}</p>
                                     </div>
                                     <div class="cafe-card">
-                                        <p class="text-muted" style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin: 0;">Altura Cultivo</p>
-                                        <p style="font-size: 28px; font-weight: 900; text-transform: uppercase; margin: 5px 0 0 0; color:#000;">${cafe.altura || ''} <span style="font-size: 16px; font-weight: 700; color:#666;">m.s.n.m</span></p>
+                                        <p class="text-muted" style="font-size: 10px; text-transform: uppercase; letter-spacing: 1px; margin: 0;">Altura Cultivo</p>
+                                        <p style="font-size: 22px; font-weight: 900; text-transform: uppercase; margin: 4px 0 0 0; color:#000;">${cafe.altura || ''} <span style="font-size: 13px; font-weight: 700; color:#666;">m</span></p>
                                     </div>
                                 </div>
                                 <div class="cafe-card-full">
-                                    <p class="text-muted" style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 5px 0;">Notas de Cata Detectadas</p>
-                                    <p class="text-accent" style="font-size: 32px; font-weight: 900; text-transform: uppercase; letter-spacing: -1px; margin: 0;">${cafe.notas || ''}</p>
+                                    <p class="text-muted" style="font-size: 10px; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 4px 0;">Notas de Cata Detectadas</p>
+                                    <p class="text-accent" style="font-size: 24px; font-weight: 900; text-transform: uppercase; letter-spacing: -1px; margin: 0;">${cafe.notas || ''}</p>
                                 </div>
                             </div>
                         </div>
@@ -352,7 +364,7 @@
                     let prod = dataset.products[loopState.productIndex];
                     if (prod) {
                         let badgeDestacado = prod.isPromoted ? `<span class="badge badge-accent">Recomendado ⭐</span>` : '';
-                        let descripcionHtml = prod.description ? `<p class="text-dark" style="font-size: 24px; font-weight: 700; line-height: 1.4; margin: 15px 0; border-left: 4px solid #8C6239; padding-left: 20px;">${prod.description}</p>` : '';
+                        let descripcionHtml = prod.description ? `<p class="text-dark" style="font-size: 20px; font-weight: 700; line-height: 1.4; margin: 12px 0; border-left: 4px solid #8C6239; padding-left: 15px;">${prod.description}</p>` : '';
                         
                         let linkFoto = prod.imageUrl || prod.imageurl || prod.image || prod.url || "";
                         let imgSection = (linkFoto && linkFoto.length > 10)
@@ -367,11 +379,11 @@
                                         <span class="badge badge-muted">${prod.category}</span>
                                         ${badgeDestacado}
                                     </div>
-                                    <h2 style="font-size: 72px; font-weight: 900; letter-spacing: -2px; text-transform: uppercase; margin: 0; line-height: 1.1; color:#000;">${prod.name}</h2>
+                                    <h2 style="font-size: 54px; font-weight: 900; letter-spacing: -2px; text-transform: uppercase; margin: 0; line-height: 1.1; color:#000;">${prod.name}</h2>
                                     ${descripcionHtml}
-                                    <div style="margin-top: 15px;">
-                                        <span class="text-muted" style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom:5px;">Precio de Venta</span>
-                                        <div class="price-box"><span style="font-size: 36px; font-weight: 400; margin-right: 5px; color:#555;">$</span>${Number(prod.price).toLocaleString()}</div>
+                                    <div style="margin-top: 12px;">
+                                        <span class="text-muted" style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom:4px;">Precio de Venta</span>
+                                        <div class="price-box"><span style="font-size: 28px; font-weight: 400; margin-right: 4px; color:#555;">$</span>${Number(prod.price).toLocaleString()}</div>
                                     </div>
                                 </div>
                             </div>
@@ -385,9 +397,9 @@
                     html = `
                         <div class="center-layout">
                             <div class="phrase-container">
-                                <span class="text-accent" style="font-size: 16px; font-weight: 900; letter-spacing: 6px; text-transform: uppercase; display: block; margin-bottom: 25px;">La Oficina Anserma</span>
-                                <h2 style="font-size: 52px; font-weight: 900; line-height: 1.3; color: #000000; margin: 0; letter-spacing:-1px;">"${fraseActual}"</h2>
-                                <p class="text-muted" style="font-size: 14px; margin-top: 30px; letter-spacing: 3px; text-transform: uppercase;">Specialty Coffee & Wellness • Caldas</p>
+                                <span class="text-accent" style="font-size: 14px; font-weight: 900; letter-spacing: 5px; text-transform: uppercase; display: block; margin-bottom: 20px;">La Oficina Anserma</span>
+                                <h2 style="font-size: 38px; font-weight: 900; line-height: 1.3; color: #000000; margin: 0; letter-spacing:-1px;">"${fraseActual}"</h2>
+                                <p class="text-muted" style="font-size: 12px; margin-top: 20px; letter-spacing: 2px; text-transform: uppercase;">Specialty Coffee & Wellness • Caldas</p>
                             </div>
                         </div>
                     `;
@@ -445,7 +457,7 @@
 
         renderCurrentScreen();
 
-        // --- PANTALLA COMPLETA ---
+        // --- PANTALLA COMPLETA NATIVA EN LG ---
         const btnFullscreen = document.getElementById('btn-fullscreen');
         btnFullscreen.addEventListener('click', function() {
             const elem = document.documentElement;
