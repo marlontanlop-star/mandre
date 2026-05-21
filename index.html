@@ -3,262 +3,263 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BIENVENIDOS | LA OFICINA</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>KIOSCO CINEMÁTICO | LA OFICINA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800;900&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --oficina-primario: #2e7d32; 
-            --oficina-suave: #e8f5e9;    
-            --oficina-dark: #1b5e20;     
-            --oficina-destacado: #a5d6a7; 
+            --oficina-black: #050505;
+            --oficina-green: #2e7d32;       /* Verde institucional primario */
+            --oficina-green-light: #a5d6a7; /* Verde destacado para contrastar en fondo negro */
+            --oficina-orange: #ff5e00;
+            --oficina-white: #f8f9fa;
         }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body, html { 
-            margin: 0; padding: 0; overflow: hidden; 
-            background-color: var(--oficina-dark); 
-            font-family: 'Montserrat', sans-serif; height: 100vh;
-            color: var(--oficina-dark);
+            overflow: hidden; 
+            background-color: var(--oficina-black); 
+            font-family: 'Outfit', sans-serif; 
+            height: 100vh;
+            color: var(--oficina-white);
         }
 
-        /* Barra de progreso superior */
+        /* Barra de progreso inferior y sutil */
         #progress-bar {
-            position: fixed;
-            top: 0; left: 0; height: 6px;
-            background: linear-gradient(90deg, var(--oficina-primario), var(--oficina-destacado));
+            position: fixed; bottom: 0; left: 0; height: 6px;
+            background: linear-gradient(90deg, transparent, var(--oficina-green-light));
             width: 0%; z-index: 9999;
         }
 
-        .bg-pattern {
-            background-color: var(--oficina-suave);
-            background-image: radial-gradient(var(--oficina-primario) 0.5px, transparent 0.5px);
-            background-size: 40px 40px;
-            display: flex; height: 100vh; width: 100vw;
+        /* Contenedor general de vistas */
+        .view-layer {
+            position: absolute; top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            opacity: 0; visibility: hidden;
+            transition: opacity 1s ease-in-out, visibility 1s;
         }
 
-        .tv-container {
-            width: 50vw; height: 100vh; padding: 6vh 4vw;
-            display: flex; flex-direction: column; justify-content: space-between;
-            box-sizing: border-box;
-            position: relative;
+        .view-layer.active {
+            opacity: 1; visibility: visible;
         }
 
-        .price-tag { 
-            color: var(--oficina-primario); font-weight: 900; font-size: 7vw;
-            margin-bottom: 1vh;
-            text-shadow: 2px 2px 0px rgba(255,255,255,0.8);
+        /* ================= VISTA PRINCIPAL (CINEMÁTICA) ================= */
+        .cinematic-bg {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            object-fit: cover;
+            transform: scale(1.05);
+            transition: transform 12s linear;
+            z-index: 1;
         }
 
-        .category-badge {
-            background-color: var(--oficina-primario); color: white;
-            padding: 0.6vh 1.5vw; border-radius: 50px;
-            font-size: 1.2vw; font-weight: 700; text-transform: uppercase;
-            letter-spacing: 2px;
+        .view-layer.active .cinematic-bg {
+            transform: scale(1.15); /* Zoom lento y constante */
+        }
+
+        .cinematic-overlay {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            /* Degradado oscuro a la izquierda para el texto, transparente a la derecha */
+            background: linear-gradient(90deg, rgba(5,5,5,0.95) 0%, rgba(5,5,5,0.8) 35%, rgba(5,5,5,0) 100%);
+            z-index: 2;
+            display: flex; align-items: center; padding-left: 6vw;
+        }
+
+        .content-block {
+            width: 45vw;
+        }
+
+        .ui-badge {
             display: inline-block;
+            border: 1px solid var(--oficina-green-light);
+            color: var(--oficina-green-light);
+            padding: 0.6vh 1.5vw; border-radius: 4px;
+            font-size: 1vw; font-weight: 800; letter-spacing: 3px; text-transform: uppercase;
+            margin-bottom: 2.5vh;
         }
 
-        .image-side { 
-            width: 50vw; height: 100vh; 
-            position: relative; overflow: hidden; 
-            background-color: var(--oficina-dark);
+        .ui-title {
+            font-size: 6.5vw; font-weight: 900; line-height: 0.95; 
+            margin-bottom: 2vh; text-transform: uppercase;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .ui-desc {
+            font-size: 2vw; font-weight: 300; color: rgba(255,255,255,0.7);
+            line-height: 1.4; margin-bottom: 5vh; max-width: 90%;
+        }
+
+        .price-card {
+            background: rgba(255,255,255,0.05);
+            border-left: 4px solid var(--oficina-green-light);
+            padding: 2vh 2vw; display: inline-block;
+            backdrop-filter: blur(10px);
+            margin-bottom: 4vh;
+        }
+
+        .ui-price {
+            font-size: 4vw; font-weight: 900; color: var(--oficina-white);
+            line-height: 1;
+        }
+
+        .qr-section {
+            display: flex; align-items: center; gap: 1.5vw;
+            opacity: 0.8;
+        }
+
+        /* Animaciones escalonadas */
+        .fade-slide { opacity: 0; transform: translateX(-30px); transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+        .view-layer.active .fade-slide { opacity: 1; transform: translateX(0); }
+        .delay-1 { transition-delay: 0.15s; }
+        .delay-2 { transition-delay: 0.3s; }
+        .delay-3 { transition-delay: 0.45s; }
+        .delay-4 { transition-delay: 0.6s; }
+
+        /* ================= VISTAS ESPECIALES (PROMOS Y MENSAJES) ================= */
+        .special-layout {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; z-index: 3; position: relative; height: 100%;
+        }
+
+        .special-title { font-size: 8vw; font-weight: 900; line-height: 0.9; text-transform: uppercase; margin-bottom: 1vh; }
+        .special-subtitle { font-size: 2vw; font-weight: 300; letter-spacing: 5px; text-transform: uppercase; }
+
+        /* Tema Bombay */
+        #view-bombay { background: radial-gradient(circle at center, #1a0a00 0%, var(--oficina-black) 100%); }
+        #view-bombay .special-title { color: var(--oficina-white); text-shadow: 0 0 40px rgba(255,94,0,0.4); }
+        #view-bombay .accent { color: var(--oficina-orange); }
+
+        /* Tema Pedro */
+        #view-pedro { background: radial-gradient(circle at center, #0a170b 0%, var(--oficina-black) 100%); }
+        #view-pedro .special-title { color: var(--oficina-white); text-shadow: 0 0 40px rgba(165, 214, 167, 0.3); }
+        #view-pedro .accent { color: var(--oficina-green-light); }
+
+        /* Tema Mensaje */
+        #view-message { background: var(--oficina-black); }
+        .brand-text { font-size: 5vw; font-weight: 800; max-width: 80%; line-height: 1.2; color: var(--oficina-white); }
+
+        /* PANTALLA INICIO */
+        #view-start {
+            position: fixed; z-index: 10000; width: 100vw; height: 100vh;
+            background: var(--oficina-black); display: flex; flex-direction: column;
+            align-items: center; justify-content: center; text-align: center;
         }
         
-        .image-side img { 
-            width: 100%; height: 100%; object-fit: cover; 
-            opacity: 0;
-            transform: scale(1.02);
+        .start-btn {
+            background: transparent; color: var(--oficina-green-light);
+            padding: 2vh 4vw; border: 1px solid var(--oficina-green-light);
+            font-family: 'Outfit'; font-weight: 800; font-size: 1.5vw;
+            cursor: pointer; text-transform: uppercase; letter-spacing: 2px;
+            transition: all 0.3s;
         }
+        .start-btn:hover { background: var(--oficina-green-light); color: var(--oficina-black); }
 
-        .image-side img.active-slide {
-            animation: imageAnimate 8s linear forwards;
-        }
-
-        @keyframes imageAnimate {
-            0% { opacity: 0; transform: scale(1.02); }
-            6% { opacity: 1; }
-            100% { opacity: 1; transform: scale(1.10); }
-        }
-        
-        /* Animación de entrada de contenidos de texto escalonados */
-        .animate-up {
-            opacity: 0; transform: translateY(20px);
-        }
-        .active-text .animate-up {
-            animation: textIn 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-        }
-        .active-text .delay-1 { animation-delay: 0.1s; }
-        .active-text .delay-2 { animation-delay: 0.2s; }
-        .active-text .delay-3 { animation-delay: 0.3s; }
-
-        @keyframes textIn {
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Transición de vistas generales */
-        .msg-content {
-            opacity: 0; transform: scale(0.95); transition: opacity 0.5s ease-out, transform 0.5s ease-out;
-        }
-        .flex .msg-content {
-            opacity: 1; transform: scale(1);
-        }
-
-        .hidden { display: none !important; }
-        .flex { display: flex !important; }
     </style>
 </head>
 <body>
 
     <div id="progress-bar"></div>
 
-    <div id="view-start" style="height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--oficina-dark); color: white; text-align: center;">
-        <h1 style="font-size: 6vw; font-weight: 900; color: var(--oficina-destacado); line-height: 1.1;">¡EL MEJOR LUGAR <br>EN ANSERMA!</h1>
-        <button onclick="iniciar()" style="background: var(--oficina-primario); color: white; padding: 2vh 5vw; border-radius: 50px; border: 4px solid white; font-weight: 900; font-size: 1.8vw; cursor: pointer; margin-top: 30px; box-shadow: 0 10px 20px rgba(0,0,0,0.3);">INICIAR KIOSCO</button>
+    <div id="view-start">
+        <h1 style="font-size: 3vw; font-weight: 900; color: var(--oficina-white); letter-spacing: 8px; margin-bottom: 5vh;">LA OFICINA</h1>
+        <button class="start-btn" onclick="iniciar()">Iniciar Kiosco</button>
     </div>
 
-    <div id="view-main" class="hidden bg-pattern">
-        <div id="text-container-main" class="tv-container">
-            <div class="animate-up"><span id="ui-cat" class="category-badge">RECOMENDADO</span></div>
-            <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center;">
-                <h1 id="ui-name" class="animate-up delay-1" style="line-height: 0.95; font-weight: 900; text-transform: uppercase; margin: 0; color: var(--oficina-dark);">PRODUCTO</h1>
-                <p id="ui-desc" class="animate-up delay-2" style="font-size: 2.2vw; font-weight: 700; color: var(--oficina-primario); margin-top: 2vh; line-height: 1.3;">Cargando...</p>
-            </div>
-            <div class="animate-up delay-3">
-                <div id="ui-price" class="price-tag">$0</div>
-                <div style="display: flex; align-items: center; gap: 2vw; border-top: 0.3vw solid var(--oficina-primario); padding-top: 3vh;">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://instagram.com/laoficinaanserma" style="width: 7vw; height: 7vw; background: white; padding: 5px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+    <div id="view-main" class="view-layer">
+        <img id="ui-img" class="cinematic-bg" src="">
+        <div class="cinematic-overlay">
+            <div class="content-block">
+                <div id="ui-cat" class="ui-badge fade-slide">RECOMENDADO</div>
+                <h1 id="ui-name" class="ui-title fade-slide delay-1">CARGANDO...</h1>
+                <p id="ui-desc" class="ui-desc fade-slide delay-2">Preparando la experiencia.</p>
+                
+                <div class="price-card fade-slide delay-3">
+                    <div id="ui-price" class="ui-price">$0</div>
+                </div>
+                
+                <div class="qr-section fade-slide delay-4">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://instagram.com/laoficinaanserma" style="width: 5vw; height: 5vw; background: white; padding: 5px; border-radius: 4px;">
                     <div>
-                        <p style="font-size: 1.1vw; font-weight: 700; opacity: 0.6; color: var(--oficina-dark); margin: 0;">Escanea y conoce más</p>
-                        <p style="font-size: 2.2vw; font-weight: 900; color: var(--oficina-primario); margin: 0;">@laoficinaanserma</p>
+                        <p style="font-size: 1vw; font-weight: 300; margin: 0; letter-spacing: 1px;">SÍGUENOS EN INSTAGRAM</p>
+                        <p style="font-size: 1.5vw; font-weight: 800; margin: 0;">@laoficinaanserma</p>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="image-side">
-            <img id="ui-img" src="">
+    </div>
+
+    <div id="view-message" class="view-layer">
+        <div class="special-layout">
+            <p style="font-size: 1.2vw; font-weight: 800; letter-spacing: 10px; color: var(--oficina-green-light); margin-bottom: 4vh;" class="fade-slide">LA OFICINA</p>
+            <h2 id="ui-msg-text" class="brand-text fade-slide delay-1">El mejor ambiente en Anserma.</h2>
         </div>
     </div>
 
-    <div id="view-message" class="hidden" style="height: 100vh; width: 100vw; background: var(--oficina-dark); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: white;">
-        <div class="msg-content" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%;">
-            <h2 style="font-size: 7vw; font-weight: 900; color: var(--oficina-destacado); line-height: 1; margin: 0; letter-spacing: 2px;">LA OFICINA</h2>
-            <div id="ui-msg-container" style="min-height: 15vh; display: flex; align-items: center; justify-content: center; width: 80%;">
-                <p id="ui-msg-text" style="font-size: 3.5vw; color: white; font-weight: 700; margin-top: 3vh; line-height: 1.3; text-shadow: 0 4px 10px rgba(0,0,0,0.3);">
-                    Ven a La Oficina, el mejor lugar en Anserma, Caldas.
-                </p>
-            </div>
-            <div style="margin-top: 6vh; background: rgba(255,255,255,0.05); border: 2px solid var(--oficina-primario); padding: 2vh 4vw; border-radius: 50px; backdrop-filter: blur(5px);">
-                <p style="font-size: 1.5vw; color: var(--oficina-destacado); font-weight: 900; margin: 0; letter-spacing: 1px;">EL MEJOR PARCHE DE ANSERMA, CALDAS</p>
-            </div>
+    <div id="view-bombay" class="view-layer">
+        <div class="special-layout">
+            <p class="special-subtitle accent fade-slide">Edición Limitada</p>
+            <h2 class="special-title fade-slide delay-1">BOMBAY<br>ORANGE</h2>
+            <p class="ui-desc fade-slide delay-2" style="text-align: center; margin: 3vh auto 0 auto;">Ginebra premium fusionada con tónica y un slushy sedoso de cítricos.</p>
         </div>
     </div>
 
-    <div id="view-promo" class="hidden" style="height: 100vh; width: 100vw; background: linear-gradient(135deg, #0b1e36 0%, #11161d 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: white; position: relative; overflow: hidden;">
-        <div style="position: absolute; top: -20vh; right: -20vh; width: 60vh; height: 60vh; background: radial-gradient(circle, rgba(255,102,0,0.15) 0%, transparent 70%); pointer-events: none;"></div>
-        <div style="position: absolute; bottom: -20vh; left: -20vh; width: 60vh; height: 60vh; background: radial-gradient(circle, rgba(0,119,221,0.12) 0%, transparent 70%); pointer-events: none;"></div>
-        
-        <div class="msg-content" id="promo-content-box" style="width: 85%; max-width: 1300px; z-index: 2; display: flex; flex-direction: column; align-items: center;">
-            <span style="background: #ff6600; color: #0b1e36; padding: 0.8vh 2.5vw; border-radius: 50px; font-size: 1.2vw; font-weight: 900; letter-spacing: 3px; text-transform: uppercase;">IMPERDIBLE HOY</span>
-            
-            <h2 style="font-size: 5.8vw; font-weight: 900; color: #ffffff; margin: 3vh 0 0.5vh 0; line-height: 1; letter-spacing: -1px; text-shadow: 0 4px 20px rgba(255,102,0,0.2);">
-                BOMBAY ORANGE FREEZE
-            </h2>
-            <p style="font-size: 1.7vw; color: #ff9933; font-weight: 700; margin: 0 0 4vh 0; text-transform: uppercase; letter-spacing: 3px;">
-                Una reinterpretación del Gin Tonic clásico
-            </p>
-            
-            <p style="font-size: 2.3vw; color: #e2e8f0; font-weight: 400; line-height: 1.45; max-width: 95%; margin: 0 auto; text-wrap: balance;">
-                La elegancia botánica de la ginebra <span style="color: #4da6ff; font-weight: 700;">Bombay Sapphire</span> se fusiona con la efervescencia del agua tónica premium, coronado con un sedoso <span style="color: #ff6600; font-weight: 700;">slushy de naranja</span> que aporta textura y sabor en un balance cítrico perfecto.
-            </p>
-            
-            <div style="margin-top: 6vh; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,102,0,0.3); padding: 1.5vh 4vw; border-radius: 16px;">
-                <p style="font-size: 1.4vw; color: #ff9933; font-weight: 900; margin: 0; letter-spacing: 1px;">
-                    ¡PÍDELO AHORA Y SIENTE LA EXPERIENCIA EN LA OFICINA!
-                </p>
-            </div>
-        </div>
-    </div>
-
-    <div id="view-pedro" class="hidden" style="height: 100vh; width: 100vw; background: linear-gradient(135deg, #150f0b 0%, #080504 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: white; position: relative; overflow: hidden;">
-        <div style="position: absolute; top: -20vh; right: -20vh; width: 60vh; height: 60vh; background: radial-gradient(circle, rgba(212,175,55,0.15) 0%, transparent 70%); pointer-events: none;"></div>
-        <div style="position: absolute; bottom: -20vh; left: -20vh; width: 60vh; height: 60vh; background: radial-gradient(circle, rgba(139,69,19,0.18) 0%, transparent 70%); pointer-events: none;"></div>
-        
-        <div class="msg-content" id="pedro-content-box" style="width: 85%; max-width: 1300px; z-index: 2; display: flex; flex-direction: column; align-items: center;">
-            <span style="background: #d4af37; color: #150f0b; padding: 0.8vh 2.5vw; border-radius: 50px; font-size: 1.2vw; font-weight: 900; letter-spacing: 3px; text-transform: uppercase;">CREACIÓN EXCLUSIVA</span>
-            
-            <h2 style="font-size: 5.8vw; font-weight: 900; color: #ffffff; margin: 3vh 0 0.5vh 0; line-height: 1; letter-spacing: -1px; text-shadow: 0 4px 20px rgba(212,175,55,0.25);">
-                PEDRO EL FRÍO
-            </h2>
-            <p style="font-size: 1.7vw; color: #d4af37; font-weight: 700; margin: 0 0 4vh 0; text-transform: uppercase; letter-spacing: 3px;">
-                Granizado de café & Brandy Don Pedro 12 años
-            </p>
-            
-            <p style="font-size: 2.3vw; color: #e2e8f0; font-weight: 400; line-height: 1.45; max-width: 95%; margin: 0 auto; text-wrap: balance;">
-                La sofisticación del brandy premium se fusiona magistralmente con la textura helada de nuestro granizado de café. Una mezcla llena de carácter con notas profundas de <span style="color: #d4af37; font-weight: 700;">roble y vainilla</span>, terminada opcionalmente con una suave <span style="color: #ffffff; font-weight: 700;">corona de crema</span>.
-            </p>
-            
-            <div style="margin-top: 6vh; background: rgba(255,255,255,0.02); border: 1px solid rgba(212,175,55,0.3); padding: 1.5vh 4vw; border-radius: 16px;">
-                <p style="font-size: 1.4vw; color: #d4af37; font-weight: 900; margin: 0; letter-spacing: 1px;">
-                    ¡PÍDELO AHORA Y ELEVA TUS TARDES EN LA OFICINA!
-                </p>
-            </div>
+    <div id="view-pedro" class="view-layer">
+        <div class="special-layout">
+            <p class="special-subtitle accent fade-slide">Exclusivo de la Casa</p>
+            <h2 class="special-title fade-slide delay-1">PEDRO<br>EL FRÍO</h2>
+            <p class="ui-desc fade-slide delay-2" style="text-align: center; margin: 3vh auto 0 auto;">Granizado de café premium & Brandy Don Pedro 12 años.</p>
         </div>
     </div>
 
     <script>
-        var displaySequence = [];
-        var currentIndex = 0;
-        var loopInterval = null;
-        var allDocs = [];
-        var showingPromoNow = false; 
-        var promoStep = 0; // Control de ciclos para la duración extendida de las promos (16s)
+        let allDocs = [];
+        let playlist = [];
+        let currentIndex = 0;
+        let playbackTimer = null;
 
-        var frasesOficina = [
-            "Ven a La Oficina, el mejor lugar en Anserma, Caldas.",
+        const frasesOficina = [
             "El mejor ambiente para compartir con amigos.",
             "Tu lugar favorito para un buen café y el mejor parche.",
-            "Calidad y sabor en cada detalle.",
-            "Donde las mejores historias comienzan.",
-            "¡Te esperamos en el corazón de Anserma!"
+            "Donde las mejores historias comienzan en Anserma.",
+            "Calidad, música y sabor en cada detalle."
         ];
-        var fraseIndex = 0;
 
         function iniciar() {
-            try {
-                var doc = document.documentElement;
-                if (doc.requestFullscreen) doc.requestFullscreen();
-            } catch (e) {}
-            
-            document.getElementById('view-start').classList.add('hidden');
+            try { if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen(); } catch (e) {}
+            document.getElementById('view-start').style.display = 'none';
             loadData(""); 
         }
 
         function loadData(pageToken) {
-            var xhr = new XMLHttpRequest();
-            var url = "https://firestore.googleapis.com/v1/projects/mandre-f9e43/databases/(default)/documents/inventory?pageSize=300";
+            let url = "https://firestore.googleapis.com/v1/projects/mandre-f9e43/databases/(default)/documents/inventory?pageSize=300";
             if (pageToken) url += "&pageToken=" + pageToken;
             
-            xhr.open("GET", url, true);
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    var data = JSON.parse(xhr.responseText);
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
                     if (data.documents) allDocs = allDocs.concat(data.documents);
-                    if (data.nextPageToken) loadData(data.nextPageToken);
-                    else procesarInventario();
-                }
-            };
-            xhr.send();
+                    if (data.nextPageToken) {
+                        loadData(data.nextPageToken);
+                    } else {
+                        construirPlaylist();
+                    }
+                })
+                .catch(err => console.error("Error cargando Firebase:", err));
         }
 
-        function procesarInventario() {
-            var products = [];
-            for (var i = 0; i < allDocs.length; i++) {
-                var f = allDocs[i].fields;
-                var isPromoted = f && f.isPromoted && (f.isPromoted.booleanValue === true || f.isPromoted.stringValue === "true");
-                var imageUrl = f && (f.imageUrl ? f.imageUrl.stringValue : (f.imagen ? f.imagen.stringValue : null));
+        function construirPlaylist() {
+            let products = [];
+            allDocs.forEach(doc => {
+                let f = doc.fields;
+                let isPromoted = f && f.isPromoted && (f.isPromoted.booleanValue === true || f.isPromoted.stringValue === "true");
+                let imageUrl = f && (f.imageUrl ? f.imageUrl.stringValue : (f.imagen ? f.imagen.stringValue : null));
                 
                 if (isPromoted && imageUrl) {
                     products.push({
-                        isMessage: false,
+                        type: 'product',
+                        duration: 8000,
                         name: f.name ? f.name.stringValue : "RECOMENDADO",
                         price: Number(f.price ? (f.price.integerValue || f.price.doubleValue || f.price.stringValue || 0) : 0),
                         desc: f.description ? f.description.stringValue : "",
@@ -266,149 +267,79 @@
                         cat: f.category ? f.category.stringValue : "LA OFICINA"
                     });
                 }
-            }
+            });
 
-            displaySequence = [];
-            for (var j = 0; j < products.length; j++) {
-                displaySequence.push(products[j]);
-                if ((j + 1) % 2 === 0) {
-                    displaySequence.push({ isMessage: true });
+            let specialCards = [
+                { type: 'bombay', duration: 12000 },
+                { type: 'message', duration: 8000 },
+                { type: 'pedro', duration: 12000 },
+                { type: 'message', duration: 8000 }
+            ];
+
+            playlist = [];
+            let specialIndex = 0;
+
+            for (let i = 0; i < products.length; i++) {
+                playlist.push(products[i]);
+                if ((i + 1) % 3 === 0) {
+                    playlist.push(specialCards[specialIndex % specialCards.length]);
+                    specialIndex++;
                 }
             }
-            if (products.length % 2 !== 0) displaySequence.push({ isMessage: true });
 
-            if (displaySequence.length > 0) {
-                render();
-                if (loopInterval) clearInterval(loopInterval);
-                
-                // CONTROLADOR DEL LOOP INTERACTIVO CON DURACIÓN EXTENDIDA (16 SEGUNDOS)
-                loopInterval = setInterval(function() {
-                    if (showingPromoNow) {
-                        if (promoStep === 0) {
-                            // Ha completado los primeros 8 segundos, reiniciamos barra para los segundos 8 segundos
-                            promoStep = 1;
-                            animateProgressBar();
-                        } else {
-                            // Ya completó los 16 segundos totales, avanzamos normalmente
-                            showingPromoNow = false;
-                            promoStep = 0;
-                            currentIndex = (currentIndex + 1) % displaySequence.length;
-                            render();
-                        }
-                    } else {
-                        // 30% de probabilidad total de interrumpir con una pantalla premium de 16s
-                        var rand = Math.random();
-                        if (rand < 0.15) {
-                            // 15% Probabilidad para Bombay Orange Freeze
-                            showingPromoNow = true;
-                            promoStep = 0;
-                            renderPromoBombay();
-                        } else if (rand < 0.30) {
-                            // 15% Probabilidad para Pedro el Frío
-                            showingPromoNow = true;
-                            promoStep = 0;
-                            renderPromoPedro();
-                        } else {
-                            // Continuar con el flujo regular del inventario Firestore
-                            currentIndex = (currentIndex + 1) % displaySequence.length;
-                            render();
-                        }
-                    }
-                }, 8000);
+            if (playlist.length > 0) {
+                currentIndex = 0;
+                reproducirSiguiente();
             }
         }
 
-        function animateProgressBar() {
-            var bar = document.getElementById('progress-bar');
+        function reproducirSiguiente() {
+            if (playbackTimer) clearTimeout(playbackTimer);
+
+            let item = playlist[currentIndex];
+            renderUI(item);
+
+            let bar = document.getElementById('progress-bar');
             bar.style.transition = 'none';
             bar.style.width = '0%';
-            void bar.offsetWidth; // Forzar reflow en Smart TVs
-            bar.style.transition = 'width 8000ms linear';
-            bar.style.width = '100%';
+            
+            setTimeout(() => {
+                bar.style.transition = `width ${item.duration}ms linear`;
+                bar.style.width = '100%';
+            }, 50);
+
+            playbackTimer = setTimeout(() => {
+                currentIndex = (currentIndex + 1) % playlist.length;
+                reproducirSiguiente();
+            }, item.duration);
         }
 
-        function hideAllViews() {
-            var views = ['view-main', 'view-message', 'view-promo', 'view-pedro'];
-            for (var i = 0; i < views.length; i++) {
-                var v = document.getElementById(views[i]);
-                if(v) {
-                    v.classList.add('hidden');
-                    v.classList.remove('flex');
-                }
-            }
-        }
+        function renderUI(item) {
+            document.querySelectorAll('.view-layer').forEach(el => el.classList.remove('active'));
 
-        function renderPromoBombay() {
-            hideAllViews();
-            animateProgressBar();
-            
-            var vPromo = document.getElementById('view-promo');
-            vPromo.classList.remove('hidden');
-            vPromo.classList.add('flex');
-            
-            var content = document.getElementById('promo-content-box');
-            content.style.opacity = '0';
-            content.style.transform = 'scale(0.96)';
-            void content.offsetWidth;
-            content.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
-            content.style.opacity = '1';
-            content.style.transform = 'scale(1)';
-        }
+            if (item.type === 'product') {
+                let titleEl = document.getElementById('ui-name');
+                titleEl.innerText = item.name;
+                
+                // Ajuste de texto responsivo
+                let titleSize = item.name.length < 10 ? '7vw' : item.name.length < 18 ? '5.5vw' : '4vw';
+                titleEl.style.fontSize = titleSize;
 
-        function renderPromoPedro() {
-            hideAllViews();
-            animateProgressBar();
-            
-            var vPedro = document.getElementById('view-pedro');
-            vPedro.classList.remove('hidden');
-            vPedro.classList.add('flex');
-            
-            var content = document.getElementById('pedro-content-box');
-            content.style.opacity = '0';
-            content.style.transform = 'scale(0.96)';
-            void content.offsetWidth;
-            content.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
-            content.style.opacity = '1';
-            content.style.transform = 'scale(1)';
-        }
+                document.getElementById('ui-desc').innerText = item.desc;
+                document.getElementById('ui-price').innerText = "$" + item.price.toLocaleString('es-CO');
+                document.getElementById('ui-cat').innerText = item.cat;
+                
+                document.getElementById('ui-img').src = item.img;
+                document.getElementById('view-main').classList.add('active');
 
-        function render() {
-            var data = displaySequence[currentIndex];
-            hideAllViews();
-            animateProgressBar();
-            
-            var vMain = document.getElementById('view-main');
-            var vMsg = document.getElementById('view-message');
-            
-            if (data.isMessage) {
-                vMsg.classList.remove('hidden');
-                vMsg.classList.add('flex');
-                
-                document.getElementById('ui-msg-text').innerHTML = frasesOficina[fraseIndex];
-                fraseIndex = (fraseIndex + 1) % frasesOficina.length;
-            } else {
-                vMain.classList.remove('hidden');
-                vMain.classList.add('flex');
-                
-                var txtContainer = document.getElementById('text-container-main');
-                txtContainer.classList.remove('active-text');
-                void txtContainer.offsetWidth; 
-                txtContainer.classList.add('active-text');
-                
-                document.getElementById('ui-cat').innerText = data.cat;
-                document.getElementById('ui-desc').innerText = data.desc;
-                document.getElementById('ui-price').innerText = "$" + data.price.toLocaleString('es-CO');
-                
-                var nameTitle = document.getElementById('ui-name');
-                nameTitle.innerText = data.name;
-                var n = data.name.length;
-                nameTitle.style.fontSize = n < 8 ? "6.5vw" : n < 15 ? "5vw" : "3.8vw";
-                
-                var img = document.getElementById('ui-img');
-                img.classList.remove('active-slide');
-                img.src = data.img;
-                void img.offsetWidth; 
-                img.classList.add('active-slide');
+            } else if (item.type === 'bombay') {
+                document.getElementById('view-bombay').classList.add('active');
+            } else if (item.type === 'pedro') {
+                document.getElementById('view-pedro').classList.add('active');
+            } else if (item.type === 'message') {
+                let randomMsg = frasesOficina[Math.floor(Math.random() * frasesOficina.length)];
+                document.getElementById('ui-msg-text').innerText = randomMsg;
+                document.getElementById('view-message').classList.add('active');
             }
         }
     </script>
