@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kiosco Digital Premium</title>
+    <title>Kiosco Digital Premium | TV LG Optimized</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
@@ -18,43 +18,56 @@
                 extend: {
                     colors: {
                         premium: {
-                            bg: '#0a0a0a',       // Negro profundo
-                            card: '#141414',     // Negro grisáceo elegante
-                            border: '#222222',   // Separadores sutiles
-                            gold: '#D4AF37',     // Dorado premium para acentos
-                            textMuted: '#888888' // Gris de lectura suave
+                            bg: '#0a0a0a',       
+                            card: '#141414',     
+                            border: '#222222',   
+                            gold: '#D4AF37',     
+                            textMuted: '#888888' 
                         }
                     },
                     fontFamily: {
                         sans: ['Montserrat', 'sans-serif'],
-                    },
-                    animation: {
-                        'fadeScale': 'fadeScale 1s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-                    },
-                    keyframes: {
-                        fadeScale: {
-                            '0%': { transform: 'scale(1.05)', opacity: '0' },
-                            '100%': { transform: 'scale(1)', opacity: '1' },
-                        }
                     }
                 }
             }
         }
     </script>
     <style>
-        body { font-family: 'Montserrat', sans-serif; background-color: #0a0a0a; color: #ffffff; overflow: hidden; }
+        /* Optimizaciones críticas para procesadores de TVs LG (webOS) */
+        * {
+            transform: translate3d(0,0,0); /* Fuerza renderizado por GPU */
+            backface-visibility: hidden;
+            perspective: 1000;
+            -webkit-font-smoothing: antialiased;
+        }
+        body { 
+            font-family: 'Montserrat', sans-serif; 
+            background-color: #0a0a0a; 
+            color: #ffffff; 
+            overflow: hidden; 
+            margin: 0;
+            padding: 0;
+        }
         ::-webkit-scrollbar { display: none; }
         :fullscreen { cursor: none; }
         :-webkit-full-screen { cursor: none; }
+        
+        /* Animación ultra ligera basada en opacidad (Ideal para webOS) */
+        .tv-fade-in {
+            animation: tvFade 0.6s ease-out forwards;
+        }
+        @keyframes tvFade {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useMemo } = React;
+        const { useState, useEffect, useMemo, useRef } = React;
 
-        // --- CONFIGURACIÓN DE TU FIREBASE (Mantiene la sincronización intacta) ---
         const firebaseConfig = {
             apiKey: "AIzaSyAutOqky0mpVmwDrqFsyZ0zRl_abrzgPvc",
             authDomain: "mandre-f9e43.firebaseapp.com",
@@ -72,72 +85,98 @@
         const App = () => {
             const [allProducts, setAllProducts] = useState([]);
             const [tvConfig, setTvConfig] = useState(null);
-            const [currentScreen, setCurrentScreen] = useState('welcome'); 
-            const [isFullscreen, setIsFullscreen] = useState(false);
             
-            // Índices para controlar qué producto individual se está mostrando
-            const [productIndex, setProductIndex] = useState(0);
+            // Usamos un único estado de control para mitigar re-renders innecesarios en el procesador del TV
+            const [displayState, setDisplayState] = useState({
+                screen: 'welcome',
+                productIndex: 0,
+                keyTrigger: 0 // Fuerza refresco limpio de la animación CSS
+            });
+
+            const [isFullscreen, setIsFullscreen] = useState(false);
+            const [imageError, setImageError] = useState(false);
+
+            // Refs para tener acceso inmediato a los datos actualizados dentro del bucle sin causar re-renders
+            const catalogRef = useRef([]);
+            const configRef = useRef(null);
+            const loopTimerRef = useRef(null);
 
             useEffect(() => {
-                // Escucha todo el catálogo en tiempo real
+                // Escucha de inventario en tiempo real
                 const unsubInv = db.collection('inventory').onSnapshot(snap => {
-                    setAllProducts(snap.docs.map(doc => doc.data()));
-                });
+                    const items = snap.docs.map(doc => doc.data());
+                    // Priorizar destacados: Promoted arriba
+                    const ordered = items.sort((a, b) => (b.isPromoted === a.isPromoted ? 0 : b.isPromoted ? 1 : -1));
+                    catalogRef.current = ordered;
+                    setAllProducts(ordered);
+                }, err => console.log("Firebase Inv Error en TV:", err));
 
-                // Escucha datos del café del día / frases
+                // Escucha de configuración TV en tiempo real
                 const unsubTv = db.collection('configuracionTV').doc('actual').onSnapshot(doc => {
-                    if (doc.exists) setTvConfig(doc.data());
-                });
+                    if (doc.exists) {
+                        configRef.current = doc.data();
+                        setTvConfig(doc.data());
+                    }
+                }, err => console.log("Firebase TV Config Error:", err));
 
                 return () => {
                     unsubInv();
                     unsubTv();
+                    if (loopTimerRef.current) clearInterval(loopTimerRef.current);
                 };
             }, []);
 
-            // Combinamos y priorizamos: Primero los destacados en pauta (isPromoted), luego el resto
-            const orderedCatalog = useMemo(() => {
-                return [...allProducts].sort((a, b) => (b.isPromoted === a.isPromoted ? 0 : b.isPromoted ? 1 : -1));
-            }, [allProducts]);
-
-            // Motor de rotación inteligente e individual para TV
+            // El motor principal: Un único intervalo estable de 1 segundo (Evita fugas de memoria en webOS)
             useEffect(() => {
-                let isMounted = true;
-                
-                const mainLoop = async () => {
-                    if (!isMounted) return;
+                let secondsCounter = 0;
+                let currentPhase = 'welcome'; // welcome -> cafe -> products
+                let pIdx = 0;
 
-                    // 1. PANTALLA DE BIENVENIDA (6 segundos)
-                    setCurrentScreen('welcome');
-                    await new Promise(r => setTimeout(r, 6000));
-                    if (!isMounted) return;
+                if (loopTimerRef.current) clearInterval(loopTimerRef.current);
 
-                    // 2. PANTALLA DEL CAFÉ DE LA CASA (10 segundos)
-                    if (tvConfig?.cafePromocion) {
-                        setCurrentScreen('cafe_dia');
-                        await new Promise(r => setTimeout(r, 10000));
-                    }
-                    if (!isMounted) return;
+                loopTimerRef.current = setInterval(() => {
+                    secondsCounter++;
 
-                    // 3. PASARELA INDIVIDUAL DE PRODUCTOS (7 segundos por cada uno)
-                    if (orderedCatalog.length > 0) {
-                        setCurrentScreen('product_focus');
-                        for (let i = 0; i < orderedCatalog.length; i++) {
-                            setProductIndex(i);
-                            await new Promise(r => setTimeout(r, 7000)); // Tiempo ideal de pauta por item
-                            if (!isMounted) return;
+                    // LÓGICA DE TRANSICIÓN DE PANTALLAS
+                    if (currentPhase === 'welcome' && secondsCounter >= 6) {
+                        // Cambiar a Café si existe configuración, si no, salta a productos
+                        if (configRef.current?.cafePromocion) {
+                            currentPhase = 'cafe_dia';
+                        } else if (catalogRef.current.length > 0) {
+                            currentPhase = 'product_focus';
+                            pIdx = 0;
+                        }
+                        secondsCounter = 0;
+                        setImageError(false);
+                        setDisplayState(prev => ({ ...prev, screen: currentPhase, productIndex: pIdx, keyTrigger: Math.random() }));
+                    } 
+                    else if (currentPhase === 'cafe_dia' && secondsCounter >= 10) {
+                        if (catalogRef.current.length > 0) {
+                            currentPhase = 'product_focus';
+                            pIdx = 0;
+                        } else {
+                            currentPhase = 'welcome';
+                        }
+                        secondsCounter = 0;
+                        setImageError(false);
+                        setDisplayState(prev => ({ ...prev, screen: currentPhase, productIndex: pIdx, keyTrigger: Math.random() }));
+                    } 
+                    else if (currentPhase === 'product_focus' && secondsCounter >= 7) {
+                        secondsCounter = 0;
+                        setImageError(false);
+                        
+                        if (pIdx + 1 < catalogRef.current.length) {
+                            pIdx++; // Siguiente producto individual
+                            setDisplayState(prev => ({ ...prev, productIndex: pIdx, keyTrigger: Math.random() }));
+                        } else {
+                            currentPhase = 'welcome'; // Fin del catálogo, vuelve a bienvenida
+                            setDisplayState(prev => ({ ...prev, screen: 'welcome', productIndex: 0, keyTrigger: Math.random() }));
                         }
                     }
+                }, 1000);
 
-                    mainLoop(); // Reiniciar ciclo infinito
-                };
-
-                if (allProducts.length > 0) {
-                    mainLoop();
-                }
-                
-                return () => { isMounted = false; };
-            }, [allProducts, tvConfig, orderedCatalog]);
+                return () => clearInterval(loopTimerRef.current);
+            }, [allProducts]);
 
             const handleStartKiosk = () => {
                 const elem = document.documentElement;
@@ -152,33 +191,31 @@
                 return () => document.removeEventListener('fullscreenchange', onFullscreenChange);
             }, []);
 
-            // Producto seleccionado en la pasarela actual
-            const activeProduct = orderedCatalog[productIndex];
+            const activeProduct = allProducts[displayState.productIndex];
 
             return (
                 <div className="w-screen h-screen bg-premium-bg text-white p-16 flex flex-col justify-between relative overflow-hidden select-none">
                     
-                    {/* --- CONTENIDO PRINCIPAL ANIMADO --- */}
-                    <main className="flex-1 flex items-center justify-center w-full">
+                    {/* --- CONTENIDO PRINCIPAL --- */}
+                    <main className="flex-1 flex items-center justify-center w-full" key={displayState.keyTrigger}>
                         
-                        {/* CASO 1: TEXTO PUBLICITARIO RECURRENTE */}
-                        {currentScreen === 'welcome' && (
-                            <div className="text-center space-y-6 max-w-5xl animate-fadeScale">
+                        {/* PANTALLA 1: BIENVENIDA */}
+                        {displayState.screen === 'welcome' && (
+                            <div className="text-center space-y-6 max-w-5xl tv-fade-in">
                                 <span className="text-premium-gold text-sm font-bold tracking-[0.6em] uppercase block">Sugerencia Especial</span>
                                 <h2 className="text-6xl md:text-7xl font-black text-white uppercase leading-tight tracking-tighter">
                                     {tvConfig?.publicidadRecurrente?.textoConfigurable || "Disfruta un momento exclusivo"}
                                 </h2>
-                                <div className="w-24 h-[2px] bg-premium-gold mx-auto mt-8 opacity-60"></div>
+                                <div className="w-24 h-[2px] bg-premium-gold mx-auto mt-8 opacity-40"></div>
                             </div>
                         )}
 
-                        {/* CASO 2: CAFÉ DE LA CASA / CAFÉ DEL DÍA */}
-                        {currentScreen === 'cafe_dia' && tvConfig?.cafePromocion && (
-                            <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-16 items-center animate-fadeScale max-w-7xl">
+                        {/* PANTALLA 2: CAFÉ DEL DÍA */}
+                        {displayState.screen === 'cafe_dia' && tvConfig?.cafePromocion && (
+                            <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-16 items-center tv-fade-in max-w-7xl">
                                 <div className="lg:col-span-5 flex justify-center">
                                     {tvConfig.cafePromocion.logoUrl ? (
-                                        <div className="p-8 bg-premium-card rounded-[3.5rem] border border-premium-border shadow-2xl relative group">
-                                            <div className="absolute inset-0 bg-premium-gold/5 rounded-[3.5rem] blur-xl"></div>
+                                        <div className="p-8 bg-premium-card rounded-[3.5rem] border border-premium-border shadow-2xl relative">
                                             <img src={tvConfig.cafePromocion.logoUrl} className="w-96 h-96 object-contain relative z-10" alt="Logo Origen"/>
                                         </div>
                                     ) : (
@@ -192,47 +229,47 @@
                                     <h2 className="text-7xl font-black text-white tracking-tighter leading-none">CAFÉ DE ORIGEN</h2>
                                     
                                     <div className="grid grid-cols-2 gap-6 pt-4">
-                                        <div className="bg-premium-card p-6 rounded-3xl border border-premium-border shadow-md">
+                                        <div className="bg-premium-card p-6 rounded-3xl border border-premium-border">
                                             <p className="text-[10px] font-bold text-premium-textMuted uppercase tracking-widest">Procedencia</p>
                                             <p className="text-2xl font-bold text-white uppercase mt-1.5">{tvConfig.cafePromocion.municipio}</p>
                                             <p className="text-sm font-semibold text-premium-gold uppercase mt-0.5">{tvConfig.cafePromocion.vereda}</p>
                                         </div>
-                                        <div className="bg-premium-card p-6 rounded-3xl border border-premium-border shadow-md">
+                                        <div className="bg-premium-card p-6 rounded-3xl border border-premium-border">
                                             <p className="text-[10px] font-bold text-premium-textMuted uppercase tracking-widest">Altura de Cultivo</p>
                                             <p className="text-2xl font-bold text-white uppercase mt-1.5">{tvConfig.cafePromocion.altura} <span className="text-sm text-premium-textMuted font-normal">m.s.n.m</span></p>
                                         </div>
-                                        <div className="bg-premium-card p-8 rounded-3xl border border-premium-border shadow-md col-span-2 relative overflow-hidden">
+                                        <div className="bg-premium-card p-8 rounded-3xl border border-premium-border col-span-2">
                                             <p className="text-[10px] font-bold text-premium-textMuted uppercase tracking-widest mb-2">Notas de Cata Detectadas</p>
-                                            <p className="text-3xl font-black text-premium-gold uppercase tracking-tight relative z-10">{tvConfig.cafePromocion.notas}</p>
+                                            <p className="text-3xl font-black text-premium-gold uppercase tracking-tight">{tvConfig.cafePromocion.notes || tvConfig.cafePromocion.notas}</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         )}
 
-                        {/* CASO 3: PRESENTACIÓN INDIVIDUAL DE PRODUCTOS EN PANTALLA COMPLETA */}
-                        {currentScreen === 'product_focus' && activeProduct && (
-                            <div className="w-full h-full max-w-7xl grid grid-cols-1 lg:grid-cols-12 gap-16 items-center justify-center animate-fadeScale">
+                        {/* PANTALLA 3: PASARELA INDIVIDUAL DE PRODUCTOS */}
+                        {displayState.screen === 'product_focus' && activeProduct && (
+                            <div className="w-full h-full max-w-7xl grid grid-cols-1 lg:grid-cols-12 gap-16 items-center justify-center tv-fade-in">
                                 
-                                {/* Contenedor de la Imagen */}
+                                {/* Contenedor Imagen */}
                                 <div className="lg:col-span-6 flex justify-center relative">
-                                    {activeProduct.imageUrl ? (
-                                        <div className="w-full max-w-lg aspect-square rounded-[4rem] overflow-hidden shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)] border-2 border-premium-border relative bg-premium-card flex items-center justify-center">
-                                            {/* Brillo ambiental dorado de fondo si el producto es destacado en pauta */}
-                                            {activeProduct.isPromoted && (
-                                                <div className="absolute -inset-4 bg-premium-gold/10 rounded-[4rem] blur-3xl animate-pulse"></div>
-                                            )}
-                                            <img src={activeProduct.imageUrl} className="w-full h-full object-cover relative z-10" alt={activeProduct.name}/>
+                                    {activeProduct.imageUrl && !imageError ? (
+                                        <div className="w-full max-w-lg aspect-square rounded-[4rem] overflow-hidden shadow-2xl border-2 border-premium-border relative bg-premium-card flex items-center justify-center">
+                                            <img 
+                                                src={activeProduct.imageUrl} 
+                                                className="w-full h-full object-cover" 
+                                                alt={activeProduct.name}
+                                                onError={() => setImageError(true)} 
+                                            />
                                         </div>
                                     ) : (
-                                        <div className="w-full max-w-md aspect-square bg-premium-card border-2 border-premium-border rounded-[4rem] flex flex-col items-center justify-center text-9xl shadow-2xl relative">
-                                            <span className="relative z-10">{activeProduct.icon || '☕'}</span>
-                                            <div className="absolute w-48 h-48 bg-white/5 rounded-full blur-3xl"></div>
+                                        <div className="w-full max-w-lg aspect-square bg-premium-card border-2 border-premium-border rounded-[4rem] flex flex-col items-center justify-center text-9xl shadow-2xl">
+                                            <span>{activeProduct.icon || '☕'}</span>
                                         </div>
                                     )}
                                 </div>
 
-                                {/* Textos informativos de venta */}
+                                {/* Contenedor Textos */}
                                 <div className="lg:col-span-6 text-left space-y-6 flex flex-col justify-center">
                                     <div className="flex items-center gap-3">
                                         <span className="text-[10px] font-bold text-premium-textMuted uppercase tracking-[0.4em] bg-premium-card px-4 py-1.5 rounded-full border border-premium-border">
@@ -269,19 +306,19 @@
 
                     </main>
 
-                    {/* --- FOOTER INFERIOR COMPACTO (SÓLO EL POWERED BY) --- */}
+                    {/* --- FOOTER INFERIOR --- */}
                     <footer className="flex justify-end items-center shrink-0 w-full pt-4">
-                        <div className="flex items-center gap-2.5 opacity-40 hover:opacity-100 transition-opacity duration-300">
+                        <div className="flex items-center gap-2.5 opacity-30">
                             <span className="text-[9px] text-slate-500 font-bold uppercase tracking-[0.2em]">Power By</span>
                             <span className="font-sans font-normal text-slate-400 text-base tracking-tight">Tan<b className="font-bold text-slate-200">Alza</b></span>
                         </div>
                     </footer>
 
-                    {/* --- BOTÓN INICIAR KIOSKO (Manejo de Pantalla Completa y ocultamiento de mouse) --- */}
+                    {/* --- BOTÓN INICIAR KIOSKO --- */}
                     {!isFullscreen && (
                         <button 
                             onClick={handleStartKiosk}
-                            className="fixed bottom-6 left-6 z-[999] bg-premium-card hover:bg-black text-white px-6 py-4 rounded-full shadow-2xl font-bold flex items-center gap-3 transition-all transform hover:scale-105 border border-premium-border text-xs tracking-wider uppercase"
+                            className="fixed bottom-6 left-6 z-[999] bg-premium-card hover:bg-black text-white px-6 py-4 rounded-full shadow-2xl font-bold flex items-center gap-3 border border-premium-border text-xs tracking-wider uppercase"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
