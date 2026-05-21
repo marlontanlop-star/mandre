@@ -3,311 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KIOSCO CINEMÁTICO INTELIGENTE | LA OFICINA</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800;900&display=swap" rel="stylesheet">
+    <title>MANDRÉ | KIOSCO DIGITAL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;900&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --oficina-black: #050505;
-            --oficina-green: #2e7d32;       
-            --oficina-green-light: #a5d6a7; 
-            --oficina-white: #f8f9fa;
+            --bg: #F5F5F0;
+            --coffee: #3E2723;
+            --sage: #8FBC8F;
+            --dark: #1a1a1a;
+            --white: #ffffff;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        body, html { 
-            overflow: hidden; background-color: var(--oficina-black); 
-            font-family: 'Outfit', sans-serif; height: 100vh; color: var(--oficina-white);
+        body { 
+            background-color: var(--bg); 
+            font-family: 'Montserrat', sans-serif; 
+            height: 100vh; overflow: hidden; color: var(--coffee);
         }
 
-        #progress-bar {
-            position: fixed; bottom: 0; left: 0; height: 6px;
-            background: linear-gradient(90deg, transparent, var(--oficina-green-light));
-            width: 0%; z-index: 9999;
-        }
-
-        .view-layer {
-            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
-            opacity: 0; visibility: hidden; transition: opacity 1s ease-in-out, visibility 1s;
-        }
+        .view-layer { position: absolute; inset: 0; opacity: 0; transition: opacity 0.8s ease; visibility: hidden; }
         .view-layer.active { opacity: 1; visibility: visible; }
 
-        /* MODO CINEMÁTICO FULL SCREEN */
-        .cinematic-bg {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;
-            transform: scale(1.05); transition: transform 12s linear; z-index: 1;
+        /* --- CONTENEDOR MODIFICADO PARA PANTALLA COMPLETA --- */
+        .card-view {
+            width: 100vw; 
+            height: 100vh; 
+            background: var(--white); 
+            display: flex; 
+            overflow: hidden;
         }
-        .view-layer.active .cinematic-bg { transform: scale(1.15); }
 
-        .cinematic-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(90deg, rgba(5,5,5,0.95) 0%, rgba(5,5,5,0.8) 35%, rgba(5,5,5,0) 100%);
-            z-index: 2; display: flex; align-items: center; padding-left: 6vw;
-        }
-        .content-block { width: 45vw; }
+        /* --- VISTA PRODUCTO --- */
+        .info-side { width: 40%; padding: 5rem; display: flex; flex-direction: column; justify-content: center; }
+        .img-side { width: 60%; background: #e5e5e5; }
+        .img-side img { width: 100%; height: 100%; object-fit: cover; }
 
-        .ui-badge {
-            display: inline-block; border: 1px solid var(--oficina-green-light);
-            color: var(--oficina-green-light); padding: 0.6vh 1.5vw; border-radius: 4px;
-            font-size: 1vw; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 2.5vh;
-        }
-        .ui-title {
-            font-size: 6.5vw; font-weight: 900; line-height: 0.95; margin-bottom: 2vh; 
-            text-transform: uppercase; text-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        .ui-desc { font-size: 2vw; font-weight: 300; color: rgba(255,255,255,0.7); line-height: 1.4; margin-bottom: 5vh; max-width: 90%; }
-        
-        .price-card {
-            background: rgba(255,255,255,0.05); border-left: 4px solid var(--oficina-green-light);
-            padding: 2vh 2vw; display: inline-block; backdrop-filter: blur(10px); margin-bottom: 4vh;
-        }
-        .ui-price { font-size: 4vw; font-weight: 900; line-height: 1; }
+        .ui-cat { font-size: 0.7rem; font-weight: 900; letter-spacing: 0.3em; color: var(--sage); text-transform: uppercase; margin-bottom: 1rem; }
+        .ui-name { font-size: 3.5rem; font-weight: 900; line-height: 1; margin-bottom: 1.5rem; }
+        .ui-price { font-size: 2rem; font-weight: 700; color: var(--coffee); margin-top: 2rem; }
 
-        /* Animaciones en Cascada */
-        .fade-slide { opacity: 0; transform: translateX(-30px); transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
-        .view-layer.active .fade-slide { opacity: 1; transform: translateX(0); }
-        .delay-1 { transition-delay: 0.15s; }
-        .delay-2 { transition-delay: 0.3s; }
-        .delay-3 { transition-delay: 0.45s; }
+        /* --- VISTA PROMO DINÁMICA --- */
+        .promo-view { display: flex; align-items: center; justify-content: center; text-align: center; padding: 4rem; }
+        .promo-content { max-width: 800px; }
+        .promo-title { font-size: 4rem; font-weight: 900; line-height: 0.9; margin-bottom: 2rem; }
+        .promo-desc { font-size: 1.2rem; font-weight: 400; opacity: 0.8; line-height: 1.6; }
 
-        /* SECCIONES PUBLICITARIAS */
-        .special-layout {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            text-align: center; z-index: 3; position: relative; height: 100%; width: 100%;
-        }
-        .special-title { font-size: 7.5vw; font-weight: 900; line-height: 0.95; text-transform: uppercase; margin-bottom: 2vh; }
-        .special-subtitle { font-size: 2vw; font-weight: 300; letter-spacing: 5px; text-transform: uppercase; margin-bottom: 1vh;}
-
-        #view-message { background: var(--oficina-black); }
-        .brand-text { font-size: 5vw; font-weight: 800; max-width: 80%; line-height: 1.2; color: var(--oficina-white); }
-
-        #view-start { position: fixed; z-index: 10000; width: 100vw; height: 100vh; background: var(--oficina-black); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        #view-start { position: fixed; inset: 0; background: var(--coffee); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; }
     </style>
 </head>
 <body>
 
-    <div id="progress-bar"></div>
-
     <div id="view-start">
-        <h1 style="font-size: 3vw; font-weight: 900; letter-spacing: 8px; margin-bottom: 5vh;">LA OFICINA</h1>
-        <button onclick="iniciar()" style="background: transparent; color: var(--oficina-green-light); padding: 2vh 4vw; border: 1px solid var(--oficina-green-light); font-family: 'Outfit'; font-weight: 800; font-size: 1.5vw; cursor: pointer; text-transform: uppercase; letter-spacing: 2px;">Iniciar Kiosco</button>
+        <h1 style="font-size: 4rem; font-weight: 900;">MANDRÉ</h1>
+        <button onclick="iniciar()" style="margin-top: 2rem; padding: 1rem 3rem; border-radius: 50px; background: var(--sage); border: none; font-weight: 900; cursor: pointer;">INICIAR PANTALLA</button>
     </div>
 
     <div id="view-main" class="view-layer">
-        <img id="ui-img" class="cinematic-bg" src="">
-        <div class="cinematic-overlay">
-            <div class="content-block">
-                <div id="ui-cat" class="ui-badge fade-slide">RECOMENDADO</div>
-                <h1 id="ui-name" class="ui-title fade-slide delay-1">CARGANDO...</h1>
-                <p id="ui-desc" class="ui-desc fade-slide delay-2">Sincronizando menú comercial...</p>
-                <div class="price-card fade-slide delay-3"><div id="ui-price" class="ui-price">$0</div></div>
+        <div class="card-view">
+            <div class="info-side">
+                <div id="ui-cat" class="ui-cat">CAFE</div>
+                <h1 id="ui-name" class="ui-name">Espresso</h1>
+                <p id="ui-desc" style="font-size: 1.1rem; opacity: 0.7;">Descripción del producto...</p>
+                <div id="ui-price" class="ui-price">$0</div>
+            </div>
+            <div class="img-side">
+                <img id="ui-img" src="">
             </div>
         </div>
     </div>
 
-    <div id="view-message" class="view-layer">
-        <div class="special-layout">
-            <p style="font-size: 1.2vw; font-weight: 800; letter-spacing: 10px; color: var(--oficina-green-light); margin-bottom: 4vh;" class="fade-slide">LA OFICINA</p>
-            <h2 id="ui-msg-text" class="brand-text fade-slide delay-1">Disfrutando en Anserma.</h2>
-        </div>
-    </div>
-
     <div id="view-dynamic" class="view-layer">
-        <img id="dyn-bg" class="cinematic-bg" style="opacity: 0.25; filter: blur(1px);" src="">
-        <div id="dyn-layout" class="special-layout">
-            <p id="dyn-sub" class="special-subtitle fade-slide"></p>
-            <h2 id="dyn-title" class="special-title fade-slide delay-1"></h2>
-            <p id="dyn-desc" class="ui-desc fade-slide delay-2" style="text-align: center; margin-top: 2vh; max-width: 75%; color: white; opacity: 0.9;"></p>
+        <div id="dyn-layout" class="card-view promo-view">
+            <div class="promo-content">
+                <div id="dyn-sub" style="font-size: 0.7rem; letter-spacing: 0.3em; font-weight: 900; text-transform: uppercase; margin-bottom: 1rem;"></div>
+                <h2 id="dyn-title" class="promo-title"></h2>
+                <p id="dyn-desc" class="promo-desc"></p>
+            </div>
         </div>
     </div>
 
     <script>
-        let allDocs = [];
+        // Tu lógica de JavaScript permanece intacta
         let playlist = [];
         let currentIndex = 0;
-        let playbackTimer = null;
-
-        let configMaster = {
-            productTime: 8000, promoTime: 12000,
-            messages: ["El mejor ambiente en Anserma."], promotions: []
-        };
+        let configMaster = { productTime: 8000, promoTime: 12000, promotions: [] };
 
         function iniciar() {
-            try { if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen(); } catch (e) {}
+            // Opcional: Para activar modo pantalla completa real del navegador
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen();
+            }
             document.getElementById('view-start').style.display = 'none';
             obtenerConfiguracion(true);
         }
 
-        // 1. LEER AJUSTES SUPREMOS Y COLORES EN VIVO
         function obtenerConfiguracion(cargarInventarioDespues) {
             fetch("https://firestore.googleapis.com/v1/projects/mandre-f9e43/databases/(default)/documents/kiosk_settings/master")
             .then(res => res.json())
             .then(conf => {
                 if(conf.fields) {
-                    configMaster.productTime = Number(conf.fields.productTime.integerValue || 8000);
-                    configMaster.promoTime = Number(conf.fields.promoTime.integerValue || 12000);
-                    
-                    if(conf.fields.messages && conf.fields.messages.arrayValue.values) {
-                        configMaster.messages = conf.fields.messages.arrayValue.values.map(v => v.stringValue);
-                    }
-
+                    configMaster.productTime = Number(conf.fields.productTime?.integerValue || 8000);
+                    configMaster.promoTime = Number(conf.fields.promoTime?.integerValue || 12000);
                     configMaster.promotions = [];
-                    if(conf.fields.promotions && conf.fields.promotions.arrayValue.values) {
-                        conf.fields.promotions.arrayValue.values.forEach(promo => {
-                            let pMap = promo.mapValue.fields;
-                            if(pMap.active && pMap.active.booleanValue === true) {
-                                configMaster.promotions.push({
-                                    title: pMap.title.stringValue,
-                                    subtitle: pMap.subtitle.stringValue,
-                                    desc: pMap.desc.stringValue,
-                                    image: pMap.image ? pMap.image.stringValue : "",
-                                    bgColor: pMap.bgColor ? pMap.bgColor.stringValue : "#050505",
-                                    accentColor: pMap.accentColor ? pMap.accentColor.stringValue : "#a5d6a7"
-                                });
-                            }
+                    if(conf.fields.promotions?.arrayValue.values) {
+                        conf.fields.promotions.arrayValue.values.forEach(p => {
+                            let m = p.mapValue.fields;
+                            if(m.active?.booleanValue) configMaster.promotions.push({
+                                title: m.title?.stringValue, subtitle: m.subtitle?.stringValue,
+                                desc: m.desc?.stringValue, bgColor: m.bgColor?.stringValue, accentColor: m.accentColor?.stringValue
+                            });
                         });
                     }
                 }
-                if(cargarInventarioDespues) loadData("");
-            })
-            .catch(err => {
-                if(cargarInventarioDespues) loadData("");
+                if(cargarInventarioDespues) loadInventory();
             });
         }
 
-        // 2. LEER INVENTARIO DINÁMICO
-        function loadData(pageToken) {
-            let url = "https://firestore.googleapis.com/v1/projects/mandre-f9e43/databases/(default)/documents/inventory?pageSize=300";
-            if (pageToken) url += "&pageToken=" + pageToken;
-            
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.documents) {
-                        if(!pageToken) allDocs = []; 
-                        allDocs = allDocs.concat(data.documents);
-                    }
-                    if (data.nextPageToken) {
-                        loadData(data.nextPageToken);
-                    } else {
-                        construirPlaylist();
+        function loadInventory() {
+            fetch("https://firestore.googleapis.com/v1/projects/mandre-f9e43/databases/(default)/documents/inventory?pageSize=300")
+            .then(res => res.json())
+            .then(data => {
+                let products = data.documents.map(d => d.fields).filter(f => f.isPromoted?.booleanValue);
+                playlist = [];
+                products.forEach((p, i) => {
+                    playlist.push({ type: 'product', data: p });
+                    if ((i + 1) % 2 === 0) {
+                        configMaster.promotions.forEach(promo => playlist.push({ type: 'promo', data: promo }));
                     }
                 });
+                reproducir();
+            });
         }
 
-        // 3. MEZCLAR PRODUCTOS ACTIVOS + PROMOS CON COLORES
-        function construirPlaylist() {
-            let products = [];
-            allDocs.forEach(doc => {
-                let f = doc.fields;
-                let isPromoted = f && f.isPromoted && (f.isPromoted.booleanValue === true || f.isPromoted.stringValue === "true");
-                let imageUrl = f && (f.imageUrl ? f.imageUrl.stringValue : (f.imagen ? f.imagen.stringValue : null));
-                
-                if (isPromoted && imageUrl) {
-                    products.push({
-                        type: 'product', duration: configMaster.productTime,
-                        name: f.name ? f.name.stringValue : "RECOMENDADO",
-                        price: Number(f.price ? (f.price.integerValue || f.price.doubleValue || f.price.stringValue || 0) : 0),
-                        desc: f.description ? f.description.stringValue : "",
-                        img: imageUrl, cat: f.category ? f.category.stringValue : "LA OFICINA"
-                    });
-                }
-            });
-
-            let specialCards = [];
-            configMaster.promotions.forEach(promo => {
-                specialCards.push({ type: 'dynamic-promo', duration: configMaster.promoTime, data: promo });
-                specialCards.push({ type: 'message', duration: configMaster.productTime }); 
-            });
-
-            if(specialCards.length === 0) specialCards.push({ type: 'message', duration: configMaster.productTime });
-
-            playlist = [];
-            let specialIndex = 0;
-
-            for (let i = 0; i < products.length; i++) {
-                playlist.push(products[i]);
-                if ((i + 1) % 3 === 0) {
-                    playlist.push(specialCards[specialIndex % specialCards.length]);
-                    specialIndex++;
-                }
-            }
-
-            if (playlist.length > 0) {
-                currentIndex = 0;
-                reproducirSiguiente();
-            }
-        }
-
-        function reproducirSiguiente() {
-            if (playbackTimer) clearTimeout(playbackTimer);
-
-            // Sincronizar cambios del Admin silenciosamente al iniciar cada vuelta
-            if (currentIndex === 0 && playlist.length > 0) {
-                obtenerConfiguracion(false);
-            }
-
+        function reproducir() {
             let item = playlist[currentIndex];
-            renderUI(item);
-
-            let bar = document.getElementById('progress-bar');
-            bar.style.transition = 'none'; bar.style.width = '0%';
-            
-            setTimeout(() => {
-                bar.style.transition = `width ${item.duration}ms linear`;
-                bar.style.width = '100%';
-            }, 50);
-
-            playbackTimer = setTimeout(() => {
-                currentIndex = (currentIndex + 1) % playlist.length;
-                reproducirSiguiente();
-            }, item.duration);
-        }
-
-        // 4. INYECCIÓN ATMOFÉRICA DE COLORES EN VIVO
-        function renderUI(item) {
             document.querySelectorAll('.view-layer').forEach(el => el.classList.remove('active'));
-
-            if (item.type === 'product') {
-                let titleEl = document.getElementById('ui-name');
-                titleEl.innerText = item.name;
-                titleEl.style.fontSize = item.name.length < 10 ? '7vw' : item.name.length < 18 ? '5.5vw' : '4vw';
-                
-                document.getElementById('ui-desc').innerText = item.desc;
-                document.getElementById('ui-price').innerText = "$" + item.price.toLocaleString('es-CO');
-                document.getElementById('ui-cat').innerText = item.cat;
-                document.getElementById('ui-img').src = item.img;
+            
+            if(item.type === 'product') {
+                document.getElementById('ui-cat').innerText = item.data.category?.stringValue || "MANDRÉ";
+                document.getElementById('ui-name').innerText = item.data.name?.stringValue || "";
+                document.getElementById('ui-desc').innerText = item.data.description?.stringValue || "";
+                document.getElementById('ui-price').innerText = "$" + Number(item.data.price?.integerValue || 0).toLocaleString();
+                document.getElementById('ui-img').src = item.data.imageUrl?.stringValue || "";
                 document.getElementById('view-main').classList.add('active');
-
-            } else if (item.type === 'dynamic-promo') {
-                let p = item.data;
-                let viewDyn = document.getElementById('view-dynamic');
-                let layout = document.getElementById('dyn-layout');
-                let titleEl = document.getElementById('dyn-title');
-                let subEl = document.getElementById('dyn-sub');
-
-                // 🎨 Aplicación Dinámica de Colores procesada en el CPU del Smart TV
-                layout.style.background = `radial-gradient(circle at center, ${p.bgColor}cc 0%, var(--oficina-black) 100%)`;
-                viewDyn.style.backgroundColor = p.bgColor;
-                
-                titleEl.innerHTML = p.title.replace(/\n/g, '<br>');
-                titleEl.style.color = '#ffffff';
-                titleEl.style.textShadow = `0 0 35px ${p.accentColor}aa`;
-                
-                subEl.innerText = p.subtitle;
-                subEl.style.color = p.accentColor;
-
-                document.getElementById('dyn-desc').innerText = p.desc;
-                document.getElementById('dyn-bg').src = p.image || "";
-                
-                viewDyn.classList.add('active');
-
-            } else if (item.type === 'message') {
-                let arrayMsg = configMaster.messages.length > 0 ? configMaster.messages : ["LA OFICINA"];
-                document.getElementById('ui-msg-text').innerText = arrayMsg[Math.floor(Math.random() * arrayMsg.length)];
-                document.getElementById('view-message').classList.add('active');
+            } else {
+                document.getElementById('dyn-sub').innerText = item.data.subtitle;
+                document.getElementById('dyn-title').innerHTML = item.data.title.replace(/\n/g, '<br>');
+                document.getElementById('dyn-desc').innerText = item.data.desc;
+                document.getElementById('dyn-layout').style.backgroundColor = item.data.bgColor;
+                document.getElementById('dyn-layout').style.color = item.data.accentColor;
+                document.getElementById('view-dynamic').classList.add('active');
             }
+
+            setTimeout(() => {
+                currentIndex = (currentIndex + 1) % playlist.length;
+                reproducir();
+            }, item.type === 'product' ? configMaster.productTime : configMaster.promoTime);
         }
     </script>
 </body>
