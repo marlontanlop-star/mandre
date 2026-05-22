@@ -6,7 +6,7 @@
     <title>Kiosco Digital Inteligente | LA OFICINA Anserma</title>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;900&display=swap" rel="stylesheet">
     
     <style>
         /* --- BLINDAJE ABSOLUTO GENERAL --- */
@@ -308,7 +308,8 @@
             productIndex: 0, 
             secondsCounter: 0,
             productsShownInSession: 0, 
-            phraseIndex: 0
+            phraseIndex: 0,
+            promoToggle: false // Añadido para alternar entre frase local y promo Mastercard
         };
 
         const localPhrases = [
@@ -469,6 +470,46 @@
                     `;
                 }
 
+                // CASO 5: PROMO MASTERCARD (Diseño Exacto y Minimalista)
+                else if (loopState.currentPhase === 'mastercard_promo') {
+                    html = `
+                        <div class="center-layout">
+                            <div style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; background-color: #FFFFFF; border-radius: 40px; border-top: 12px solid #EB001B; border-bottom: 12px solid #F79E1B; box-shadow: 0 15px 40px rgba(0,0,0,0.03);">
+                                
+                                <!-- Logo Mastercard -->
+                                <div style="margin-bottom: 35px;">
+                                    <svg width="250" height="150" viewBox="0 0 120 80" style="overflow: visible;">
+                                        <circle cx="40" cy="40" r="30" fill="#EB001B"/>
+                                        <circle cx="80" cy="40" r="30" fill="#F79E1B"/>
+                                        <path d="M60 17.64A30 30 0 0 0 60 62.36A30 30 0 0 0 60 17.64Z" fill="#FF5F00"/>
+                                        <text x="60" y="95" font-family="'Montserrat', sans-serif" font-size="13" font-weight="900" text-anchor="middle" fill="#111111">mastercard</text>
+                                    </svg>
+                                </div>
+
+                                <!-- Pregunta de gancho -->
+                                <h2 style="font-size: 60px; font-weight: 900; margin: 0 0 45px 0; color: #111111; line-height: 1.2;">
+                                    ¿Un cafecito para arrancar el día<br>o cócteles para cerrar la semana?
+                                </h2>
+
+                                <!-- Insignia X2 Puntos Minimalista pero llamativa -->
+                                <div style="display: inline-block; padding: 25px 80px; border-radius: 80px; margin-bottom: 55px; background: #FFF9F9; border: 4px solid #EB001B;">
+                                    <h3 style="font-size: 72px; font-weight: 900; margin: 0; color: #EB001B; letter-spacing: 1px;">¡X2 EN PUNTOS!</h3>
+                                </div>
+
+                                <!-- Mensaje principal -->
+                                <h4 style="font-size: 42px; font-weight: 900; color: #111111; margin-bottom: 30px; text-transform: uppercase;">
+                                    ¡Sumas el doble de puntos en automático!
+                                </h4>
+                                
+                                <p style="font-size: 28px; font-weight: 500; color: #666666; max-width: 1300px; margin: 0 auto; line-height: 1.5;">
+                                    El plan perfecto sí existe. Ven a parchar, paga con tus tarjetas <b style="color:#111111; font-weight: 900;">Mastercard</b>, acumula puntos y redímelos en productos de la carta.
+                                </p>
+
+                            </div>
+                        </div>
+                    `;
+                }
+
                 kioskMain.innerHTML = html;
                 kioskMain.classList.add('tv-fade-active');
                 ajustarEscalaPantallaTV(); // Forzar recalculo tras pintar el HTML
@@ -497,7 +538,16 @@
 
                 if (loopState.productsShownInSession >= 4) {
                     loopState.productsShownInSession = 0; 
-                    loopState.currentPhase = 'local_phrase';
+                    
+                    // Lógica para alternar entre la promo de Mastercard y las frases locales de Anserma
+                    if (!loopState.promoToggle) {
+                        loopState.currentPhase = 'mastercard_promo';
+                        loopState.promoToggle = true;
+                    } else {
+                        loopState.currentPhase = 'local_phrase';
+                        loopState.promoToggle = false;
+                    }
+                    
                     renderCurrentScreen();
                 } else {
                     if (loopState.productIndex + 1 < dataset.products.length) {
@@ -506,6 +556,16 @@
                         loopState.currentPhase = 'welcome'; loopState.productIndex = 0; renderCurrentScreen();
                     }
                 }
+            }
+            // Control de tiempo para la nueva promo MASTERCARD (16 segundos = El doble de tiempo normal)
+            else if (loopState.currentPhase === 'mastercard_promo' && loopState.secondsCounter >= 16) {
+                loopState.secondsCounter = 0;
+                if (loopState.productIndex + 1 < dataset.products.length) {
+                    loopState.productIndex++; loopState.currentPhase = 'product_focus';
+                } else {
+                    loopState.currentPhase = 'welcome'; loopState.productIndex = 0;
+                }
+                renderCurrentScreen();
             }
             else if (loopState.currentPhase === 'local_phrase' && loopState.secondsCounter >= 8) {
                 loopState.secondsCounter = 0;
