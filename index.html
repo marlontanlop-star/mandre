@@ -26,8 +26,8 @@
             max-width: 100vw !important;
             max-height: 100vh !important;
             overflow: hidden !important;
-            background-color: #FFFFFF; /* Blanco exterior */
-            color: #111111;
+            background-color: #050505; /* Negro premium para proteger el TV */
+            color: #FFFFFF;
             font-family: 'Montserrat', sans-serif;
             position: fixed;
             top: 0;
@@ -36,9 +36,7 @@
             user-select: none;
         }
 
-        /* --- EL CONTENEDOR INTELIGENTE ---
-           Este bloque mantendrá una proporción interna de 1920x1080 fija en memoria.
-           El script de abajo lo centrará y lo escalará matemáticamente según el TV. */
+        /* --- EL CONTENEDOR INTELIGENTE --- */
         #tv-scale-canvas {
             position: absolute;
             width: 1920px;
@@ -53,7 +51,7 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 80px 100px; /* Margen interno de seguridad de diseño */
+            padding: 80px 100px;
         }
 
         main {
@@ -83,15 +81,16 @@
         :fullscreen { cursor: none; }
         :-webkit-full-screen { cursor: none; }
 
+        /* PALETA MINIMALISTA MODO OSCURO */
         .text-accent { color: #8C6239; } 
-        .text-dark { color: #000000; }
-        .text-muted { color: #666666; font-weight: 700; }
+        .text-dark { color: #FFFFFF; } /* Invertido para legibilidad */
+        .text-muted { color: #999999; font-weight: 700; }
         
-        /* Layout de Rejilla Estricto dentro de la Matriz Virtual */
+        /* Layout de Rejilla */
         .grid-layout {
             display: flex;
             width: 100%;
-            height: 760px; /* Altura segura fija dentro de los 1080px */
+            height: 760px; 
             align-items: center;
             justify-content: space-between;
         }
@@ -115,14 +114,14 @@
             overflow: hidden;
         }
 
-        /* CAJA CONTENEDORA DE IMAGEN REFORZADA */
+        /* CAJA CONTENEDORA DE IMAGEN - Adaptada a oscuros */
         .image-box-safe {
             width: 760px;
             height: 760px;
             border-radius: 40px;
             overflow: hidden;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.05); 
-            background-color: #FFFFFF;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5); 
+            background-color: #111111; /* Gris muy oscuro para contrastar fotos */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -134,18 +133,18 @@
             width: auto !important;
             height: auto !important;
             object-fit: contain !important;
-            background-color: #FFFFFF;
+            background-color: transparent;
             border-radius: 40px;
         }
 
         .image-placeholder {
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #F8F9FA 0%, #E9ECEF 100%);
+            background: linear-gradient(135deg, #1A1A1A 0%, #0A0A0A 100%);
             border-radius: 40px;
         }
 
-        /* Tamaños de fuentes e indicadores perfectos basados en el Canvas de 1920x1080 */
+        /* Fuentes e indicadores */
         .badge {
             display: inline-block;
             padding: 12px 28px;
@@ -156,7 +155,7 @@
             text-transform: uppercase;
             margin-bottom: 25px;
         }
-        .badge-muted { background-color: #F1F3F5; color: #495057; }
+        .badge-muted { background-color: #1A1A1A; color: #DDDDDD; border: 1px solid #333; }
         .badge-accent { background-color: #8C6239; color: #FFFFFF; margin-left: 15px; }
 
         h2.item-title {
@@ -166,7 +165,7 @@
             text-transform: uppercase; 
             margin: 0; 
             line-height: 1.1; 
-            color:#000000;
+            color: #FFFFFF;
         }
 
         p.item-desc {
@@ -176,30 +175,31 @@
             margin: 25px 0; 
             border-left: 6px solid #8C6239; 
             padding-left: 25px;
-            color: #222222;
+            color: #CCCCCC;
         }
 
         .price-box {
             display: inline-block;
             font-size: 82px; 
             font-weight: 900;
-            color: #000000;
-            background-color: #F8F9FA;
+            color: #FFFFFF;
+            background-color: #111111;
             padding: 10px 45px;
             border-radius: 28px;
             margin-top: 20px;
             letter-spacing: -3px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.01);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 1px solid #222;
         }
 
         .cafe-grid { display: flex; gap: 25px; margin-top: 25px; width: 100%; }
-        .cafe-card { background: #F8F9FA; padding: 25px 30px; border-radius: 28px; flex: 1; }
-        .cafe-card p { font-size: 16px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
-        .cafe-card h3 { font-size: 32px; font-weight: 900; text-transform: uppercase; color: #000; }
+        .cafe-card { background: #111111; padding: 25px 30px; border-radius: 28px; flex: 1; border: 1px solid #222; }
+        .cafe-card p { font-size: 16px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; color: #999; }
+        .cafe-card h3 { font-size: 32px; font-weight: 900; text-transform: uppercase; color: #FFF; }
         .cafe-card h4 { font-size: 20px; font-weight: 900; text-transform: uppercase; }
         
-        .cafe-card-full { width: 100%; background: #F8F9FA; padding: 30px; border-radius: 28px; margin-top: 25px; }
-        .cafe-card-full p { font-size: 16px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+        .cafe-card-full { width: 100%; background: #111111; padding: 30px; border-radius: 28px; margin-top: 25px; border: 1px solid #222; }
+        .cafe-card-full p { font-size: 16px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; color: #999; }
         .cafe-card-full h3 { font-size: 38px; font-weight: 900; text-transform: uppercase; letter-spacing: -1px; }
 
         .center-layout {
@@ -215,14 +215,15 @@
             width: 100%;
             max-width: 1300px;
             padding: 70px;
-            background-color: #FFFDF9;
+            background-color: #0A0A0A;
             border-radius: 50px;
-            box-shadow: 0 25px 60px rgba(140,98,57,0.03);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+            border: 1px solid #222;
         }
-        .phrase-container h2 { font-size: 58px; font-weight: 900; line-height: 1.4; color: #000000; margin-bottom: 20px; }
-        .phrase-container p { font-size: 18px; letter-spacing: 4px; text-transform: uppercase; }
+        .phrase-container h2 { font-size: 58px; font-weight: 900; line-height: 1.4; color: #FFFFFF; margin-bottom: 20px; }
+        .phrase-container p { font-size: 18px; letter-spacing: 4px; text-transform: uppercase; color: #999; }
 
-        /* Footer estático controlado en coordenadas de matriz */
+        /* Footer */
         footer { 
             width: 100%;
             display: flex; 
@@ -230,61 +231,48 @@
             opacity: 0.5; 
             padding-top: 20px;
         }
-        .footer-brand { font-size: 18px; color: #111111; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; }
+        .footer-brand { font-size: 18px; color: #FFFFFF; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; }
         .footer-brand b { color: #8C6239; font-weight: 900; }
 
         .btn-kiosk {
             position: fixed; bottom: 30px; left: 30px; z-index: 999;
-            background: #111111; color: white; padding: 16px 32px;
+            background: #FFFFFF; color: #000000; padding: 16px 32px;
             border-radius: 40px; font-weight: 900; border: none;
             cursor: pointer; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 15px 30px rgba(255,255,255,0.1);
         }
     </style>
 </head>
 <body>
 
     <div id="tv-scale-canvas">
-        
-        <main id="kiosk-main" class="tv-fade">
-            </main>
-
+        <main id="kiosk-main" class="tv-fade"></main>
         <footer>
             <div class="footer-brand">
                 Power By <span>Tan<b>Alza</b></span>
             </div>
         </footer>
-
     </div>
 
     <button id="btn-fullscreen" class="btn-kiosk">Iniciar Kiosko Exterior</button>
 
     <script>
-        // --- ALGORITMO INTEGRADO DE ESCALA INTELIGENTE (ANTI-DESBORDES Y AJUSTE DE TV GIGANTE) ---
+        // --- ALGORITMO INTEGRADO DE ESCALA INTELIGENTE ---
         function ajustarEscalaPantallaTV() {
             var canvas = document.getElementById('tv-scale-canvas');
             if (!canvas) return;
-            
-            // Obtener el tamaño exacto actual del navegador del TV LG
             var windowWidth = window.innerWidth;
             var windowHeight = window.innerHeight;
-            
-            // Calcular factor matemático de escala tomando como base fija 1920x1080
             var scaleX = windowWidth / 1920;
             var scaleY = windowHeight / 1080;
-            
-            // Utilizar la menor escala para asegurar que el contenido quepa al 100% sin importar la resolución
             var scaleFinal = Math.min(scaleX, scaleY);
-            
-            // Aplicar la matriz de escala por hardware nativo de webOS
             canvas.style.transform = 'scale(' + scaleFinal + ')';
             canvas.style.webkitTransform = 'scale(' + scaleFinal + ')';
         }
 
-        // Ejecutar al cargar la página y cada vez que cambie el tamaño (como al entrar a pantalla completa)
         window.addEventListener('resize', ajustarEscalaPantallaTV);
         window.addEventListener('load', ajustarEscalaPantallaTV);
-        setTimeout(ajustarEscalaPantallaTV, 100); // Disparo de seguridad para webOS antiguos
+        setTimeout(ajustarEscalaPantallaTV, 100);
 
         // --- CONFIGURACIÓN DE TU FIREBASE ---
         const firebaseConfig = {
@@ -309,7 +297,7 @@
             secondsCounter: 0,
             productsShownInSession: 0, 
             phraseIndex: 0,
-            promoToggle: false // Añadido para alternar entre frase local y promo Mastercard
+            promoToggle: false
         };
 
         const localPhrases = [
@@ -322,7 +310,7 @@
 
         const kioskMain = document.getElementById('kiosk-main');
 
-        // Escuchar Inventario con Filtro de Transmisión
+        // Escuchar Inventario
         db.collection('inventory').onSnapshot(function(snap) {
             let items = [];
             snap.forEach(function(doc) {
@@ -362,10 +350,10 @@
                     let textoExpress = dataset.config.pautaExpressTexto || "Promoción exclusiva disponible ahora.";
                     html = `
                         <div class="center-layout">
-                            <div class="phrase-container" style="border: 6px solid #8C6239;">
+                            <div class="phrase-container" style="border: 2px solid #8C6239;">
                                 <span class="badge badge-accent" style="margin-bottom:25px; padding: 12px 28px; font-size:16px;">DESTACADO DE LA SEMANA 🚨</span>
                                 <h2 style="font-size: 64px; font-weight: 900; line-height: 1.2; color: #8C6239; text-transform: uppercase; margin-bottom:25px;">${tituloExpress}</h2>
-                                <p style="font-size: 32px; font-weight: 700; color: #111111; line-height: 1.5; max-width:1000px; margin: 0 auto;">${textoExpress}</p>
+                                <p style="font-size: 32px; font-weight: 700; color: #FFFFFF; line-height: 1.5; max-width:1000px; margin: 0 auto;">${textoExpress}</p>
                                 <p class="text-muted" style="font-size: 14px; margin-top: 35px; letter-spacing: 4px; text-transform: uppercase;">La Oficina Anserma • Sabores de Temporada</p>
                             </div>
                         </div>
@@ -383,7 +371,7 @@
                         <div class="center-layout">
                             <div style="text-align: center; max-width: 1200px;">
                                 <span class="text-accent" style="font-size: 20px; font-weight: 900; letter-spacing: 6px; text-transform: uppercase; display: block; margin-bottom: 25px;">Recomendación Especial</span>
-                                <h2 style="font-size: 72px; font-weight: 900; line-height: 1.2; text-transform: uppercase; color: #000000; letter-spacing: -1px; margin: 0;">${texto}</h2>
+                                <h2 style="font-size: 72px; font-weight: 900; line-height: 1.2; text-transform: uppercase; color: #FFFFFF; letter-spacing: -1px; margin: 0;">${texto}</h2>
                                 <div style="width: 160px; height: 5px; background-color: #8C6239; margin: 30px auto 0 auto;"></div>
                             </div>
                         </div>
@@ -412,7 +400,7 @@
                                     </div>
                                     <div class="cafe-card">
                                         <p class="text-muted">Altura Cultivo</p>
-                                        <h3>${cafe.altura || ''} <span style="font-size: 20px; font-weight: 700; color:#666;">m</span></h3>
+                                        <h3>${cafe.altura || ''} <span style="font-size: 20px; font-weight: 700; color:#999;">m</span></h3>
                                     </div>
                                 </div>
                                 <div class="cafe-card-full">
@@ -448,7 +436,7 @@
                                     ${descripcionHtml}
                                     <div style="margin-top: 15px;">
                                         <span class="text-muted" style="font-size: 14px; text-transform: uppercase; letter-spacing: 2px; display: block; margin-bottom:5px;">Precio de Venta</span>
-                                        <div class="price-box"><span style="font-size: 38px; font-weight: 400; margin-right: 5px; color:#555;">$</span>${Number(prod.price).toLocaleString()}</div>
+                                        <div class="price-box"><span style="font-size: 38px; font-weight: 400; margin-right: 5px; color:#999;">$</span>${Number(prod.price).toLocaleString()}</div>
                                     </div>
                                 </div>
                             </div>
@@ -470,39 +458,22 @@
                     `;
                 }
 
-                // CASO 5: PROMO MASTERCARD (Diseño Exacto y Minimalista)
-                else if (loopState.currentPhase === 'mastercard_promo') {
+                // CASO 5: PROMO MUNDIALISTA (Minimalista en Dark Mode)
+                else if (loopState.currentPhase === 'mundial_promo') {
                     html = `
                         <div class="center-layout">
-                            <div style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; background-color: #FFFFFF; border-radius: 40px; border-top: 12px solid #EB001B; border-bottom: 12px solid #F79E1B; box-shadow: 0 15px 40px rgba(0,0,0,0.03);">
+                            <div style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; background-color: #0A0A0A; border-radius: 40px; border-top: 8px solid #28a745; border-bottom: 8px solid #28a745; box-shadow: 0 15px 40px rgba(0,0,0,0.5); border-left: 1px solid #1A1A1A; border-right: 1px solid #1A1A1A;">
                                 
-                                <!-- Logo Mastercard -->
-                                <div style="margin-bottom: 35px;">
-                                    <svg width="250" height="150" viewBox="0 0 120 80" style="overflow: visible;">
-                                        <circle cx="40" cy="40" r="30" fill="#EB001B"/>
-                                        <circle cx="80" cy="40" r="30" fill="#F79E1B"/>
-                                        <path d="M60 17.64A30 30 0 0 0 60 62.36A30 30 0 0 0 60 17.64Z" fill="#FF5F00"/>
-                                        <text x="60" y="95" font-family="'Montserrat', sans-serif" font-size="13" font-weight="900" text-anchor="middle" fill="#111111">mastercard</text>
-                                    </svg>
+                                <div style="display: inline-block; padding: 15px 45px; border-radius: 50px; margin-bottom: 40px; background: #111111; border: 2px solid #28a745;">
+                                    <h3 style="font-size: 24px; font-weight: 900; margin: 0; color: #28a745; letter-spacing: 2px;">⚽ TEMPORADA DE PARTIDOS</h3>
                                 </div>
 
-                                <!-- Pregunta de gancho -->
-                                <h2 style="font-size: 60px; font-weight: 900; margin: 0 0 45px 0; color: #111111; line-height: 1.2;">
-                                    ¿Un cafecito para arrancar el día<br>o cócteles para cerrar la semana?
+                                <h2 style="font-size: 72px; font-weight: 900; margin: 0 0 35px 0; color: #FFFFFF; line-height: 1.2;">
+                                    ¿Buscando el plan perfecto<br>para ver el fútbol?
                                 </h2>
 
-                                <!-- Insignia X2 Puntos Minimalista pero llamativa -->
-                                <div style="display: inline-block; padding: 25px 80px; border-radius: 80px; margin-bottom: 55px; background: #FFF9F9; border: 4px solid #EB001B;">
-                                    <h3 style="font-size: 72px; font-weight: 900; margin: 0; color: #EB001B; letter-spacing: 1px;">¡X2 EN PUNTOS!</h3>
-                                </div>
-
-                                <!-- Mensaje principal -->
-                                <h4 style="font-size: 42px; font-weight: 900; color: #111111; margin-bottom: 30px; text-transform: uppercase;">
-                                    ¡Sumas el doble de puntos en automático!
-                                </h4>
-                                
-                                <p style="font-size: 28px; font-weight: 500; color: #666666; max-width: 1300px; margin: 0 auto; line-height: 1.5;">
-                                    El plan perfecto sí existe. Ven a parchar, paga con tus tarjetas <b style="color:#111111; font-weight: 900;">Mastercard</b>, acumula puntos y redímelos en productos de la carta.
+                                <p style="font-size: 32px; font-weight: 500; color: #CCCCCC; max-width: 1200px; margin: 0 auto; line-height: 1.5;">
+                                    Acompaña la pasión del fútbol con el mejor ambiente. <br>Pregunta en la barra por nuestros <b style="color:#FFFFFF; font-weight: 900;">Combos Mundialistas</b>.
                                 </p>
 
                             </div>
@@ -512,7 +483,7 @@
 
                 kioskMain.innerHTML = html;
                 kioskMain.classList.add('tv-fade-active');
-                ajustarEscalaPantallaTV(); // Forzar recalculo tras pintar el HTML
+                ajustarEscalaPantallaTV(); 
             }, 50); 
         }
 
@@ -539,9 +510,8 @@
                 if (loopState.productsShownInSession >= 4) {
                     loopState.productsShownInSession = 0; 
                     
-                    // Lógica para alternar entre la promo de Mastercard y las frases locales de Anserma
                     if (!loopState.promoToggle) {
-                        loopState.currentPhase = 'mastercard_promo';
+                        loopState.currentPhase = 'mundial_promo';
                         loopState.promoToggle = true;
                     } else {
                         loopState.currentPhase = 'local_phrase';
@@ -557,8 +527,8 @@
                     }
                 }
             }
-            // Control de tiempo para la nueva promo MASTERCARD (16 segundos = El doble de tiempo normal)
-            else if (loopState.currentPhase === 'mastercard_promo' && loopState.secondsCounter >= 16) {
+            // Control de tiempo para la promo Mundialista (16 segundos)
+            else if (loopState.currentPhase === 'mundial_promo' && loopState.secondsCounter >= 16) {
                 loopState.secondsCounter = 0;
                 if (loopState.productIndex + 1 < dataset.products.length) {
                     loopState.productIndex++; loopState.currentPhase = 'product_focus';
@@ -582,7 +552,7 @@
 
         renderCurrentScreen();
 
-        // --- PANTALLA COMPLETA NATIVA EN LG ---
+        // --- PANTALLA COMPLETA NATIVA ---
         const btnFullscreen = document.getElementById('btn-fullscreen');
         btnFullscreen.addEventListener('click', function() {
             const elem = document.documentElement;
@@ -596,7 +566,7 @@
             } else { 
                 btnFullscreen.style.display = 'block'; 
             }
-            setTimeout(ajustarEscalaPantallaTV, 150); // Recalcular la matriz al cambiar de estado
+            setTimeout(ajustarEscalaPantallaTV, 150);
         }
         document.addEventListener('fullscreenchange', checkFullscreen);
         document.addEventListener('webkitfullscreenchange', checkFullscreen);
