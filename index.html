@@ -2,574 +2,227 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kiosco Digital Inteligente | LA OFICINA Anserma</title>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;900&display=swap" rel="stylesheet">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brasil vs Marruecos - La Oficina Coffee Bar</title>
     <style>
-        /* --- BLINDAJE ABSOLUTO GENERAL --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
         * {
-            box-sizing: border-box !important;
             margin: 0;
             padding: 0;
-            -webkit-transform: translate3d(0,0,0);
-            transform: translate3d(0,0,0); 
-            -webkit-backface-visibility: hidden;
-            backface-visibility: hidden;
-        }
-        
-        html, body {
-            width: 100vw !important;
-            height: 100vh !important;
-            max-width: 100vw !important;
-            max-height: 100vh !important;
-            overflow: hidden !important;
-            background-color: #050505; /* Negro premium para proteger el TV */
-            color: #FFFFFF;
-            font-family: 'Montserrat', sans-serif;
-            position: fixed;
-            top: 0;
-            left: 0;
-            -webkit-user-select: none;
-            user-select: none;
+            box-sizing: border-box;
         }
 
-        /* --- EL CONTENEDOR INTELIGENTE --- */
-        #tv-scale-canvas {
-            position: absolute;
-            width: 1920px;
-            height: 1080px;
-            top: 50%;
-            left: 50%;
-            margin-left: -960px;
-            margin-top: -540px;
-            overflow: hidden !important;
-            -webkit-transform-origin: center center;
-            transform-origin: center center;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 80px 100px;
-        }
-
-        main {
-            flex: 1;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden !important;
-        }
-
-        .tv-fade {
-            opacity: 0;
-            -webkit-transition: opacity 0.3s ease-in-out;
-            transition: opacity 0.3s ease-in-out;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .tv-fade-active {
-            opacity: 1;
-        }
-
-        :fullscreen { cursor: none; }
-        :-webkit-full-screen { cursor: none; }
-
-        /* PALETA MINIMALISTA MODO OSCURO */
-        .text-accent { color: #8C6239; } 
-        .text-dark { color: #FFFFFF; } /* Invertido para legibilidad */
-        .text-muted { color: #999999; font-weight: 700; }
-        
-        /* Layout de Rejilla */
-        .grid-layout {
-            display: flex;
-            width: 100%;
-            height: 760px; 
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .col-left-photo {
-            width: 760px;
-            height: 760px;
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e2937 100%);
+            font-family: 'Poppins', sans-serif;
+            color: white;
+            height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            position: relative;
         }
 
-        .col-right-info {
-            width: 880px;
-            height: 760px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            text-align: left;
-            overflow: hidden;
-        }
-
-        /* CAJA CONTENEDORA DE IMAGEN - Adaptada a oscuros */
-        .image-box-safe {
-            width: 760px;
-            height: 760px;
-            border-radius: 40px;
-            overflow: hidden;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.5); 
-            background-color: #111111; /* Gris muy oscuro para contrastar fotos */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .image-box-safe img {
-            max-width: 100% !important;
-            max-height: 100% !important;
-            width: auto !important;
-            height: auto !important;
-            object-fit: contain !important;
-            background-color: transparent;
-            border-radius: 40px;
-        }
-
-        .image-placeholder {
+        .kiosk {
             width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #1A1A1A 0%, #0A0A0A 100%);
-            border-radius: 40px;
-        }
-
-        /* Fuentes e indicadores */
-        .badge {
-            display: inline-block;
-            padding: 12px 28px;
-            border-radius: 30px;
-            font-size: 18px;
-            font-weight: 900;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            margin-bottom: 25px;
-        }
-        .badge-muted { background-color: #1A1A1A; color: #DDDDDD; border: 1px solid #333; }
-        .badge-accent { background-color: #8C6239; color: #FFFFFF; margin-left: 15px; }
-
-        h2.item-title {
-            font-size: 78px; 
-            font-weight: 900; 
-            letter-spacing: -2px; 
-            text-transform: uppercase; 
-            margin: 0; 
-            line-height: 1.1; 
-            color: #FFFFFF;
-        }
-
-        p.item-desc {
-            font-size: 28px; 
-            font-weight: 700; 
-            line-height: 1.5; 
-            margin: 25px 0; 
-            border-left: 6px solid #8C6239; 
-            padding-left: 25px;
-            color: #CCCCCC;
-        }
-
-        .price-box {
-            display: inline-block;
-            font-size: 82px; 
-            font-weight: 900;
-            color: #FFFFFF;
-            background-color: #111111;
-            padding: 10px 45px;
-            border-radius: 28px;
-            margin-top: 20px;
-            letter-spacing: -3px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            border: 1px solid #222;
-        }
-
-        .cafe-grid { display: flex; gap: 25px; margin-top: 25px; width: 100%; }
-        .cafe-card { background: #111111; padding: 25px 30px; border-radius: 28px; flex: 1; border: 1px solid #222; }
-        .cafe-card p { font-size: 16px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; color: #999; }
-        .cafe-card h3 { font-size: 32px; font-weight: 900; text-transform: uppercase; color: #FFF; }
-        .cafe-card h4 { font-size: 20px; font-weight: 900; text-transform: uppercase; }
-        
-        .cafe-card-full { width: 100%; background: #111111; padding: 30px; border-radius: 28px; margin-top: 25px; border: 1px solid #222; }
-        .cafe-card-full p { font-size: 16px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; color: #999; }
-        .cafe-card-full h3 { font-size: 38px; font-weight: 900; text-transform: uppercase; letter-spacing: -1px; }
-
-        .center-layout {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .phrase-container {
+            max-width: 820px;
             text-align: center;
-            width: 100%;
-            max-width: 1300px;
-            padding: 70px;
-            background-color: #0A0A0A;
-            border-radius: 50px;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.5);
-            border: 1px solid #222;
+            padding: 40px 30px;
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(12px);
+            border-radius: 24px;
+            border: 2px solid rgba(255,215,0,0.3);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
         }
-        .phrase-container h2 { font-size: 58px; font-weight: 900; line-height: 1.4; color: #FFFFFF; margin-bottom: 20px; }
-        .phrase-container p { font-size: 18px; letter-spacing: 4px; text-transform: uppercase; color: #999; }
 
-        /* Footer */
-        footer { 
-            width: 100%;
-            display: flex; 
-            justify-content: flex-end; 
-            opacity: 0.5; 
-            padding-top: 20px;
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 30px;
         }
-        .footer-brand { font-size: 18px; color: #FFFFFF; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; }
-        .footer-brand b { color: #8C6239; font-weight: 900; }
 
-        .btn-kiosk {
-            position: fixed; bottom: 30px; left: 30px; z-index: 999;
-            background: #FFFFFF; color: #000000; padding: 16px 32px;
-            border-radius: 40px; font-weight: 900; border: none;
-            cursor: pointer; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;
-            box-shadow: 0 15px 30px rgba(255,255,255,0.1);
+        .logo img {
+            width: 60px;
+            filter: brightness(1.1);
+        }
+
+        h1 {
+            font-size: 2.4rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+
+        .tagline {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            margin-bottom: 40px;
+        }
+
+        .match {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+            margin: 40px 0;
+        }
+
+        .team {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.4s;
+        }
+
+        .team:hover {
+            transform: scale(1.08);
+        }
+
+        .flag {
+            width: 140px;
+            height: 90px;
+            border-radius: 8px;
+            border: 4px solid #fff;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            margin-bottom: 12px;
+            transition: all 0.5s;
+        }
+
+        .team:hover .flag {
+            box-shadow: 0 15px 35px rgba(255,215,0,0.5);
+        }
+
+        .vs {
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: #facc15;
+            text-shadow: 0 0 20px rgba(250,204,21,0.6);
+        }
+
+        .info {
+            background: rgba(0,0,0,0.4);
+            padding: 20px 40px;
+            border-radius: 16px;
+            margin: 30px auto;
+            max-width: 500px;
+            font-size: 1.35rem;
+        }
+
+        .time {
+            font-size: 2.1rem;
+            font-weight: 700;
+            color: #facc15;
+            margin: 15px 0;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .footer {
+            margin-top: 40px;
+            font-size: 1.1rem;
+            opacity: 0.85;
+        }
+
+        /* Animación sutil de partículas */
+        .particle {
+            position: absolute;
+            color: #facc15;
+            font-size: 1.5rem;
+            pointer-events: none;
+            animation: floatUp 8s linear infinite;
+            opacity: 0.6;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(100vh) rotate(0deg); }
+            100% { transform: translateY(-100px) rotate(360deg); }
         }
     </style>
 </head>
 <body>
-
-    <div id="tv-scale-canvas">
-        <main id="kiosk-main" class="tv-fade"></main>
-        <footer>
-            <div class="footer-brand">
-                Power By <span>Tan<b>Alza</b></span>
+    <div class="kiosk">
+        <!-- Logo -->
+        <div class="logo">
+            <span style="font-size: 2.8rem;">☕</span>
+            <div>
+                <h1>LA OFICINA</h1>
+                <div style="font-size: 1rem; letter-spacing: 4px; opacity: 0.8;">COFFEE BAR</div>
             </div>
-        </footer>
+        </div>
+
+        <div class="tagline">¡Hoy la oficina se convierte en estadio!</div>
+
+        <!-- Partido -->
+        <div class="match">
+            <!-- Brasil -->
+            <div class="team">
+                <div class="flag" style="background: linear-gradient(#00A859 50%, #FFCD00 50%); position: relative;">
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 45px; height: 45px; border: 8px solid #002776; border-radius: 50%;"></div>
+                </div>
+                <strong style="font-size: 1.6rem;">Brasil</strong>
+            </div>
+
+            <div class="vs">VS</div>
+
+            <!-- Marruecos -->
+            <div class="team">
+                <div class="flag" style="background: #C8102E; position: relative; overflow: hidden;">
+                    <!-- Estrella de Marruecos -->
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #006233; font-size: 55px; line-height: 1;">★</div>
+                </div>
+                <strong style="font-size: 1.6rem;">Marruecos</strong>
+            </div>
+        </div>
+
+        <div class="info">
+            <strong>Copa Mundial FIFA 2026</strong><br>
+            Fase de Grupos • Grupo C
+        </div>
+
+        <div class="time">Hoy • 5:00 p.m.</div>
+
+        <div class="footer">
+            ¡Pregunta por nuestros combos especiales!<br>
+            <strong>¡Gooooool!</strong> ⚽
+        </div>
     </div>
 
-    <button id="btn-fullscreen" class="btn-kiosk">Iniciar Kiosko Exterior</button>
-
     <script>
-        // --- ALGORITMO INTEGRADO DE ESCALA INTELIGENTE ---
-        function ajustarEscalaPantallaTV() {
-            var canvas = document.getElementById('tv-scale-canvas');
-            if (!canvas) return;
-            var windowWidth = window.innerWidth;
-            var windowHeight = window.innerHeight;
-            var scaleX = windowWidth / 1920;
-            var scaleY = windowHeight / 1080;
-            var scaleFinal = Math.min(scaleX, scaleY);
-            canvas.style.transform = 'scale(' + scaleFinal + ')';
-            canvas.style.webkitTransform = 'scale(' + scaleFinal + ')';
+        // Partículas flotantes (estilo minimalista)
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.textContent = ['⚽', '★', '🇧🇷', '☕'][Math.floor(Math.random() * 4)];
+            particle.style.left = Math.random() * 100 + 'vw';
+            particle.style.animationDuration = (Math.random() * 6 + 7) + 's';
+            particle.style.opacity = Math.random() * 0.5 + 0.4;
+            particle.style.fontSize = (Math.random() * 1.2 + 1.3) + 'rem';
+            document.body.appendChild(particle);
+
+            setTimeout(() => particle.remove(), 15000);
         }
 
-        window.addEventListener('resize', ajustarEscalaPantallaTV);
-        window.addEventListener('load', ajustarEscalaPantallaTV);
-        setTimeout(ajustarEscalaPantallaTV, 100);
+        setInterval(createParticle, 450);
 
-        // --- CONFIGURACIÓN DE TU FIREBASE ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyAutOqky0mpVmwDrqFsyZ0zRl_abrzgPvc",
-            authDomain: "mandre-f9e43.firebaseapp.com",
-            projectId: "mandre-f9e43",
-            storageBucket: "mandre-f9e43.firebasestorage.app",
-            messagingSenderId: "865403538422",
-            appId: "1:865403538422:web:0ee2fb754343de9bc015d7"
+        // Efecto de pulso en "VS" al cargar
+        window.onload = () => {
+            const vs = document.querySelector('.vs');
+            vs.style.transition = 'all 1.5s';
+            setTimeout(() => {
+                vs.style.transform = 'scale(1.15)';
+            }, 800);
+            setTimeout(() => {
+                vs.style.transform = 'scale(1)';
+            }, 2000);
         };
-
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        const db = firebase.firestore();
-
-        let dataset = { products: [], config: null };
-        
-        let loopState = { 
-            currentPhase: 'welcome', 
-            productIndex: 0, 
-            secondsCounter: 0,
-            productsShownInSession: 0, 
-            phraseIndex: 0,
-            promoToggle: false
-        };
-
-        const localPhrases = [
-            "El mejor punto de encuentro en la 'Abuela de Caldas'. ¡Ven a La Oficina por tu dosis de bienestar!",
-            "Café de especialidad cultivado en nuestras montañas caldenses, servido con orgullo en Anserma.",
-            "¿Trabajo, amigos o un respiro? El espacio ideal para conectar y recargar tus energías está en La Oficina.",
-            "Pasión por los detalles, amor por el origen. Vive la verdadera cultura cafetera en el corazón de Anserma.",
-            "Mucho más que una taza de café. Creamos experiencias premium de Specialty Coffee & Wellness para ti."
-        ];
-
-        const kioskMain = document.getElementById('kiosk-main');
-
-        // Escuchar Inventario
-        db.collection('inventory').onSnapshot(function(snap) {
-            let items = [];
-            snap.forEach(function(doc) {
-                let p = doc.data();
-                if (p.showOnTv !== false) { items.push(p); }
-            });
-            dataset.products = items.sort(function(a, b) {
-                return (b.isPromoted === a.isPromoted ? 0 : b.isPromoted ? 1 : -1);
-            });
-            if(loopState.currentPhase === 'product_focus' && (!dataset.config || !dataset.config.pautaExpressActiva)) renderCurrentScreen();
-        });
-
-        // Escuchar Configuración TV
-        db.collection('configuracionTV').doc('actual').onSnapshot(function(doc) {
-            if (doc.exists) {
-                dataset.config = doc.data();
-                renderCurrentScreen(); 
-            }
-        });
-
-        window.handleImageError = function(imageElement) {
-            if(imageElement && imageElement.parentElement) {
-                imageElement.parentElement.innerHTML = '<div class="image-placeholder"></div>';
-            }
-        };
-
-        // --- MOTOR RENDER NATIVO BAJO MATRIZ DE SEGURIDAD ---
-        function renderCurrentScreen() {
-            kioskMain.classList.remove('tv-fade-active');
-            
-            setTimeout(function() {
-                let html = '';
-
-                // INTERRUPTOR: ANUNCIO EXPRESS DE TEMPORADA
-                if (dataset.config && dataset.config.pautaExpressActiva === true) {
-                    let tituloExpress = dataset.config.pautaExpressTitulo || "ANUNCIO ESPECIAL";
-                    let textoExpress = dataset.config.pautaExpressTexto || "Promoción exclusiva disponible ahora.";
-                    html = `
-                        <div class="center-layout">
-                            <div class="phrase-container" style="border: 2px solid #8C6239;">
-                                <span class="badge badge-accent" style="margin-bottom:25px; padding: 12px 28px; font-size:16px;">DESTACADO DE LA SEMANA 🚨</span>
-                                <h2 style="font-size: 64px; font-weight: 900; line-height: 1.2; color: #8C6239; text-transform: uppercase; margin-bottom:25px;">${tituloExpress}</h2>
-                                <p style="font-size: 32px; font-weight: 700; color: #FFFFFF; line-height: 1.5; max-width:1000px; margin: 0 auto;">${textoExpress}</p>
-                                <p class="text-muted" style="font-size: 14px; margin-top: 35px; letter-spacing: 4px; text-transform: uppercase;">La Oficina Anserma • Sabores de Temporada</p>
-                            </div>
-                        </div>
-                    `;
-                    kioskMain.innerHTML = html;
-                    kioskMain.classList.add('tv-fade-active');
-                    ajustarEscalaPantallaTV();
-                    return;
-                }
-
-                // CASO 1: PANTALLA BIENVENIDA
-                if (loopState.currentPhase === 'welcome') {
-                    let texto = (dataset.config && dataset.config.publicidadRecurrente) ? dataset.config.publicidadRecurrente.textoConfigurable : "Bienvenidos a una experiencia exclusiva";
-                    html = `
-                        <div class="center-layout">
-                            <div style="text-align: center; max-width: 1200px;">
-                                <span class="text-accent" style="font-size: 20px; font-weight: 900; letter-spacing: 6px; text-transform: uppercase; display: block; margin-bottom: 25px;">Recomendación Especial</span>
-                                <h2 style="font-size: 72px; font-weight: 900; line-height: 1.2; text-transform: uppercase; color: #FFFFFF; letter-spacing: -1px; margin: 0;">${texto}</h2>
-                                <div style="width: 160px; height: 5px; background-color: #8C6239; margin: 30px auto 0 auto;"></div>
-                            </div>
-                        </div>
-                    `;
-                }
-                
-                // CASO 2: CAFÉ DE ORIGEN
-                else if (loopState.currentPhase === 'cafe_dia' && dataset.config && dataset.config.cafePromocion) {
-                    let cafe = dataset.config.cafePromocion;
-                    let cafeImg = cafe.logoUrl || cafe.logourl || cafe.imageUrl || cafe.imageurl || "";
-                    let imgSection = (cafeImg && cafeImg.length > 10)
-                        ? `<div class="image-box-safe"><img src="${cafeImg}" onerror="window.handleImageError(this)" /></div>`
-                        : `<div class="image-box-safe"><div class="image-placeholder"></div></div>`;
-                    
-                    html = `
-                        <div class="grid-layout">
-                            <div class="col-left-photo">${imgSection}</div>
-                            <div class="col-right-info">
-                                <div class="badge badge-accent" style="margin-left: 0; width: fit-content;">FILTRADO HOY</div>
-                                <h2 class="item-title" style="font-size:74px; margin-bottom:15px;">CAFÉ DE ORIGEN</h2>
-                                <div class="cafe-grid">
-                                    <div class="cafe-card">
-                                        <p class="text-muted">Procedencia</p>
-                                        <h3>${cafe.municipio || ''}</h3>
-                                        <h4 class="text-accent">${cafe.vereda || ''}</h4>
-                                    </div>
-                                    <div class="cafe-card">
-                                        <p class="text-muted">Altura Cultivo</p>
-                                        <h3>${cafe.altura || ''} <span style="font-size: 20px; font-weight: 700; color:#999;">m</span></h3>
-                                    </div>
-                                </div>
-                                <div class="cafe-card-full">
-                                    <p class="text-muted">Notas de Cata Detectadas</p>
-                                    <h3 class="text-accent">${cafe.notas || ''}</h3>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }
-                
-                // CASO 3: PASARELA INDIVIDUAL DE PRODUCTOS
-                else if (loopState.currentPhase === 'product_focus' && dataset.products.length > 0) {
-                    let prod = dataset.products[loopState.productIndex];
-                    if (prod) {
-                        let badgeDestacado = prod.isPromoted ? `<span class="badge badge-accent">Recomendado ⭐</span>` : '';
-                        let descripcionHtml = prod.description ? `<p class="item-desc">${prod.description}</p>` : '';
-                        
-                        let linkFoto = prod.imageUrl || prod.imageurl || prod.image || prod.url || "";
-                        let imgSection = (linkFoto && linkFoto.length > 10)
-                            ? `<div class="image-box-safe"><img src="${linkFoto}" onerror="window.handleImageError(this)"/></div>`
-                            : `<div class="image-box-safe"><div class="image-placeholder"></div></div>`;
-
-                        html = `
-                            <div class="grid-layout">
-                                <div class="col-left-photo">${imgSection}</div>
-                                <div class="col-right-info">
-                                    <div style="display: flex; align-items: center; width: fit-content;">
-                                        <span class="badge badge-muted">${prod.category}</span>
-                                        ${badgeDestacado}
-                                    </div>
-                                    <h2 class="item-title">${prod.name}</h2>
-                                    ${descripcionHtml}
-                                    <div style="margin-top: 15px;">
-                                        <span class="text-muted" style="font-size: 14px; text-transform: uppercase; letter-spacing: 2px; display: block; margin-bottom:5px;">Precio de Venta</span>
-                                        <div class="price-box"><span style="font-size: 38px; font-weight: 400; margin-right: 5px; color:#999;">$</span>${Number(prod.price).toLocaleString()}</div>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    }
-                }
-
-                // CASO 4: FRASES DE ANSERMA CALDAS
-                else if (loopState.currentPhase === 'local_phrase') {
-                    let fraseActual = localPhrases[loopState.phraseIndex];
-                    html = `
-                        <div class="center-layout">
-                            <div class="phrase-container">
-                                <span class="text-accent" style="font-size: 18px; font-weight: 900; letter-spacing: 6px; text-transform: uppercase; display: block; margin-bottom: 25px;">La Oficina Anserma</span>
-                                <h2>"${fraseActual}"</h2>
-                               <p class="text-muted">Specialty Coffee & Wellness • Caldas</p>
-                            </div>
-                        </div>
-                    `;
-                }
-
-                // CASO 5: PROMO MUNDIALISTA (Minimalista en Dark Mode)
-                else if (loopState.currentPhase === 'mundial_promo') {
-                    html = `
-                        <div class="center-layout">
-                            <div style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; background-color: #0A0A0A; border-radius: 40px; border-top: 8px solid #28a745; border-bottom: 8px solid #28a745; box-shadow: 0 15px 40px rgba(0,0,0,0.5); border-left: 1px solid #1A1A1A; border-right: 1px solid #1A1A1A;">
-                                
-                                <div style="display: inline-block; padding: 15px 45px; border-radius: 50px; margin-bottom: 40px; background: #111111; border: 2px solid #28a745;">
-                                    <h3 style="font-size: 24px; font-weight: 900; margin: 0; color: #28a745; letter-spacing: 2px;">⚽ TEMPORADA DE PARTIDOS</h3>
-                                </div>
-
-                                <h2 style="font-size: 72px; font-weight: 900; margin: 0 0 35px 0; color: #FFFFFF; line-height: 1.2;">
-                                    ¿Buscando el plan perfecto<br>para ver el fútbol?
-                                </h2>
-
-                                <p style="font-size: 32px; font-weight: 500; color: #CCCCCC; max-width: 1200px; margin: 0 auto; line-height: 1.5;">
-                                    Acompaña la pasión del fútbol con el mejor ambiente. <br>Pregunta en la barra por nuestros <b style="color:#FFFFFF; font-weight: 900;">Combos Mundialistas</b>.
-                                </p>
-
-                            </div>
-                        </div>
-                    `;
-                }
-
-                kioskMain.innerHTML = html;
-                kioskMain.classList.add('tv-fade-active');
-                ajustarEscalaPantallaTV(); 
-            }, 50); 
-        }
-
-        // --- ENGRANAJE DE TIEMPOS ---
-        setInterval(function() {
-            if(dataset.config && dataset.config.pautaExpressActiva === true) return;
-
-            loopState.secondsCounter++;
-
-            if (loopState.currentPhase === 'welcome' && loopState.secondsCounter >= 6) {
-                if (dataset.config && dataset.config.cafePromocion) { loopState.currentPhase = 'cafe_dia'; } 
-                else if (dataset.products.length > 0) { loopState.currentPhase = 'product_focus'; loopState.productIndex = 0; }
-                loopState.secondsCounter = 0; renderCurrentScreen();
-            } 
-            else if (loopState.currentPhase === 'cafe_dia' && loopState.secondsCounter >= 10) {
-                if (dataset.products.length > 0) { loopState.currentPhase = 'product_focus'; loopState.productIndex = 0; } 
-                else { loopState.currentPhase = 'welcome'; }
-                loopState.secondsCounter = 0; renderCurrentScreen();
-            } 
-            else if (loopState.currentPhase === 'product_focus' && loopState.secondsCounter >= 7) {
-                loopState.secondsCounter = 0;
-                loopState.productsShownInSession++; 
-
-                if (loopState.productsShownInSession >= 4) {
-                    loopState.productsShownInSession = 0; 
-                    
-                    if (!loopState.promoToggle) {
-                        loopState.currentPhase = 'mundial_promo';
-                        loopState.promoToggle = true;
-                    } else {
-                        loopState.currentPhase = 'local_phrase';
-                        loopState.promoToggle = false;
-                    }
-                    
-                    renderCurrentScreen();
-                } else {
-                    if (loopState.productIndex + 1 < dataset.products.length) {
-                        loopState.productIndex++; renderCurrentScreen();
-                    } else {
-                        loopState.currentPhase = 'welcome'; loopState.productIndex = 0; renderCurrentScreen();
-                    }
-                }
-            }
-            // Control de tiempo para la promo Mundialista (16 segundos)
-            else if (loopState.currentPhase === 'mundial_promo' && loopState.secondsCounter >= 16) {
-                loopState.secondsCounter = 0;
-                if (loopState.productIndex + 1 < dataset.products.length) {
-                    loopState.productIndex++; loopState.currentPhase = 'product_focus';
-                } else {
-                    loopState.currentPhase = 'welcome'; loopState.productIndex = 0;
-                }
-                renderCurrentScreen();
-            }
-            else if (loopState.currentPhase === 'local_phrase' && loopState.secondsCounter >= 8) {
-                loopState.secondsCounter = 0;
-                loopState.phraseIndex = (loopState.phraseIndex + 1) % localPhrases.length;
-
-                if (loopState.productIndex + 1 < dataset.products.length) {
-                    loopState.productIndex++; loopState.currentPhase = 'product_focus';
-                } else {
-                    loopState.currentPhase = 'welcome'; loopState.productIndex = 0;
-                }
-                renderCurrentScreen();
-            }
-        }, 1000);
-
-        renderCurrentScreen();
-
-        // --- PANTALLA COMPLETA NATIVA ---
-        const btnFullscreen = document.getElementById('btn-fullscreen');
-        btnFullscreen.addEventListener('click', function() {
-            const elem = document.documentElement;
-            if (elem.requestFullscreen) elem.requestFullscreen();
-            else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
-        });
-
-        function checkFullscreen() {
-            if (document.fullscreenElement || document.webkitFullscreenElement) { 
-                btnFullscreen.style.display = 'none'; 
-            } else { 
-                btnFullscreen.style.display = 'block'; 
-            }
-            setTimeout(ajustarEscalaPantallaTV, 150);
-        }
-        document.addEventListener('fullscreenchange', checkFullscreen);
-        document.addEventListener('webkitfullscreenchange', checkFullscreen);
     </script>
 </body>
 </html>
