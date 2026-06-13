@@ -35,6 +35,7 @@
             border-radius: 24px;
             border: 2px solid rgba(255,215,0,0.3);
             box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            transition: all 0.4s ease;
         }
 
         .logo {
@@ -45,20 +46,15 @@
             margin-bottom: 30px;
         }
 
-        .logo img {
-            width: 60px;
-            filter: brightness(1.1);
-        }
-
         h1 {
-            font-size: 2.4rem;
+            font-size: 2.6rem;
             font-weight: 700;
             letter-spacing: 2px;
             margin-bottom: 8px;
         }
 
         .tagline {
-            font-size: 1.3rem;
+            font-size: 1.35rem;
             opacity: 0.9;
             margin-bottom: 40px;
         }
@@ -131,14 +127,33 @@
             opacity: 0.85;
         }
 
-        /* Animación sutil de partículas */
+        .start-btn {
+            margin-top: 30px;
+            padding: 16px 60px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: #facc15;
+            color: #0f172a;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(250, 204, 21, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .start-btn:hover {
+            transform: scale(1.1);
+            background: #eab308;
+        }
+
+        /* Partículas sutiles */
         .particle {
             position: absolute;
             color: #facc15;
             font-size: 1.5rem;
             pointer-events: none;
             animation: floatUp 8s linear infinite;
-            opacity: 0.6;
+            opacity: 0.5;
         }
 
         @keyframes floatUp {
@@ -148,13 +163,12 @@
     </style>
 </head>
 <body>
-    <div class="kiosk">
-        <!-- Logo -->
+    <div class="kiosk" id="kiosk">
+        <!-- Logo sin taza de café -->
         <div class="logo">
-            <span style="font-size: 2.8rem;">☕</span>
             <div>
                 <h1>LA OFICINA</h1>
-                <div style="font-size: 1rem; letter-spacing: 4px; opacity: 0.8;">COFFEE BAR</div>
+                <div style="font-size: 1.1rem; letter-spacing: 4px; opacity: 0.8;">COFFEE BAR</div>
             </div>
         </div>
 
@@ -175,7 +189,6 @@
             <!-- Marruecos -->
             <div class="team">
                 <div class="flag" style="background: #C8102E; position: relative; overflow: hidden;">
-                    <!-- Estrella de Marruecos -->
                     <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #006233; font-size: 55px; line-height: 1;">★</div>
                 </div>
                 <strong style="font-size: 1.6rem;">Marruecos</strong>
@@ -190,38 +203,67 @@
         <div class="time">Hoy • 5:00 p.m.</div>
 
         <div class="footer">
-            ¡Pregunta por nuestros combos especiales!<br>
+            Pregunta por nuestros combos especiales<br>
             <strong>¡Gooooool!</strong> ⚽
         </div>
+
+        <!-- Botón Iniciar -->
+        <button class="start-btn" onclick="startFullscreen()">
+            INICIAR TRANSMISIÓN
+        </button>
     </div>
 
     <script>
-        // Partículas flotantes (estilo minimalista)
+        // Partículas flotantes
         function createParticle() {
             const particle = document.createElement('div');
             particle.className = 'particle';
-            particle.textContent = ['⚽', '★', '🇧🇷', '☕'][Math.floor(Math.random() * 4)];
+            particle.textContent = ['⚽', '★', '🇧🇷'][Math.floor(Math.random() * 3)];
             particle.style.left = Math.random() * 100 + 'vw';
-            particle.style.animationDuration = (Math.random() * 6 + 7) + 's';
+            particle.style.animationDuration = (Math.random() * 6 + 8) + 's';
             particle.style.opacity = Math.random() * 0.5 + 0.4;
-            particle.style.fontSize = (Math.random() * 1.2 + 1.3) + 'rem';
             document.body.appendChild(particle);
-
-            setTimeout(() => particle.remove(), 15000);
+            setTimeout(() => particle.remove(), 16000);
         }
 
-        setInterval(createParticle, 450);
+        setInterval(createParticle, 500);
 
-        // Efecto de pulso en "VS" al cargar
+        // Función para pantalla completa
+        function startFullscreen() {
+            const kiosk = document.getElementById('kiosk');
+            
+            if (kiosk.requestFullscreen) {
+                kiosk.requestFullscreen();
+            } else if (kiosk.webkitRequestFullscreen) {
+                kiosk.webkitRequestFullscreen();
+            } else if (kiosk.msRequestFullscreen) {
+                kiosk.msRequestFullscreen();
+            }
+            
+            // Efecto visual al entrar en fullscreen
+            kiosk.style.border = '3px solid #facc15';
+            setTimeout(() => {
+                kiosk.style.border = '2px solid rgba(255,215,0,0.3)';
+            }, 2000);
+        }
+
+        // Salir de fullscreen con tecla ESC también restaura estilo
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                document.getElementById('kiosk').style.border = '2px solid rgba(255,215,0,0.3)';
+            }
+        });
+
+        // Efecto inicial en VS
         window.onload = () => {
             const vs = document.querySelector('.vs');
-            vs.style.transition = 'all 1.5s';
             setTimeout(() => {
-                vs.style.transform = 'scale(1.15)';
-            }, 800);
+                vs.style.transition = 'all 1.2s';
+                vs.style.transform = 'scale(1.12)';
+            }, 600);
             setTimeout(() => {
                 vs.style.transform = 'scale(1)';
-            }, 2000);
+            }, 1800);
         };
     </script>
 </body>
