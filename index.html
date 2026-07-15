@@ -1,575 +1,627 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kiosco Digital Inteligente | LA OFICINA Anserma</title>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;900&display=swap" rel="stylesheet">
-    
-    <style>
-        /* --- BLINDAJE ABSOLUTO GENERAL --- */
-        * {
-            box-sizing: border-box !important;
-            margin: 0;
-            padding: 0;
-            -webkit-transform: translate3d(0,0,0);
-            transform: translate3d(0,0,0); 
-            -webkit-backface-visibility: hidden;
-            backface-visibility: hidden;
-        }
-        
-        html, body {
-            width: 100vw !important;
-            height: 100vh !important;
-            max-width: 100vw !important;
-            max-height: 100vh !important;
-            overflow: hidden !important;
-            background-color: #050505; /* Negro premium para proteger el TV */
-            color: #FFFFFF;
-            font-family: 'Montserrat', sans-serif;
-            position: fixed;
-            top: 0;
-            left: 0;
-            -webkit-user-select: none;
-            user-select: none;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>La Oficina | Kiosko Digital</title>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 
-        /* --- EL CONTENEDOR INTELIGENTE --- */
-        #tv-scale-canvas {
-            position: absolute;
-            width: 1920px;
-            height: 1080px;
-            top: 50%;
-            left: 50%;
-            margin-left: -960px;
-            margin-top: -540px;
-            overflow: hidden !important;
-            -webkit-transform-origin: center center;
-            transform-origin: center center;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 80px 100px;
-        }
+<style>
+    /* ============================================================
+       RESET / BLINDAJE TV
+       ============================================================ */
+    * {
+        box-sizing: border-box !important;
+        margin: 0;
+        padding: 0;
+        -webkit-transform: translate3d(0,0,0);
+        transform: translate3d(0,0,0);
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+    }
 
-        main {
-            flex: 1;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden !important;
-        }
+    :root{
+        --bg:      #060B08;   /* negro verdoso profundo, elegante */
+        --surface: #0D1510;   /* superficie sutil, casi imperceptible */
+        --surface-2:#111C15;
+        --line:    rgba(255,255,255,0.07);
+        --ink:     #F6FBF7;   /* blanco frío, nítido */
+        --mute:    #7E9788;   /* verde grisáceo apagado, solo para labels */
+        --accent:  #35E27A;   /* verde vibrante — protagonista */
+        --accent-soft: #1E7C4C;
+        --paper-shadow: 0 40px 90px rgba(0,0,0,0.6);
+    }
 
-        .tv-fade {
-            opacity: 0;
-            -webkit-transition: opacity 0.3s ease-in-out;
-            transition: opacity 0.3s ease-in-out;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .tv-fade-active {
-            opacity: 1;
-        }
+    html, body {
+        width: 100vw !important;
+        height: 100vh !important;
+        max-width: 100vw !important;
+        max-height: 100vh !important;
+        overflow: hidden !important;
+        background-color: var(--bg);
+        color: var(--ink);
+        font-family: 'Inter', sans-serif;
+        font-weight: 300;
+        position: fixed;
+        top: 0; left: 0;
+        -webkit-user-select: none;
+        user-select: none;
+    }
 
-        :fullscreen { cursor: none; }
-        :-webkit-full-screen { cursor: none; }
+    #tv-scale-canvas {
+        position: absolute;
+        width: 1920px;
+        height: 1080px;
+        top: 50%; left: 50%;
+        margin-left: -960px;
+        margin-top: -540px;
+        overflow: hidden !important;
+        -webkit-transform-origin: center center;
+        transform-origin: center center;
+        display: flex;
+        flex-direction: column;
+        padding: 70px 110px 44px 110px;
+        background:
+            radial-gradient(1100px 700px at 88% -8%, rgba(53,226,122,0.05) 0%, transparent 60%),
+            var(--bg);
+    }
 
-        /* PALETA MINIMALISTA MODO OSCURO */
-        .text-accent { color: #8C6239; } 
-        .text-dark { color: #FFFFFF; } /* Invertido para legibilidad */
-        .text-muted { color: #999999; font-weight: 700; }
-        
-        /* Layout de Rejilla */
-        .grid-layout {
-            display: flex;
-            width: 100%;
-            height: 760px; 
-            align-items: center;
-            justify-content: space-between;
-        }
+    /* marca de firma — arco fino en vez de anillos topográficos rústicos */
+    .signature-mark{
+        position:absolute; top:56px; right:78px; width:150px; height:150px;
+        z-index: 0; opacity:.9;
+        animation: spin-slow 40s linear infinite;
+    }
+    @keyframes spin-slow{ from{ transform:rotate(0deg);} to{ transform:rotate(360deg);} }
 
-        .col-left-photo {
-            width: 760px;
-            height: 760px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
+    header.log-header{
+        position:relative; z-index:3;
+        display:flex; align-items:center; justify-content:space-between;
+        padding-bottom: 24px;
+        border-bottom: 1px solid var(--line);
+        margin-bottom: 6px;
+    }
+    .brand-mark{ display:flex; align-items:center; gap:14px; }
+    .brand-dot{ width:9px; height:9px; border-radius:50%; background:var(--accent); box-shadow: 0 0 14px var(--accent); }
+    .log-title{
+        font-family:'Space Grotesk', sans-serif; font-weight:500;
+        font-size: 20px; letter-spacing: 1px; color: var(--ink);
+    }
+    .log-sub{
+        font-family:'IBM Plex Mono', monospace; font-weight:300; font-size: 13px; letter-spacing: 3px;
+        text-transform:uppercase; color: var(--mute);
+    }
 
-        .col-right-info {
-            width: 880px;
-            height: 760px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            text-align: left;
-            overflow: hidden;
-        }
+    main {
+        position:relative; z-index:3;
+        flex: 1;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden !important;
+    }
 
-        /* CAJA CONTENEDORA DE IMAGEN - Adaptada a oscuros */
-        .image-box-safe {
-            width: 760px;
-            height: 760px;
-            border-radius: 40px;
-            overflow: hidden;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.5); 
-            background-color: #111111; /* Gris muy oscuro para contrastar fotos */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .image-box-safe img {
-            max-width: 100% !important;
-            max-height: 100% !important;
-            width: auto !important;
-            height: auto !important;
-            object-fit: contain !important;
-            background-color: transparent;
-            border-radius: 40px;
-        }
+    .tv-fade {
+        opacity: 0;
+        transition: opacity .4s ease-in-out;
+        width: 100%; height: 100%;
+        display: flex; align-items: center; justify-content: center;
+    }
+    .tv-fade-active { opacity: 1; }
 
-        .image-placeholder {
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #1A1A1A 0%, #0A0A0A 100%);
-            border-radius: 40px;
-        }
+    :fullscreen { cursor: none; }
+    :-webkit-full-screen { cursor: none; }
 
-        /* Fuentes e indicadores */
-        .badge {
-            display: inline-block;
-            padding: 12px 28px;
-            border-radius: 30px;
-            font-size: 18px;
-            font-weight: 900;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            margin-bottom: 25px;
-        }
-        .badge-muted { background-color: #1A1A1A; color: #DDDDDD; border: 1px solid #333; }
-        .badge-accent { background-color: #8C6239; color: #FFFFFF; margin-left: 15px; }
+    /* ============================================================
+       PRIMITIVOS TIPOGRÁFICOS
+       ============================================================ */
+    .eyebrow{
+        font-family:'IBM Plex Mono', monospace; font-weight:400; font-size:15px;
+        letter-spacing:4px; text-transform:uppercase; color:var(--accent);
+        display:flex; align-items:center; gap:12px;
+    }
+    .eyebrow .line{ width:28px; height:1px; background:var(--accent); }
 
-        h2.item-title {
-            font-size: 78px; 
-            font-weight: 900; 
-            letter-spacing: -2px; 
-            text-transform: uppercase; 
-            margin: 0; 
-            line-height: 1.1; 
-            color: #FFFFFF;
-        }
+    .display-title{
+        font-family:'Space Grotesk', sans-serif; font-weight:500;
+        color: var(--ink); letter-spacing:-1.5px;
+    }
 
-        p.item-desc {
-            font-size: 28px; 
-            font-weight: 700; 
-            line-height: 1.5; 
-            margin: 25px 0; 
-            border-left: 6px solid #8C6239; 
-            padding-left: 25px;
-            color: #CCCCCC;
-        }
+    /* fila delgada: LABEL ———————— VALOR */
+    .leader-row{ display:flex; align-items:flex-end; gap:16px; width:100%; }
+    .leader-row .lb{
+        font-family:'IBM Plex Mono', monospace; font-weight:300; font-size:15px; letter-spacing:3px;
+        text-transform:uppercase; color:var(--mute); white-space:nowrap;
+    }
+    .leader-row .fill{ flex:1; border-bottom:1px solid var(--line); margin-bottom:7px; min-width:30px; }
+    .leader-row .val{
+        font-family:'IBM Plex Mono', monospace; font-weight:500; color:var(--ink);
+        white-space:nowrap; text-align:right;
+    }
 
-        .price-box {
-            display: inline-block;
-            font-size: 82px; 
-            font-weight: 900;
-            color: #FFFFFF;
-            background-color: #111111;
-            padding: 10px 45px;
-            border-radius: 28px;
-            margin-top: 20px;
-            letter-spacing: -3px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            border: 1px solid #222;
-        }
+    .pill{
+        font-family:'IBM Plex Mono', monospace; font-weight:400; font-size:13px;
+        letter-spacing:2px; text-transform:uppercase; color:var(--accent);
+        border:1px solid var(--accent-soft); border-radius:100px; padding:8px 20px;
+        display:inline-block; background: rgba(53,226,122,0.06);
+    }
 
-        .cafe-grid { display: flex; gap: 25px; margin-top: 25px; width: 100%; }
-        .cafe-card { background: #111111; padding: 25px 30px; border-radius: 28px; flex: 1; border: 1px solid #222; }
-        .cafe-card p { font-size: 16px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; color: #999; }
-        .cafe-card h3 { font-size: 32px; font-weight: 900; text-transform: uppercase; color: #FFF; }
-        .cafe-card h4 { font-size: 20px; font-weight: 900; text-transform: uppercase; }
-        
-        .cafe-card-full { width: 100%; background: #111111; padding: 30px; border-radius: 28px; margin-top: 25px; border: 1px solid #222; }
-        .cafe-card-full p { font-size: 16px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; color: #999; }
-        .cafe-card-full h3 { font-size: 38px; font-weight: 900; text-transform: uppercase; letter-spacing: -1px; }
+    /* ============================================================
+       LAYOUT: FICHA DE PRODUCTO / ORIGEN
+       ============================================================ */
+    .sheet{ display:flex; gap:90px; width:100%; height:100%; align-items:center; }
 
-        .center-layout {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+    .plate-col{ width:640px; height:700px; position:relative; flex-shrink:0; }
+    .plate{
+        width:100%; height:100%;
+        background: var(--surface);
+        border:1px solid var(--line);
+        border-radius: 4px;
+        box-shadow: var(--paper-shadow);
+        display:flex; align-items:center; justify-content:center;
+        position:relative; overflow:hidden;
+    }
+    .plate::before{
+        content:""; position:absolute; left:0; top:0; width:2px; height:64px; background:var(--accent);
+    }
+    .plate img{
+        max-width:86% !important; max-height:86% !important;
+        width:auto !important; height:auto !important;
+        object-fit:contain !important;
+    }
+    .plate-placeholder{
+        width:100%; height:100%;
+        background: linear-gradient(160deg, #0f1712 0%, #060a07 100%);
+    }
+    .plate-tag{
+        position:absolute; bottom:24px; left:24px; z-index:3;
+        font-family:'IBM Plex Mono', monospace; font-weight:300; font-size:12px; letter-spacing:3px;
+        text-transform:uppercase; color:var(--mute);
+    }
 
-        .phrase-container {
-            text-align: center;
-            width: 100%;
-            max-width: 1300px;
-            padding: 70px;
-            background-color: #0A0A0A;
-            border-radius: 50px;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.5);
-            border: 1px solid #222;
-        }
-        .phrase-container h2 { font-size: 58px; font-weight: 900; line-height: 1.4; color: #FFFFFF; margin-bottom: 20px; }
-        .phrase-container p { font-size: 18px; letter-spacing: 4px; text-transform: uppercase; color: #999; }
+    .info-col{ flex:1; height:700px; display:flex; flex-direction:column; justify-content:center; }
 
-        /* Footer */
-        footer { 
-            width: 100%;
-            display: flex; 
-            justify-content: flex-end; 
-            opacity: 0.5; 
-            padding-top: 20px;
-        }
-        .footer-brand { font-size: 18px; color: #FFFFFF; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; }
-        .footer-brand b { color: #8C6239; font-weight: 900; }
+    .badge-row{ display:flex; align-items:center; gap:16px; margin-bottom:26px; }
+    .tag-cat{
+        font-family:'IBM Plex Mono', monospace; font-weight:400; font-size:14px;
+        letter-spacing:3px; text-transform:uppercase; color:var(--mute);
+        border:1px solid var(--line); padding:9px 20px; border-radius:100px;
+    }
 
-        .btn-kiosk {
-            position: fixed; bottom: 30px; left: 30px; z-index: 999;
-            background: #FFFFFF; color: #000000; padding: 16px 32px;
-            border-radius: 40px; font-weight: 900; border: none;
-            cursor: pointer; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;
-            box-shadow: 0 15px 30px rgba(255,255,255,0.1);
-        }
-    </style>
+    h2.item-title{ font-size:82px; font-weight:500; line-height:1.02; margin:0 0 20px 0; }
+
+    p.item-desc{
+        font-family:'Inter', sans-serif; font-weight:300; font-size:26px; line-height:1.6;
+        color:#C7D3CB; margin: 4px 0 36px 0; max-width: 880px;
+    }
+
+    .price-row{ margin-top:10px; }
+    .price-value{
+        font-family:'IBM Plex Mono', monospace; font-weight:500; font-size:60px;
+        color: var(--accent); letter-spacing:-1px;
+    }
+    .price-value .cop{ font-size:22px; color:var(--mute); font-weight:300; margin-right:10px; }
+
+    .fields-grid{ display:flex; gap:1px; margin-top:38px; background:var(--line); }
+    .field-card{ flex:1; background:var(--bg); padding:30px 34px; }
+    .field-card .lb{ font-family:'IBM Plex Mono', monospace; font-weight:300; font-size:13px; letter-spacing:3px; text-transform:uppercase; color:var(--mute); display:block; margin-bottom:12px; }
+    .field-card .vv{ font-family:'Space Grotesk', sans-serif; font-weight:500; font-size:32px; color:var(--ink); }
+    .field-card .vv.small{ font-size:20px; font-weight:400; color:var(--accent); }
+
+    .field-card-full{ margin-top:1px; background:var(--bg); padding:32px 34px; }
+    .field-card-full .lb{ font-family:'IBM Plex Mono', monospace; font-weight:300; font-size:13px; letter-spacing:3px; text-transform:uppercase; color:var(--mute); display:block; margin-bottom:12px; }
+    .field-card-full .vv{ font-family:'Space Grotesk', sans-serif; font-weight:400; font-size:34px; color:var(--accent); line-height:1.3; }
+
+    /* ============================================================
+       LAYOUT CENTRADO: BIENVENIDA / FRASE
+       ============================================================ */
+    .center-layout{ width:100%; height:100%; display:flex; align-items:center; justify-content:center; }
+
+    .journal-card{
+        text-align:center; width:100%; max-width:1300px;
+        padding: 20px 60px;
+        position:relative;
+    }
+    .journal-quote{ font-size:58px; font-weight:400; line-height:1.4; color:var(--ink); letter-spacing:-1px; }
+    .journal-meta{
+        margin-top: 38px; font-family:'IBM Plex Mono', monospace; font-weight:300; font-size:14px;
+        letter-spacing:4px; text-transform:uppercase; color:var(--mute);
+    }
+
+    .welcome-headline{ font-size:78px; font-weight:500; line-height:1.12; margin:0; letter-spacing:-2px; }
+
+    .hair-divider{ width:64px; height:1px; background:var(--accent); margin:34px auto 0 auto; }
+
+    /* ============================================================
+       TARJETA DE TEMPORADA (mundial / express)
+       ============================================================ */
+    .ticket{
+        width:100%; max-width:1420px;
+        position:relative; padding: 30px 80px; text-align:center;
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+    }
+    .ticket h2{ font-size:64px; font-weight:500; line-height:1.2; margin: 30px 0 30px 0; letter-spacing:-1.5px; }
+    .ticket p.body-copy{
+        font-family:'Inter', sans-serif; font-weight:300; font-size:28px; color:#C7D3CB;
+        max-width:1150px; margin:0 auto; line-height:1.6;
+    }
+    .ticket p.body-copy b{ color:var(--accent); font-weight:500; }
+
+    /* footer */
+    footer{ position:relative; z-index:3; width:100%; display:flex; justify-content:space-between; align-items:center; padding-top:24px; }
+    .footer-brand{ font-family:'IBM Plex Mono', monospace; font-weight:300; font-size:13px; letter-spacing:3px; text-transform:uppercase; color:var(--mute); }
+    .footer-brand b{ color:var(--accent); font-weight:500; }
+
+    .btn-kiosk{
+        position: fixed; bottom: 30px; left: 30px; z-index: 999;
+        background: var(--accent); color: #06110B; padding: 16px 32px;
+        border-radius: 4px; font-family:'IBM Plex Mono', monospace; font-weight:500; border: none;
+        cursor: pointer; font-size: 13px; text-transform: uppercase; letter-spacing: 2px;
+        box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+    }
+</style>
 </head>
 <body>
 
-    <div id="tv-scale-canvas">
-        <main id="kiosk-main" class="tv-fade"></main>
-        <footer>
-            <div class="footer-brand">
-                Power By <span>Tan<b>Alza</b></span>
-            </div>
-        </footer>
-    </div>
+<div id="tv-scale-canvas">
+    <div class="signature-mark" id="signature-mark"></div>
 
-    <button id="btn-fullscreen" class="btn-kiosk">Iniciar Kiosko Exterior</button>
+    <header class="log-header">
+        <div class="brand-mark">
+            <span class="brand-dot"></span>
+            <span class="log-title">La Oficina</span>
+        </div>
+        <span class="log-sub" id="log-clock">Anserma · Caldas</span>
+    </header>
 
-    <script>
-        // --- ALGORITMO INTEGRADO DE ESCALA INTELIGENTE ---
-        function ajustarEscalaPantallaTV() {
-            var canvas = document.getElementById('tv-scale-canvas');
-            if (!canvas) return;
-            var windowWidth = window.innerWidth;
-            var windowHeight = window.innerHeight;
-            var scaleX = windowWidth / 1920;
-            var scaleY = windowHeight / 1080;
-            var scaleFinal = Math.min(scaleX, scaleY);
-            canvas.style.transform = 'scale(' + scaleFinal + ')';
-            canvas.style.webkitTransform = 'scale(' + scaleFinal + ')';
+    <main id="kiosk-main" class="tv-fade"></main>
+
+    <footer>
+        <span class="footer-brand">Specialty Coffee &amp; Wellness</span>
+        <span class="footer-brand">Hecho por <b>TanAlza</b></span>
+    </footer>
+</div>
+
+<button id="btn-fullscreen" class="btn-kiosk">Iniciar Kiosko Exterior</button>
+
+<script>
+    /* ============================================================
+       ESCALA INTELIGENTE DE PANTALLA
+       ============================================================ */
+    function ajustarEscalaPantallaTV() {
+        var canvas = document.getElementById('tv-scale-canvas');
+        if (!canvas) return;
+        var scaleX = window.innerWidth / 1920;
+        var scaleY = window.innerHeight / 1080;
+        var scaleFinal = Math.min(scaleX, scaleY);
+        canvas.style.transform = 'scale(' + scaleFinal + ')';
+        canvas.style.webkitTransform = 'scale(' + scaleFinal + ')';
+    }
+    window.addEventListener('resize', ajustarEscalaPantallaTV);
+    window.addEventListener('load', ajustarEscalaPantallaTV);
+    setTimeout(ajustarEscalaPantallaTV, 100);
+
+    /* ============================================================
+       MARCA DE FIRMA — arco delgado y minimalista
+       ============================================================ */
+    (function paintSignatureMark(){
+        var el = document.getElementById('signature-mark');
+        el.innerHTML = '<svg viewBox="0 0 150 150" width="100%" height="100%">' +
+            '<circle cx="75" cy="75" r="66" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>' +
+            '<circle cx="75" cy="75" r="66" fill="none" stroke="#35E27A" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="90 320"/>' +
+            '<circle cx="75" cy="75" r="40" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>' +
+            '</svg>';
+    })();
+
+    /* reloj sutil del encabezado */
+    (function tickClock(){
+        var el = document.getElementById('log-clock');
+        function paint(){
+            var d = new Date();
+            var hh = String(d.getHours()).padStart(2,'0');
+            var mm = String(d.getMinutes()).padStart(2,'0');
+            el.textContent = 'Anserma · Caldas · ' + hh + ':' + mm;
         }
+        paint();
+        setInterval(paint, 15000);
+    })();
 
-        window.addEventListener('resize', ajustarEscalaPantallaTV);
-        window.addEventListener('load', ajustarEscalaPantallaTV);
-        setTimeout(ajustarEscalaPantallaTV, 100);
+    /* ============================================================
+       CONEXIÓN A LA BASE DE DATOS (Firebase — sin modificar)
+       ============================================================ */
+    const firebaseConfig = {
+        apiKey: "AIzaSyAutOqky0mpVmwDrqFsyZ0zRl_abrzgPvc",
+        authDomain: "mandre-f9e43.firebaseapp.com",
+        projectId: "mandre-f9e43",
+        storageBucket: "mandre-f9e43.firebasestorage.app",
+        messagingSenderId: "865403538422",
+        appId: "1:865403538422:web:0ee2fb754343de9bc015d7"
+    };
+    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+    const db = firebase.firestore();
 
-        // --- CONFIGURACIÓN DE TU FIREBASE ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyAutOqky0mpVmwDrqFsyZ0zRl_abrzgPvc",
-            authDomain: "mandre-f9e43.firebaseapp.com",
-            projectId: "mandre-f9e43",
-            storageBucket: "mandre-f9e43.firebasestorage.app",
-            messagingSenderId: "865403538422",
-            appId: "1:865403538422:web:0ee2fb754343de9bc015d7"
-        };
+    let dataset = { products: [], config: null };
 
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
+    let loopState = {
+        currentPhase: 'welcome',
+        productIndex: 0,
+        secondsCounter: 0,
+        productsShownInSession: 0,
+        phraseIndex: 0,
+        promoToggle: false
+    };
+
+    const localPhrases = [
+        "En La Oficina no servimos café: seleccionamos altitudes, notas y orígenes en cada taza.",
+        "Cada lote que catamos viene de una vereda distinta de Caldas. Pregúntanos por el de hoy.",
+        "Un espacio abierto, una taza caliente. Anserma también se disfruta despacio.",
+        "Bienestar y especialidad en el mismo lugar: así entendemos el café en La Oficina.",
+        "De la montaña a la taza: cuidamos cada paso del proceso para que lo sientas."
+    ];
+
+    const kioskMain = document.getElementById('kiosk-main');
+
+    // Escuchar Inventario
+    db.collection('inventory').onSnapshot(function(snap){
+        let items = [];
+        snap.forEach(function(doc){
+            let p = doc.data();
+            if (p.showOnTv !== false) items.push(p);
+        });
+        dataset.products = items.sort(function(a,b){
+            return (b.isPromoted === a.isPromoted ? 0 : b.isPromoted ? 1 : -1);
+        });
+        if (loopState.currentPhase === 'product_focus' && (!dataset.config || !dataset.config.pautaExpressActiva)) {
+            renderCurrentScreen();
         }
-        const db = firebase.firestore();
+    });
 
-        let dataset = { products: [], config: null };
-        
-        let loopState = { 
-            currentPhase: 'welcome', 
-            productIndex: 0, 
-            secondsCounter: 0,
-            productsShownInSession: 0, 
-            phraseIndex: 0,
-            promoToggle: false
-        };
+    // Escuchar Configuración TV
+    db.collection('configuracionTV').doc('actual').onSnapshot(function(doc){
+        if (doc.exists) {
+            dataset.config = doc.data();
+            renderCurrentScreen();
+        }
+    });
 
-        const localPhrases = [
-            "El mejor punto de encuentro en la 'Abuela de Caldas'. ¡Ven a La Oficina por tu dosis de bienestar!",
-            "Café de especialidad cultivado en nuestras montañas caldenses, servido con orgullo en Anserma.",
-            "¿Trabajo, amigos o un respiro? El espacio ideal para conectar y recargar tus energías está en La Oficina.",
-            "Pasión por los detalles, amor por el origen. Vive la verdadera cultura cafetera en el corazón de Anserma.",
-            "Mucho más que una taza de café. Creamos experiencias premium de Specialty Coffee & Wellness para ti."
-        ];
+    window.handleImageError = function(imageElement){
+        if (imageElement && imageElement.parentElement) {
+            imageElement.parentElement.innerHTML = '<div class="plate-placeholder"></div>';
+        }
+    };
 
-        const kioskMain = document.getElementById('kiosk-main');
+    function money(v){
+        return '<span class="cop">$COP</span>' + Number(v || 0).toLocaleString('es-CO');
+    }
 
-        // Escuchar Inventario
-        db.collection('inventory').onSnapshot(function(snap) {
-            let items = [];
-            snap.forEach(function(doc) {
-                let p = doc.data();
-                if (p.showOnTv !== false) { items.push(p); }
-            });
-            dataset.products = items.sort(function(a, b) {
-                return (b.isPromoted === a.isPromoted ? 0 : b.isPromoted ? 1 : -1);
-            });
-            if(loopState.currentPhase === 'product_focus' && (!dataset.config || !dataset.config.pautaExpressActiva)) renderCurrentScreen();
-        });
+    function sampleTag(n){
+        return '№ ' + String(n).padStart(3, '0');
+    }
 
-        // Escuchar Configuración TV
-        db.collection('configuracionTV').doc('actual').onSnapshot(function(doc) {
-            if (doc.exists) {
-                dataset.config = doc.data();
-                renderCurrentScreen(); 
-            }
-        });
+    /* ============================================================
+       PLANTILLAS DE PANTALLA
+       ============================================================ */
+    function tplExpress(cfg){
+        let titulo = cfg.pautaExpressTitulo || "ANUNCIO ESPECIAL";
+        let texto = cfg.pautaExpressTexto || "Promoción exclusiva disponible ahora.";
+        return `
+            <div class="center-layout">
+                <div class="ticket">
+                    <span class="pill">Destacado de la semana</span>
+                    <h2 class="display-title" style="color:var(--accent);">${titulo}</h2>
+                    <p class="body-copy">${texto}</p>
+                    <p class="footer-brand" style="margin-top:34px;">La Oficina Anserma · Sabores de Temporada</p>
+                </div>
+            </div>`;
+    }
 
-        window.handleImageError = function(imageElement) {
-            if(imageElement && imageElement.parentElement) {
-                imageElement.parentElement.innerHTML = '<div class="image-placeholder"></div>';
-            }
-        };
+    function tplWelcome(cfg){
+        let texto = (cfg && cfg.publicidadRecurrente) ? cfg.publicidadRecurrente.textoConfigurable : "Bienvenidos a una experiencia exclusiva";
+        return `
+            <div class="center-layout">
+                <div style="text-align:center; max-width:1300px;">
+                    <span class="eyebrow" style="justify-content:center;"><span class="line"></span>Recomendación<span class="line"></span></span>
+                    <h2 class="display-title welcome-headline" style="margin-top:26px;">${texto}</h2>
+                    <div class="hair-divider"></div>
+                </div>
+            </div>`;
+    }
 
-        // --- MOTOR RENDER NATIVO BAJO MATRIZ DE SEGURIDAD ---
-        function renderCurrentScreen() {
-            kioskMain.classList.remove('tv-fade-active');
-            
-            setTimeout(function() {
-                let html = '';
-
-                // INTERRUPTOR: ANUNCIO EXPRESS DE TEMPORADA
-                if (dataset.config && dataset.config.pautaExpressActiva === true) {
-                    let tituloExpress = dataset.config.pautaExpressTitulo || "ANUNCIO ESPECIAL";
-                    let textoExpress = dataset.config.pautaExpressTexto || "Promoción exclusiva disponible ahora.";
-                    html = `
-                        <div class="center-layout">
-                            <div class="phrase-container" style="border: 2px solid #8C6239;">
-                                <span class="badge badge-accent" style="margin-bottom:25px; padding: 12px 28px; font-size:16px;">DESTACADO DE LA SEMANA 🚨</span>
-                                <h2 style="font-size: 64px; font-weight: 900; line-height: 1.2; color: #8C6239; text-transform: uppercase; margin-bottom:25px;">${tituloExpress}</h2>
-                                <p style="font-size: 32px; font-weight: 700; color: #FFFFFF; line-height: 1.5; max-width:1000px; margin: 0 auto;">${textoExpress}</p>
-                                <p class="text-muted" style="font-size: 14px; margin-top: 35px; letter-spacing: 4px; text-transform: uppercase;">La Oficina Anserma • Sabores de Temporada</p>
-                            </div>
+    function tplOrigin(cafe){
+        let img = cafe.logoUrl || cafe.logourl || cafe.imageUrl || cafe.imageurl || "";
+        let plate = (img && img.length > 10)
+            ? `<img src="${img}" onerror="window.handleImageError(this)"/>`
+            : `<div class="plate-placeholder"></div>`;
+        return `
+            <div class="sheet">
+                <div class="plate-col">
+                    <div class="plate">${plate}</div>
+                    <span class="plate-tag">Filtrado hoy</span>
+                </div>
+                <div class="info-col">
+                    <span class="eyebrow"><span class="line"></span>Origen</span>
+                    <h2 class="display-title item-title" style="margin-top:20px;">Café del día</h2>
+                    <div class="fields-grid">
+                        <div class="field-card">
+                            <span class="lb">Procedencia</span>
+                            <span class="vv">${cafe.municipio || '—'}</span><br/>
+                            <span class="vv small">${cafe.vereda || ''}</span>
                         </div>
-                    `;
-                    kioskMain.innerHTML = html;
-                    kioskMain.classList.add('tv-fade-active');
-                    ajustarEscalaPantallaTV();
-                    return;
-                }
-
-                // CASO 1: PANTALLA BIENVENIDA
-                if (loopState.currentPhase === 'welcome') {
-                    let texto = (dataset.config && dataset.config.publicidadRecurrente) ? dataset.config.publicidadRecurrente.textoConfigurable : "Bienvenidos a una experiencia exclusiva";
-                    html = `
-                        <div class="center-layout">
-                            <div style="text-align: center; max-width: 1200px;">
-                                <span class="text-accent" style="font-size: 20px; font-weight: 900; letter-spacing: 6px; text-transform: uppercase; display: block; margin-bottom: 25px;">Recomendación Especial</span>
-                                <h2 style="font-size: 72px; font-weight: 900; line-height: 1.2; text-transform: uppercase; color: #FFFFFF; letter-spacing: -1px; margin: 0;">${texto}</h2>
-                                <div style="width: 160px; height: 5px; background-color: #8C6239; margin: 30px auto 0 auto;"></div>
-                            </div>
+                        <div class="field-card">
+                            <span class="lb">Altitud de cultivo</span>
+                            <span class="vv">${cafe.altura || '—'} <span style="font-size:16px; color:var(--mute); font-family:'IBM Plex Mono',monospace; font-weight:300;">msnm</span></span>
                         </div>
-                    `;
-                }
-                
-                // CASO 2: CAFÉ DE ORIGEN
-                else if (loopState.currentPhase === 'cafe_dia' && dataset.config && dataset.config.cafePromocion) {
-                    let cafe = dataset.config.cafePromocion;
-                    let cafeImg = cafe.logoUrl || cafe.logourl || cafe.imageUrl || cafe.imageurl || "";
-                    let imgSection = (cafeImg && cafeImg.length > 10)
-                        ? `<div class="image-box-safe"><img src="${cafeImg}" onerror="window.handleImageError(this)" /></div>`
-                        : `<div class="image-box-safe"><div class="image-placeholder"></div></div>`;
-                    
-                    html = `
-                        <div class="grid-layout">
-                            <div class="col-left-photo">${imgSection}</div>
-                            <div class="col-right-info">
-                                <div class="badge badge-accent" style="margin-left: 0; width: fit-content;">FILTRADO HOY</div>
-                                <h2 class="item-title" style="font-size:74px; margin-bottom:15px;">CAFÉ DE ORIGEN</h2>
-                                <div class="cafe-grid">
-                                    <div class="cafe-card">
-                                        <p class="text-muted">Procedencia</p>
-                                        <h3>${cafe.municipio || ''}</h3>
-                                        <h4 class="text-accent">${cafe.vereda || ''}</h4>
-                                    </div>
-                                    <div class="cafe-card">
-                                        <p class="text-muted">Altura Cultivo</p>
-                                        <h3>${cafe.altura || ''} <span style="font-size: 20px; font-weight: 700; color:#999;">m</span></h3>
-                                    </div>
-                                </div>
-                                <div class="cafe-card-full">
-                                    <p class="text-muted">Notas de Cata Detectadas</p>
-                                    <h3 class="text-accent">${cafe.notas || ''}</h3>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }
-                
-                // CASO 3: PASARELA INDIVIDUAL DE PRODUCTOS
-                else if (loopState.currentPhase === 'product_focus' && dataset.products.length > 0) {
-                    let prod = dataset.products[loopState.productIndex];
-                    if (prod) {
-                        let badgeDestacado = prod.isPromoted ? `<span class="badge badge-accent">Recomendado ⭐</span>` : '';
-                        let descripcionHtml = prod.description ? `<p class="item-desc">${prod.description}</p>` : '';
-                        
-                        let linkFoto = prod.imageUrl || prod.imageurl || prod.image || prod.url || "";
-                        let imgSection = (linkFoto && linkFoto.length > 10)
-                            ? `<div class="image-box-safe"><img src="${linkFoto}" onerror="window.handleImageError(this)"/></div>`
-                            : `<div class="image-box-safe"><div class="image-placeholder"></div></div>`;
+                    </div>
+                    <div class="field-card-full">
+                        <span class="lb">Notas de catación</span>
+                        <span class="vv">${cafe.notas || '—'}</span>
+                    </div>
+                </div>
+            </div>`;
+    }
 
-                        html = `
-                            <div class="grid-layout">
-                                <div class="col-left-photo">${imgSection}</div>
-                                <div class="col-right-info">
-                                    <div style="display: flex; align-items: center; width: fit-content;">
-                                        <span class="badge badge-muted">${prod.category}</span>
-                                        ${badgeDestacado}
-                                    </div>
-                                    <h2 class="item-title">${prod.name}</h2>
-                                    ${descripcionHtml}
-                                    <div style="margin-top: 15px;">
-                                        <span class="text-muted" style="font-size: 14px; text-transform: uppercase; letter-spacing: 2px; display: block; margin-bottom:5px;">Precio de Venta</span>
-                                        <div class="price-box"><span style="font-size: 38px; font-weight: 400; margin-right: 5px; color:#999;">$</span>${Number(prod.price).toLocaleString()}</div>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    }
-                }
+    function tplProduct(prod, idx){
+        let stamp = prod.isPromoted ? `<span class="pill" style="margin-left:14px;">Favorito del barista</span>` : '';
+        let desc = prod.description ? `<p class="item-desc">${prod.description}</p>` : '';
+        let link = prod.imageUrl || prod.imageurl || prod.image || prod.url || "";
+        let plate = (link && link.length > 10)
+            ? `<img src="${link}" onerror="window.handleImageError(this)"/>`
+            : `<div class="plate-placeholder"></div>`;
+        return `
+            <div class="sheet">
+                <div class="plate-col">
+                    <div class="plate">${plate}</div>
+                    <span class="plate-tag">${sampleTag(idx + 1)}</span>
+                </div>
+                <div class="info-col">
+                    <div class="badge-row">
+                        <span class="tag-cat">${prod.category || 'Menú'}</span>
+                        ${stamp}
+                    </div>
+                    <h2 class="display-title item-title">${prod.name || ''}</h2>
+                    ${desc}
+                    <div class="leader-row" style="max-width:600px; margin-bottom:14px;">
+                        <span class="lb">Precio</span>
+                        <span class="fill"></span>
+                    </div>
+                    <div class="price-row"><span class="price-value">${money(prod.price)}</span></div>
+                </div>
+            </div>`;
+    }
 
-                // CASO 4: FRASES DE ANSERMA CALDAS
-                else if (loopState.currentPhase === 'local_phrase') {
-                    let fraseActual = localPhrases[loopState.phraseIndex];
-                    html = `
-                        <div class="center-layout">
-                            <div class="phrase-container">
-                                <span class="text-accent" style="font-size: 18px; font-weight: 900; letter-spacing: 6px; text-transform: uppercase; display: block; margin-bottom: 25px;">La Oficina Anserma</span>
-                                <h2>"${fraseActual}"</h2>
-                               <p class="text-muted">Specialty Coffee & Wellness • Caldas</p>
-                            </div>
-                        </div>
-                    `;
-                }
+    function tplJournal(frase, idx, total){
+        return `
+            <div class="center-layout">
+                <div class="journal-card">
+                    <span class="eyebrow" style="justify-content:center;"><span class="line"></span>La Oficina Anserma<span class="line"></span></span>
+                    <p class="display-title journal-quote" style="margin-top:30px; font-weight:400;">${frase}</p>
+                    <p class="journal-meta">${idx + 1} / ${total} · Specialty Coffee &amp; Wellness</p>
+                </div>
+            </div>`;
+    }
 
-                // CASO 5: PROMO MUNDIALISTA (Minimalista en Dark Mode)
-                else if (loopState.currentPhase === 'mundial_promo') {
-                    html = `
-                        <div class="center-layout">
-                            <div style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; background-color: #0A0A0A; border-radius: 40px; border-top: 8px solid #28a745; border-bottom: 8px solid #28a745; box-shadow: 0 15px 40px rgba(0,0,0,0.5); border-left: 1px solid #1A1A1A; border-right: 1px solid #1A1A1A;">
-                                
-                                <div style="display: inline-block; padding: 15px 45px; border-radius: 50px; margin-bottom: 40px; background: #111111; border: 2px solid #28a745;">
-                                    <h3 style="font-size: 24px; font-weight: 900; margin: 0; color: #28a745; letter-spacing: 2px;">⚽ TEMPORADA DE PARTIDOS</h3>
-                                </div>
+    function tplSeasonTicket(){
+        return `
+            <div class="center-layout">
+                <div class="ticket">
+                    <span class="pill">⚽ Temporada de partidos</span>
+                    <h2 class="display-title">¿Buscando el plan perfecto<br>para ver el fútbol?</h2>
+                    <p class="body-copy">Acompaña la pasión del fútbol con el mejor ambiente.<br>Pregunta en la barra por nuestros <b>Combos Mundialistas</b>.</p>
+                </div>
+            </div>`;
+    }
 
-                                <h2 style="font-size: 72px; font-weight: 900; margin: 0 0 35px 0; color: #FFFFFF; line-height: 1.2;">
-                                    ¿Buscando el plan perfecto<br>para ver el fútbol?
-                                </h2>
+    /* ============================================================
+       MOTOR DE RENDER
+       ============================================================ */
+    function renderCurrentScreen(){
+        kioskMain.classList.remove('tv-fade-active');
 
-                                <p style="font-size: 32px; font-weight: 500; color: #CCCCCC; max-width: 1200px; margin: 0 auto; line-height: 1.5;">
-                                    Acompaña la pasión del fútbol con el mejor ambiente. <br>Pregunta en la barra por nuestros <b style="color:#FFFFFF; font-weight: 900;">Combos Mundialistas</b>.
-                                </p>
+        setTimeout(function(){
+            let html = '';
 
-                            </div>
-                        </div>
-                    `;
-                }
-
+            if (dataset.config && dataset.config.pautaExpressActiva === true) {
+                html = tplExpress(dataset.config);
                 kioskMain.innerHTML = html;
                 kioskMain.classList.add('tv-fade-active');
-                ajustarEscalaPantallaTV(); 
-            }, 50); 
+                ajustarEscalaPantallaTV();
+                return;
+            }
+
+            if (loopState.currentPhase === 'welcome') {
+                html = tplWelcome(dataset.config);
+            }
+            else if (loopState.currentPhase === 'cafe_dia' && dataset.config && dataset.config.cafePromocion) {
+                html = tplOrigin(dataset.config.cafePromocion);
+            }
+            else if (loopState.currentPhase === 'product_focus' && dataset.products.length > 0) {
+                let prod = dataset.products[loopState.productIndex];
+                if (prod) html = tplProduct(prod, loopState.productIndex);
+            }
+            else if (loopState.currentPhase === 'local_phrase') {
+                html = tplJournal(localPhrases[loopState.phraseIndex], loopState.phraseIndex, localPhrases.length);
+            }
+            else if (loopState.currentPhase === 'mundial_promo') {
+                html = tplSeasonTicket();
+            }
+
+            kioskMain.innerHTML = html;
+            kioskMain.classList.add('tv-fade-active');
+            ajustarEscalaPantallaTV();
+        }, 50);
+    }
+
+    /* ============================================================
+       MOTOR DE TIEMPOS (misma cadencia funcional del kiosko original)
+       ============================================================ */
+    setInterval(function(){
+        if (dataset.config && dataset.config.pautaExpressActiva === true) return;
+
+        loopState.secondsCounter++;
+
+        if (loopState.currentPhase === 'welcome' && loopState.secondsCounter >= 6) {
+            if (dataset.config && dataset.config.cafePromocion) loopState.currentPhase = 'cafe_dia';
+            else if (dataset.products.length > 0) { loopState.currentPhase = 'product_focus'; loopState.productIndex = 0; }
+            loopState.secondsCounter = 0; renderCurrentScreen();
         }
-
-        // --- ENGRANAJE DE TIEMPOS ---
-        setInterval(function() {
-            if(dataset.config && dataset.config.pautaExpressActiva === true) return;
-
-            loopState.secondsCounter++;
-
-            if (loopState.currentPhase === 'welcome' && loopState.secondsCounter >= 6) {
-                if (dataset.config && dataset.config.cafePromocion) { loopState.currentPhase = 'cafe_dia'; } 
-                else if (dataset.products.length > 0) { loopState.currentPhase = 'product_focus'; loopState.productIndex = 0; }
-                loopState.secondsCounter = 0; renderCurrentScreen();
-            } 
-            else if (loopState.currentPhase === 'cafe_dia' && loopState.secondsCounter >= 10) {
-                if (dataset.products.length > 0) { loopState.currentPhase = 'product_focus'; loopState.productIndex = 0; } 
-                else { loopState.currentPhase = 'welcome'; }
-                loopState.secondsCounter = 0; renderCurrentScreen();
-            } 
-            else if (loopState.currentPhase === 'product_focus' && loopState.secondsCounter >= 7) {
-                loopState.secondsCounter = 0;
-                loopState.productsShownInSession++; 
-
-                if (loopState.productsShownInSession >= 4) {
-                    loopState.productsShownInSession = 0; 
-                    
-                    if (!loopState.promoToggle) {
-                        loopState.currentPhase = 'mundial_promo';
-                        loopState.promoToggle = true;
-                    } else {
-                        loopState.currentPhase = 'local_phrase';
-                        loopState.promoToggle = false;
-                    }
-                    
-                    renderCurrentScreen();
-                } else {
-                    if (loopState.productIndex + 1 < dataset.products.length) {
-                        loopState.productIndex++; renderCurrentScreen();
-                    } else {
-                        loopState.currentPhase = 'welcome'; loopState.productIndex = 0; renderCurrentScreen();
-                    }
-                }
-            }
-            // Control de tiempo para la promo Mundialista (16 segundos)
-            else if (loopState.currentPhase === 'mundial_promo' && loopState.secondsCounter >= 16) {
-                loopState.secondsCounter = 0;
-                if (loopState.productIndex + 1 < dataset.products.length) {
-                    loopState.productIndex++; loopState.currentPhase = 'product_focus';
-                } else {
-                    loopState.currentPhase = 'welcome'; loopState.productIndex = 0;
-                }
-                renderCurrentScreen();
-            }
-            else if (loopState.currentPhase === 'local_phrase' && loopState.secondsCounter >= 8) {
-                loopState.secondsCounter = 0;
-                loopState.phraseIndex = (loopState.phraseIndex + 1) % localPhrases.length;
-
-                if (loopState.productIndex + 1 < dataset.products.length) {
-                    loopState.productIndex++; loopState.currentPhase = 'product_focus';
-                } else {
-                    loopState.currentPhase = 'welcome'; loopState.productIndex = 0;
-                }
-                renderCurrentScreen();
-            }
-        }, 1000);
-
-        renderCurrentScreen();
-
-        // --- PANTALLA COMPLETA NATIVA ---
-        const btnFullscreen = document.getElementById('btn-fullscreen');
-        btnFullscreen.addEventListener('click', function() {
-            const elem = document.documentElement;
-            if (elem.requestFullscreen) elem.requestFullscreen();
-            else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
-        });
-
-        function checkFullscreen() {
-            if (document.fullscreenElement || document.webkitFullscreenElement) { 
-                btnFullscreen.style.display = 'none'; 
-            } else { 
-                btnFullscreen.style.display = 'block'; 
-            }
-            setTimeout(ajustarEscalaPantallaTV, 150);
+        else if (loopState.currentPhase === 'cafe_dia' && loopState.secondsCounter >= 10) {
+            if (dataset.products.length > 0) { loopState.currentPhase = 'product_focus'; loopState.productIndex = 0; }
+            else loopState.currentPhase = 'welcome';
+            loopState.secondsCounter = 0; renderCurrentScreen();
         }
-        document.addEventListener('fullscreenchange', checkFullscreen);
-        document.addEventListener('webkitfullscreenchange', checkFullscreen);
-    </script>
+        else if (loopState.currentPhase === 'product_focus' && loopState.secondsCounter >= 7) {
+            loopState.secondsCounter = 0;
+            loopState.productsShownInSession++;
+
+            if (loopState.productsShownInSession >= 4) {
+                loopState.productsShownInSession = 0;
+                if (!loopState.promoToggle) { loopState.currentPhase = 'mundial_promo'; loopState.promoToggle = true; }
+                else { loopState.currentPhase = 'local_phrase'; loopState.promoToggle = false; }
+                renderCurrentScreen();
+            } else {
+                if (loopState.productIndex + 1 < dataset.products.length) { loopState.productIndex++; renderCurrentScreen(); }
+                else { loopState.currentPhase = 'welcome'; loopState.productIndex = 0; renderCurrentScreen(); }
+            }
+        }
+        else if (loopState.currentPhase === 'mundial_promo' && loopState.secondsCounter >= 16) {
+            loopState.secondsCounter = 0;
+            if (loopState.productIndex + 1 < dataset.products.length) { loopState.productIndex++; loopState.currentPhase = 'product_focus'; }
+            else { loopState.currentPhase = 'welcome'; loopState.productIndex = 0; }
+            renderCurrentScreen();
+        }
+        else if (loopState.currentPhase === 'local_phrase' && loopState.secondsCounter >= 8) {
+            loopState.secondsCounter = 0;
+            loopState.phraseIndex = (loopState.phraseIndex + 1) % localPhrases.length;
+            if (loopState.productIndex + 1 < dataset.products.length) { loopState.productIndex++; loopState.currentPhase = 'product_focus'; }
+            else { loopState.currentPhase = 'welcome'; loopState.productIndex = 0; }
+            renderCurrentScreen();
+        }
+    }, 1000);
+
+    renderCurrentScreen();
+
+    /* ============================================================
+       PANTALLA COMPLETA NATIVA
+       ============================================================ */
+    const btnFullscreen = document.getElementById('btn-fullscreen');
+    btnFullscreen.addEventListener('click', function(){
+        const elem = document.documentElement;
+        if (elem.requestFullscreen) elem.requestFullscreen();
+        else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
+    });
+
+    function checkFullscreen(){
+        if (document.fullscreenElement || document.webkitFullscreenElement) btnFullscreen.style.display = 'none';
+        else btnFullscreen.style.display = 'block';
+        setTimeout(ajustarEscalaPantallaTV, 150);
+    }
+    document.addEventListener('fullscreenchange', checkFullscreen);
+    document.addEventListener('webkitfullscreenchange', checkFullscreen);
+</script>
 </body>
 </html>
