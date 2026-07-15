@@ -237,7 +237,7 @@
     .hair-divider{ width:64px; height:1px; background:var(--accent); margin:34px auto 0 auto; }
 
     /* ============================================================
-       TARJETA DE TEMPORADA (mundial / express)
+       TARJETA DE UBICACIÓN / AVISO EXPRESS
        ============================================================ */
     .ticket{
         width:100%; max-width:1420px;
@@ -353,6 +353,7 @@
         secondsCounter: 0,
         productsShownInSession: 0,
         phraseIndex: 0,
+        ubicacionIndex: 0,
         promoToggle: false
     };
 
@@ -362,6 +363,30 @@
         "Un espacio abierto, una taza caliente. Anserma también se disfruta despacio.",
         "Bienestar y especialidad en el mismo lugar: así entendemos el café en La Oficina.",
         "De la montaña a la taza: cuidamos cada paso del proceso para que lo sientas."
+    ];
+
+    // Mensajes rotativos sobre dónde estamos — reemplazan la promo de fútbol
+    const ansermaMessages = [
+        {
+            eyebrow: "La Abuela de Caldas",
+            titulo: "Estás en el corazón de Anserma",
+            texto: "Entre montañas y trapiches, Anserma guarda una de las tradiciones cafeteras más antiguas de Caldas. La Oficina nace de ese mismo suelo."
+        },
+        {
+            eyebrow: "Origen verificado",
+            titulo: "Café que no viaja lejos para llegar a tu taza",
+            texto: "Nuestros lotes vienen de veredas a menos de una hora de aquí. Cultivo, trilla y tueste, todo dentro de Caldas."
+        },
+        {
+            eyebrow: "Anserma, Caldas",
+            titulo: "Un pueblo pequeño, un café enorme",
+            texto: "A más de 1700 metros sobre el nivel del mar, el clima de Anserma le da a cada grano una acidez y un dulzor que se sienten distintos."
+        },
+        {
+            eyebrow: "Encuéntranos aquí",
+            titulo: "La Oficina, tu parada obligada en Anserma",
+            texto: "Si estás de paso por el occidente de Caldas, este es el lugar para sentarte, respirar y probar café de especialidad de verdad."
+        }
     ];
 
     const kioskMain = document.getElementById('kiosk-main');
@@ -505,13 +530,14 @@
             </div>`;
     }
 
-    function tplSeasonTicket(){
+    function tplUbicacion(item, idx, total){
         return `
             <div class="center-layout">
                 <div class="ticket">
-                    <span class="pill">⚽ Temporada de partidos</span>
-                    <h2 class="display-title">¿Buscando el plan perfecto<br>para ver el fútbol?</h2>
-                    <p class="body-copy">Acompaña la pasión del fútbol con el mejor ambiente.<br>Pregunta en la barra por nuestros <b>Combos Mundialistas</b>.</p>
+                    <span class="pill">📍 ${item.eyebrow}</span>
+                    <h2 class="display-title">${item.titulo}</h2>
+                    <p class="body-copy">${item.texto}</p>
+                    <p class="journal-meta" style="margin-top:30px;">${idx + 1} / ${total} · Anserma, Caldas</p>
                 </div>
             </div>`;
     }
@@ -546,8 +572,8 @@
             else if (loopState.currentPhase === 'local_phrase') {
                 html = tplJournal(localPhrases[loopState.phraseIndex], loopState.phraseIndex, localPhrases.length);
             }
-            else if (loopState.currentPhase === 'mundial_promo') {
-                html = tplSeasonTicket();
+            else if (loopState.currentPhase === 'ubicacion_anserma') {
+                html = tplUbicacion(ansermaMessages[loopState.ubicacionIndex], loopState.ubicacionIndex, ansermaMessages.length);
             }
 
             kioskMain.innerHTML = html;
@@ -580,7 +606,7 @@
 
             if (loopState.productsShownInSession >= 4) {
                 loopState.productsShownInSession = 0;
-                if (!loopState.promoToggle) { loopState.currentPhase = 'mundial_promo'; loopState.promoToggle = true; }
+                if (!loopState.promoToggle) { loopState.currentPhase = 'ubicacion_anserma'; loopState.promoToggle = true; }
                 else { loopState.currentPhase = 'local_phrase'; loopState.promoToggle = false; }
                 renderCurrentScreen();
             } else {
@@ -588,8 +614,9 @@
                 else { loopState.currentPhase = 'welcome'; loopState.productIndex = 0; renderCurrentScreen(); }
             }
         }
-        else if (loopState.currentPhase === 'mundial_promo' && loopState.secondsCounter >= 16) {
+        else if (loopState.currentPhase === 'ubicacion_anserma' && loopState.secondsCounter >= 10) {
             loopState.secondsCounter = 0;
+            loopState.ubicacionIndex = (loopState.ubicacionIndex + 1) % ansermaMessages.length;
             if (loopState.productIndex + 1 < dataset.products.length) { loopState.productIndex++; loopState.currentPhase = 'product_focus'; }
             else { loopState.currentPhase = 'welcome'; loopState.productIndex = 0; }
             renderCurrentScreen();
