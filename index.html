@@ -24,6 +24,7 @@
     }
 
     :root{
+        /* ---- Paleta NOCHE (default) ---- */
         --bg:      #060B08;   /* negro verdoso profundo, elegante */
         --surface: #0D1510;   /* superficie sutil, casi imperceptible */
         --surface-2:#111C15;
@@ -33,6 +34,32 @@
         --accent:  #35E27A;   /* verde vibrante — protagonista */
         --accent-soft: #1E7C4C;
         --paper-shadow: 0 40px 90px rgba(0,0,0,0.6);
+        --tv-glow: rgba(53,226,122,0.05);
+        --void-fade: rgba(6,11,8,0);
+        --img-shadow: drop-shadow(0 30px 60px rgba(0,0,0,0.55));
+        --body-copy: #C7D3CB;
+        --accent-tint: rgba(53,226,122,0.06);
+        --btn-ink: #06110B;
+        --theme-transition: background-color .6s ease, color .6s ease, border-color .6s ease, box-shadow .6s ease;
+    }
+
+    /* ---- Paleta DÍA (activada desde el admin: data-theme="light") ---- */
+    html[data-theme="light"]{
+        --bg:      #F7FAF8;   /* blanco cálido, no puro */
+        --surface: #FFFFFF;
+        --surface-2:#EEF3EF;
+        --line:    rgba(6,20,12,0.09);
+        --ink:     #0B1410;   /* casi negro, nítido */
+        --mute:    #5B6E62;   /* verde grisáceo, para labels */
+        --accent:  #1E7C4C;   /* verde profundo — legible sobre blanco */
+        --accent-soft: #35E27A;
+        --paper-shadow: 0 40px 90px rgba(20,40,30,0.12);
+        --tv-glow: rgba(30,124,76,0.06);
+        --void-fade: rgba(247,250,248,0);
+        --img-shadow: drop-shadow(0 25px 50px rgba(20,40,30,0.18));
+        --body-copy: #3C4A41;
+        --accent-tint: rgba(30,124,76,0.08);
+        --btn-ink: #F7FAF8;
     }
 
     html, body {
@@ -49,6 +76,7 @@
         top: 0; left: 0;
         -webkit-user-select: none;
         user-select: none;
+        transition: var(--theme-transition);
     }
 
     #tv-scale-canvas {
@@ -65,8 +93,9 @@
         flex-direction: column;
         padding: 70px 110px 44px 110px;
         background:
-            radial-gradient(1100px 700px at 88% -8%, rgba(53,226,122,0.05) 0%, transparent 60%),
+            radial-gradient(1100px 700px at 88% -8%, var(--tv-glow) 0%, transparent 60%),
             var(--bg);
+        transition: var(--theme-transition);
     }
 
     /* marca de firma — arco fino en vez de anillos topográficos rústicos */
@@ -147,7 +176,8 @@
         font-family:'IBM Plex Mono', monospace; font-weight:400; font-size:13px;
         letter-spacing:2px; text-transform:uppercase; color:var(--accent);
         border:1px solid var(--accent-soft); border-radius:100px; padding:8px 20px;
-        display:inline-block; background: rgba(53,226,122,0.06);
+        display:inline-block; background: var(--accent-tint);
+        transition: var(--theme-transition);
     }
 
     /* ============================================================
@@ -158,24 +188,33 @@
     .plate-col{ width:640px; height:700px; position:relative; flex-shrink:0; }
     .plate{
         width:100%; height:100%;
-        background: var(--surface);
-        border:1px solid var(--line);
-        border-radius: 4px;
-        box-shadow: var(--paper-shadow);
+        background: transparent;
+        border:none;
+        box-shadow:none;
         display:flex; align-items:center; justify-content:center;
-        position:relative; overflow:hidden;
+        position:relative; overflow:visible;
+        transition: var(--theme-transition);
     }
+    /* halo suave detrás de la imagen: da profundidad sin encajonarla en una tarjeta */
     .plate::before{
-        content:""; position:absolute; left:0; top:0; width:2px; height:64px; background:var(--accent);
+        content:""; position:absolute; left:50%; top:50%;
+        width:120%; height:120%; transform:translate(-50%,-50%);
+        background: radial-gradient(closest-side, var(--tv-glow) 0%, var(--void-fade) 72%);
+        z-index:0; pointer-events:none;
     }
     .plate img{
-        max-width:86% !important; max-height:86% !important;
+        max-width:88% !important; max-height:88% !important;
         width:auto !important; height:auto !important;
         object-fit:contain !important;
+        position:relative; z-index:1;
+        filter: var(--img-shadow);
     }
     .plate-placeholder{
-        width:100%; height:100%;
-        background: linear-gradient(160deg, #0f1712 0%, #060a07 100%);
+        width:72%; height:72%;
+        border-radius:50%;
+        background: radial-gradient(circle at 35% 30%, var(--surface-2) 0%, var(--bg) 78%);
+        border:1px solid var(--line);
+        position:relative; z-index:1;
     }
     .plate-tag{
         position:absolute; bottom:24px; left:24px; z-index:3;
@@ -196,7 +235,7 @@
 
     p.item-desc{
         font-family:'Inter', sans-serif; font-weight:300; font-size:26px; line-height:1.6;
-        color:#C7D3CB; margin: 4px 0 36px 0; max-width: 880px;
+        color:var(--body-copy); margin: 4px 0 36px 0; max-width: 880px;
     }
 
     .price-row{ margin-top:10px; }
@@ -247,7 +286,7 @@
     }
     .ticket h2{ font-size:64px; font-weight:500; line-height:1.2; margin: 30px 0 30px 0; letter-spacing:-1.5px; }
     .ticket p.body-copy{
-        font-family:'Inter', sans-serif; font-weight:300; font-size:28px; color:#C7D3CB;
+        font-family:'Inter', sans-serif; font-weight:300; font-size:28px; color:var(--body-copy);
         max-width:1150px; margin:0 auto; line-height:1.6;
     }
     .ticket p.body-copy b{ color:var(--accent); font-weight:500; }
@@ -259,10 +298,11 @@
 
     .btn-kiosk{
         position: fixed; bottom: 30px; left: 30px; z-index: 999;
-        background: var(--accent); color: #06110B; padding: 16px 32px;
+        background: var(--accent); color: var(--btn-ink); padding: 16px 32px;
         border-radius: 4px; font-family:'IBM Plex Mono', monospace; font-weight:500; border: none;
         cursor: pointer; font-size: 13px; text-transform: uppercase; letter-spacing: 2px;
         box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+        transition: var(--theme-transition);
     }
 </style>
 </head>
@@ -309,14 +349,19 @@
     /* ============================================================
        MARCA DE FIRMA — arco delgado y minimalista
        ============================================================ */
-    (function paintSignatureMark(){
+    function paintSignatureMark(){
         var el = document.getElementById('signature-mark');
+        var cs = getComputedStyle(document.documentElement);
+        var lineColor = cs.getPropertyValue('--line').trim() || 'rgba(255,255,255,0.06)';
+        var accentColor = cs.getPropertyValue('--accent').trim() || '#35E27A';
         el.innerHTML = '<svg viewBox="0 0 150 150" width="100%" height="100%">' +
-            '<circle cx="75" cy="75" r="66" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>' +
-            '<circle cx="75" cy="75" r="66" fill="none" stroke="#35E27A" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="90 320"/>' +
-            '<circle cx="75" cy="75" r="40" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>' +
+            '<circle cx="75" cy="75" r="66" fill="none" stroke="' + lineColor + '" stroke-width="1"/>' +
+            '<circle cx="75" cy="75" r="66" fill="none" stroke="' + accentColor + '" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="90 320"/>' +
+            '<circle cx="75" cy="75" r="40" fill="none" stroke="' + lineColor + '" stroke-width="1"/>' +
             '</svg>';
-    })();
+    }
+    paintSignatureMark();
+    window.paintSignatureMark = paintSignatureMark;
 
     /* reloj sutil del encabezado */
     (function tickClock(){
@@ -359,7 +404,7 @@
 
     const localPhrases = [
         "En La Oficina no servimos café: seleccionamos altitudes, notas y orígenes en cada taza.",
-        "Cada lote que catamos viene de una vereda distinta de Caldas. Pregúntanos por el de hoy.",
+        "Cada lote que catamos viene de una vereda distinta de Anserma, Caldas. Pregúntanos por el de hoy.",
         "Un espacio abierto, una taza caliente. Anserma también se disfruta despacio.",
         "Bienestar y especialidad en el mismo lugar: así entendemos el café en La Oficina.",
         "De la montaña a la taza: cuidamos cada paso del proceso para que lo sientas."
@@ -368,14 +413,14 @@
     // Mensajes rotativos sobre dónde estamos — reemplazan la promo de fútbol
     const ansermaMessages = [
         {
-            eyebrow: "La Abuela de Caldas",
+            eyebrow: "Anserma, la Abuela de Caldas",
             titulo: "Estás en el corazón de Anserma",
             texto: "Entre montañas y trapiches, Anserma guarda una de las tradiciones cafeteras más antiguas de Caldas. La Oficina nace de ese mismo suelo."
         },
         {
             eyebrow: "Origen verificado",
             titulo: "Café que no viaja lejos para llegar a tu taza",
-            texto: "Nuestros lotes vienen de veredas a menos de una hora de aquí. Cultivo, trilla y tueste, todo dentro de Caldas."
+            texto: "Nuestros lotes vienen de veredas a menos de una hora de aquí. Cultivo, trilla y tueste, todo dentro de Anserma, Caldas."
         },
         {
             eyebrow: "Anserma, Caldas",
@@ -385,9 +430,32 @@
         {
             eyebrow: "Encuéntranos aquí",
             titulo: "La Oficina, tu parada obligada en Anserma",
-            texto: "Si estás de paso por el occidente de Caldas, este es el lugar para sentarte, respirar y probar café de especialidad de verdad."
+            texto: "Si estás de paso por Anserma, en el occidente de Caldas, este es el lugar para sentarte, respirar y probar café de especialidad de verdad."
         }
     ];
+
+    /* ============================================================
+       PALETA DÍA / NOCHE (controlada desde el admin)
+       ============================================================
+       El admin escribirá un booleano en configuracionTV/actual.
+       Campo esperado: modoDia -> true = fondo blanco (día)
+                                   false/ausente = fondo negro (noche, default)
+       Si el admin usa otro nombre de campo, se soportan alias comunes.
+    */
+    function esModoDia(cfg){
+        if (!cfg) return false;
+        if (typeof cfg.modoDia === 'boolean') return cfg.modoDia;
+        if (typeof cfg.temaClaro === 'boolean') return cfg.temaClaro;
+        if (typeof cfg.fondoBlanco === 'boolean') return cfg.fondoBlanco;
+        if (typeof cfg.pantallaDia === 'boolean') return cfg.pantallaDia;
+        return false;
+    }
+
+    function aplicarTema(cfg){
+        var esDia = esModoDia(cfg);
+        document.documentElement.setAttribute('data-theme', esDia ? 'light' : 'dark');
+        if (window.paintSignatureMark) window.paintSignatureMark();
+    }
 
     const kioskMain = document.getElementById('kiosk-main');
 
@@ -410,6 +478,7 @@
     db.collection('configuracionTV').doc('actual').onSnapshot(function(doc){
         if (doc.exists) {
             dataset.config = doc.data();
+            aplicarTema(dataset.config);
             renderCurrentScreen();
         }
     });
