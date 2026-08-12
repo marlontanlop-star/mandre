@@ -384,6 +384,10 @@
         background:var(--gold-soft); border-radius:0 12px 12px 0;
     }
     .mandre-claim b{ color:var(--gold); font-weight:600; }
+    .mandre-tagline{
+        font-family:'Inter', sans-serif; font-weight:300; font-style:italic; font-size:19px; line-height:1.55;
+        color:var(--mute); max-width:820px; margin:0 0 22px 0;
+    }
     .mandre-rotating{
         font-family:'Inter', sans-serif; font-weight:300; font-style:italic; font-size:23px; line-height:1.6;
         color:var(--body-copy); max-width:840px; margin-bottom:36px;
@@ -640,7 +644,10 @@
         let plate = (img && img.length > 10)
             ? `<img src="${img}" onerror="window.handleImageError(this)"/>`
             : `<div class="plate-placeholder"></div>`;
+        let municipio = cafe.municipio || 'Anserma';
+        let departamento = cafe.departamento || 'Caldas';
         let mensajeRotativo = cafeMandreMessages[rotIdx % cafeMandreMessages.length];
+        let mensajeBolsa = cafe.mensaje ? `<p class="mandre-tagline">"${cafe.mensaje}"</p>` : '';
         return `
             <div class="mandre-stage">
                 <span class="mandre-watermark">Mandre</span>
@@ -651,20 +658,17 @@
                 <div class="mandre-content">
                     <span class="mandre-eyebrow"><span class="ln"></span>Café del día<span class="ln"></span></span>
                     <h2 class="mandre-headline">El café detrás de cada taza</h2>
-                    <p class="mandre-claim">Todas nuestras bebidas a base de café están preparadas con <b>Café Mandre</b>, ${cafe.municipio ? ('cultivado en ' + cafe.municipio + (cafe.vereda ? ', vereda ' + cafe.vereda : '') + '.') : 'cultivado en Anserma, Caldas.'}</p>
+                    <p class="mandre-claim">Todas nuestras bebidas a base de café están preparadas con <b>Café Mandre</b>, cultivado en ${municipio}, ${departamento}.</p>
+                    ${mensajeBolsa}
                     <p class="mandre-rotating">${mensajeRotativo}</p>
                     <div class="mandre-stats">
                         <div class="mandre-stat">
                             <span class="lb">Procedencia</span>
-                            <span class="vv">${cafe.municipio || 'Anserma'}${cafe.vereda ? ' · ' + cafe.vereda : ''}</span>
+                            <span class="vv">${municipio} · ${departamento}</span>
                         </div>
                         <div class="mandre-stat">
-                            <span class="lb">Altitud</span>
-                            <span class="vv">${cafe.altura || '—'} msnm</span>
-                        </div>
-                        <div class="mandre-stat">
-                            <span class="lb">Notas de catación</span>
-                            <span class="vv">${cafe.notas || '—'}</span>
+                            <span class="lb">Elaborado por</span>
+                            <span class="vv">Grupo Mandre</span>
                         </div>
                     </div>
                 </div>
