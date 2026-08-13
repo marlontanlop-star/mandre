@@ -572,19 +572,27 @@
 
     const kioskMain = document.getElementById('kiosk-main');
 
-    // Escuchar Inventario
+    // Escuchar Inventario (sin límite: trae TODOS los documentos de la colección)
     db.collection('inventory').onSnapshot(function(snap){
         let items = [];
         snap.forEach(function(doc){
             let p = doc.data();
+            p._id = doc.id;
             if (p.showOnTv !== false) items.push(p);
         });
         dataset.products = items.sort(function(a,b){
             return (b.isPromoted === a.isPromoted ? 0 : b.isPromoted ? 1 : -1);
         });
+        console.log('[Kiosko] Productos leídos de Firebase:', snap.size, '| Visibles en TV (showOnTv !== false):', dataset.products.length);
+
+        // Si el índice actual quedó fuera de rango (p. ej. se eliminó un producto), lo corregimos.
+        if (loopState.productIndex >= dataset.products.length) loopState.productIndex = 0;
+
         if (loopState.currentPhase === 'product_focus' && (!dataset.config || !dataset.config.pautaExpressActiva)) {
             renderCurrentScreen();
         }
+    }, function(error){
+        console.error('[Kiosko] Error leyendo colección "inventory" en Firestore:', error);
     });
 
     // Escuchar Configuración TV
@@ -594,6 +602,8 @@
             aplicarTema(dataset.config);
             renderCurrentScreen();
         }
+    }, function(error){
+        console.error('[Kiosko] Error leyendo "configuracionTV/actual" en Firestore:', error);
     });
 
     window.handleImageError = function(imageElement){
@@ -747,8 +757,9 @@
             if (loopState.currentPhase === 'welcome') {
                 html = tplWelcome(dataset.config);
             }
-            else if (loopState.currentPhase === 'cafe_dia' && dataset.config && dataset.config.cafePromocion) {
-                html = tplMarcaCafe(dataset.config.cafePromocion, loopState.marcaCafeIndex);
+            else if (loopState.currentPhase === 'cafe_dia') {
+                let cafeData = (dataset.config && dataset.config.cafePromocion) ? dataset.config.cafePromocion : {};
+                html = tplMarcaCafe(cafeData, loopState.marcaCafeIndex);
             }
             else if (loopState.currentPhase === 'product_focus' && dataset.products.length > 0) {
                 let prod = dataset.products[loopState.productIndex];
@@ -770,6 +781,24 @@
     /* ============================================================
        MOTOR DE TIEMPOS (misma cadencia funcional del kiosko original)
        ============================================================ */
+    /* Avanza al siguiente producto tras una pantalla intercalada (café / ubicación / frase).
+       Si ya se mostraron todos los productos, vuelve a 'welcome' y reinicia el índice desde 0.
+       Si no hay productos, también vuelve a 'welcome'. */
+    function avanzarAProducto(){
+        if (dataset.products.length === 0) {
+            loopState.currentPhase = 'welcome';
+            loopState.productIndex = 0;
+            return;
+        }
+        if (loopState.productIndex + 1 < dataset.products.length) {
+            loopState.productIndex++;
+            loopState.currentPhase = 'product_focus';
+        } else {
+            loopState.currentPhase = 'welcome';
+            loopState.productIndex = 0;
+        }
+    }
+
     setInterval(function(){
         if (dataset.config && dataset.config.pautaExpressActiva === true) return;
 
@@ -780,31 +809,25 @@
             else if (dataset.products.length > 0) { loopState.currentPhase = 'product_focus'; loopState.productIndex = 0; }
             loopState.secondsCounter = 0; renderCurrentScreen();
         }
-        // La pantalla Café Mandre permanece más tiempo en escena (18s) que cualquier otra plantilla del ciclo
+        // La pantalla Café Mandre permanece más tiempo en escena (18s) que cualquier otra plantilla del ciclo.
+        // Al terminar, AVANZA al siguiente producto (no repite el que ya se mostró antes del café).
         else if (loopState.currentPhase === 'cafe_dia' && loopState.secondsCounter >= 18) {
             loopState.marcaCafeIndex = (loopState.marcaCafeIndex + 1) % cafeMandreMessages.length;
-            if (dataset.products.length > 0) { loopState.currentPhase = 'product_focus'; loopState.productIndex = 0; }
-            else loopState.currentPhase = 'welcome';
+            avanzarAProducto();
             loopState.secondsCounter = 0; renderCurrentScreen();
         }
         else if (loopState.currentPhase === 'product_focus' && loopState.secondsCounter >= 7) {
             loopState.secondsCounter = 0;
             loopState.productsShownInSession++;
 
-            // Cada 4 productos se muestra siempre la pantalla exclusiva Café Mandre.
-            // Si aún no hay café configurado en el admin, se cae de respaldo a las
-            // pantallas de ubicación / frase local (alternadas) para no dejar el
-            // kiosko sin contenido especial.
+            // Cada 4 productos se intercala una pantalla especial, alternando entre:
+            //   - "Café del día" (marca Mandre)
+            //   - Mensaje sobre el café / Anserma, Caldas
+            // así: 4 productos -> café, 4 productos -> Anserma/café, 4 productos -> café, ...
             if (loopState.productsShownInSession >= 4) {
                 loopState.productsShownInSession = 0;
-                var haySplashCafe = !!(dataset.config && dataset.config.cafePromocion);
-                if (haySplashCafe) {
-                    loopState.currentPhase = 'cafe_dia';
-                } else if (!loopState.promoToggle) {
-                    loopState.currentPhase = 'ubicacion_anserma'; loopState.promoToggle = true;
-                } else {
-                    loopState.currentPhase = 'local_phrase'; loopState.promoToggle = false;
-                }
+                loopState.promoToggle = !loopState.promoToggle;
+                loopState.currentPhase = loopState.promoToggle ? 'cafe_dia' : 'ubicacion_anserma';
                 renderCurrentScreen();
             } else {
                 if (loopState.productIndex + 1 < dataset.products.length) { loopState.productIndex++; renderCurrentScreen(); }
@@ -814,15 +837,13 @@
         else if (loopState.currentPhase === 'ubicacion_anserma' && loopState.secondsCounter >= 10) {
             loopState.secondsCounter = 0;
             loopState.ubicacionIndex = (loopState.ubicacionIndex + 1) % ansermaMessages.length;
-            if (loopState.productIndex + 1 < dataset.products.length) { loopState.productIndex++; loopState.currentPhase = 'product_focus'; }
-            else { loopState.currentPhase = 'welcome'; loopState.productIndex = 0; }
+            avanzarAProducto();
             renderCurrentScreen();
         }
         else if (loopState.currentPhase === 'local_phrase' && loopState.secondsCounter >= 8) {
             loopState.secondsCounter = 0;
             loopState.phraseIndex = (loopState.phraseIndex + 1) % localPhrases.length;
-            if (loopState.productIndex + 1 < dataset.products.length) { loopState.productIndex++; loopState.currentPhase = 'product_focus'; }
-            else { loopState.currentPhase = 'welcome'; loopState.productIndex = 0; }
+            avanzarAProducto();
             renderCurrentScreen();
         }
     }, 1000);
