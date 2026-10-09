@@ -26,6 +26,7 @@
     --leaf:#2e9b4f;
     --cream:#fff8e6;
     --white:#ffffff;
+    --sky-light:#a9ccff;
     /* Mandre / La Oficina */
     --olive:#82942f;
     --olive-deep:#4b5720;
@@ -134,7 +135,7 @@
     box-shadow:0 .6rem 1rem rgba(2,12,40,.3);
   }
 
-  /* "¡Volvamos a ayudar a la abuela!": mezcla de pesos como en el afiche */
+  /* "¡En la Oficina Coffee Bar se celebra con lo propio!": mezcla de pesos como en el afiche */
   .call{
     margin:0;
     font-family:var(--font-script);
@@ -335,21 +336,52 @@
   .hand-r{ animation:waveR 3.6s ease-in-out .5s infinite; transform-box:fill-box; transform-origin:30% 90%; }
   .head{ animation:nod 5s ease-in-out infinite; transform-box:fill-box; transform-origin:50% 100%; }
 
-  /* --- Escena 2: Drip Mandre (minimalista) --- */
+  /* --- Escena 2: Drip Mandre (minimalista, tonos azules) --- */
   .script-kicker{
     margin:0 0 .1em;
     font-family:var(--font-script);
     font-size:clamp(1.5rem,3vw,3.4rem);
-    color:var(--yellow);
+    color:var(--sky-light);
     line-height:1.2;
   }
-  .headline--clean{ text-shadow:none; font-size:clamp(3.4rem, min(9vw,16vh), 10rem); line-height:.95; }
+  .headline--clean{ text-shadow:none; font-size:clamp(3.2rem, min(8vw,15vh), 9rem); line-height:.95; }
+  .headline--clean em{ color:var(--sky-light); }
+  .steps{
+    list-style:none;
+    margin:1.6em 0 0;
+    padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:clamp(.7rem,1.3vw,1.3rem);
+    max-width:32rem;
+  }
+  .steps li{
+    display:flex;
+    align-items:center;
+    gap:1rem;
+    font-size:clamp(1.05rem,1.55vw,1.7rem);
+    font-weight:600;
+    line-height:1.25;
+    color:var(--text);
+    opacity:0;
+  }
+  .steps li.play{ animation:fadeInUp .7s ease calc(.4s + var(--i) * .25s) forwards; }
+  .steps .n{
+    flex:none;
+    width:2.1em; height:2.1em;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--white);
+    color:var(--blue);
+    font-family:var(--font-display);
+    font-size:1.05em;
+  }
   .mini{
     display:block;
-    margin-top:1.4em;
-    font-size:clamp(.95rem,1.25vw,1.4rem);
+    margin-top:1.6em;
+    font-size:clamp(.9rem,1.15vw,1.3rem);
     font-weight:600;
-    color:var(--text-soft);
+    color:var(--sky-light);
   }
   .drip-stage{ display:flex; justify-content:center; align-items:center; }
   .drip-art{
@@ -359,12 +391,14 @@
     opacity:0;
   }
   .drip-art.play{ animation:fadeInUp 1s ease .15s forwards; }
-  .drip-art svg{ position:absolute; inset:0; width:100%; height:100%; display:block; }
-  .drip-logo{ position:absolute; left:38%; top:26.8%; width:24%; }
-  .dp{ animation:dripDrop 2.6s ease-in infinite; transform-box:fill-box; transform-origin:center; opacity:0; }
-  .dp2{ animation-delay:.87s; }
-  .dp3{ animation-delay:1.74s; }
-  .ripple{ animation:rippleGrow 2.6s ease-out infinite; transform-box:fill-box; transform-origin:center; opacity:0; }
+  .drip-art svg{ position:absolute; inset:0; width:100%; height:100%; display:block; overflow:visible; }
+  .drip-logo{ position:absolute; left:31.25%; top:47.4%; width:22.5%; }
+  .stream{ stroke-dasharray:7 11; animation:streamFlow .8s linear infinite; }
+  .kettle{ animation:kettleTilt 4s ease-in-out infinite; transform-box:fill-box; transform-origin:70% 80%; }
+  .dp{ animation:dripDrop 2.4s ease-in infinite; transform-box:fill-box; transform-origin:center; opacity:0; }
+  .dp2{ animation-delay:.8s; }
+  .dp3{ animation-delay:1.6s; }
+  .ripple{ animation:rippleGrow 2.4s ease-out infinite; transform-box:fill-box; transform-origin:center; opacity:0; }
 
   /* --- Escena 1: fechas --- */
   .chips{
@@ -426,15 +460,17 @@
   @keyframes nod{ 0%,100%{ transform:rotate(0deg); } 50%{ transform:rotate(1.4deg); } }
   @keyframes dripDrop{
     0%{ opacity:0; transform:translateY(0); }
-    10%{ opacity:1; }
-    62%{ opacity:1; transform:translateY(54px); }
-    68%,100%{ opacity:0; transform:translateY(54px); }
+    12%{ opacity:1; }
+    64%{ opacity:1; transform:translateY(30px); }
+    70%,100%{ opacity:0; transform:translateY(30px); }
   }
   @keyframes rippleGrow{
-    0%,58%{ opacity:0; transform:scale(.3); }
-    66%{ opacity:.7; transform:scale(.55); }
+    0%,62%{ opacity:0; transform:scale(.3); }
+    70%{ opacity:.8; transform:scale(.55); }
     100%{ opacity:0; transform:scale(1.5); }
   }
+  @keyframes streamFlow{ to{ stroke-dashoffset:-18; } }
+  @keyframes kettleTilt{ 0%,100%{ transform:rotate(0deg); } 50%{ transform:rotate(-2.5deg); } }
   @keyframes breathe{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.018); } }
   @keyframes spin{ to{ transform:rotate(360deg); } }
 
@@ -676,7 +712,7 @@
             <span class="row"><span class="n25">25.</span><span class="big">Fiestas</span></span>
             <span class="row"><span class="del">del</span><span class="big">Regreso</span></span>
           </h1>
-          <span class="ribbon">Por la reactivación de Anserma</span>
+          <span class="ribbon">Se vive en La oficina Coffee Bar</span>
           <p class="dates">Octubre <b>07</b> al <b>12</b> de 2026</p>
           <span class="status" data-status></span>
         </div>
@@ -698,7 +734,7 @@
             <span class="soft">a ayudar a la</span>
             <span><b>abuela.</b></span>
           </p>
-          <p class="body-text">Seis días para reencontrarnos en Anserma y apoyar su reactivación.</p>
+          <p class="body-text">Seis días para reencontrarnos en Anserma y probar lo que estas hermosas tierran cosechan.</p>
           <ul class="chips">
             <li class="chip" data-anim style="--i:0"><span class="d">07</span><span class="w">Mié</span></li>
             <li class="chip" data-anim style="--i:1"><span class="d">08</span><span class="w">Jue</span></li>
@@ -713,39 +749,64 @@
     </section>
 
     <!-- Escena 2 — Drip Mandre -->
-    <section class="scene" data-scene="2">
+    <section class="scene scene--night" data-scene="2">
       <div class="split">
         <div class="copy" data-anim>
           <p class="script-kicker">Celebra con</p>
           <h2 class="headline headline--clean">Drip<em>Mandre</em></h2>
-          <p class="body-text">Café de Anserma, listo en minutos. Pídelo en barra durante las fiestas.</p>
-          <span class="mini">13 g · 100% arábica</span>
+          <ol class="steps">
+            <li data-anim style="--i:0"><span class="n">1</span>Cuelga el sobre en tu taza.</li>
+            <li data-anim style="--i:1"><span class="n">2</span>Vierte agua caliente, poco a poco.</li>
+            <li data-anim style="--i:2"><span class="n">3</span>Retira el sobre y disfruta.</li>
+          </ol>
+          <span class="mini">13 g · 100% arábica · Pídelo en barra</span>
         </div>
         <div class="drip-stage">
           <div class="drip-art" data-anim>
-            <svg viewBox="0 0 400 470" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Un Drip Mandre goteando sobre una taza">
-              <defs><clipPath id="cupClip"><path d="M104 338 L296 338 L278 418 Q274 436 254 436 L146 436 Q126 436 122 418Z"/></clipPath></defs>
-              <circle cx="200" cy="236" r="172" fill="#ffc928"/>
-              <!-- sobre drip -->
-              <rect x="94" y="96" width="50" height="22" rx="4" fill="#fff8e6"/>
-              <rect x="256" y="96" width="50" height="22" rx="4" fill="#fff8e6"/>
-              <path d="M140 100 H260 L254 246 Q200 262 146 246Z" fill="#fffdf4"/>
-              <path d="M140 100 H260 V120 H140Z" fill="#82942f"/>
-              <path d="M236 120 H260 L254 246 Q246 248 238 250Z" fill="#4b5720" opacity=".06"/>
-              <text x="200" y="232" text-anchor="middle" font-family="'Baloo 2','Trebuchet MS',sans-serif" font-weight="800" font-size="14" fill="#4b5720">Drip · 13 g</text>
+            <svg viewBox="0 0 400 470" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Agua caliente cayendo sobre un sobre Drip Mandre colgado en una taza de vidrio">
+              <defs><clipPath id="glassClip"><path d="M70 200 L270 200 L250 400 Q246 420 226 420 L114 420 Q94 420 90 400Z"/></clipPath></defs>
+              <circle cx="170" cy="262" r="168" fill="#3a82ff" opacity=".28"/>
+              <circle cx="170" cy="262" r="120" fill="#3a82ff" opacity=".18"/>
+
+              <!-- tetera -->
+              <g transform="translate(302 70) rotate(-28)"><g class="kettle">
+                <path d="M35 -18 q38 -4 32 22 q-4 20 -32 20" fill="none" stroke="#dce8ff" stroke-width="9" stroke-linecap="round"/>
+                <path d="M-45 -8 L-74 -30 L-67 -38 L-38 -18Z" fill="#ffffff"/>
+                <rect x="-45" y="-32" width="80" height="66" rx="20" fill="#ffffff"/>
+                <rect x="-45" y="4" width="80" height="13" fill="#1f66e0"/>
+                <ellipse cx="-5" cy="-33" rx="24" ry="6" fill="#dce8ff"/>
+                <circle cx="-5" cy="-41" r="5" fill="#ffffff"/>
+              </g></g>
+
+              <!-- chorro de agua -->
+              <path d="M222 84 Q192 118 171 196" fill="none" stroke="#bfe0ff" stroke-width="6" stroke-linecap="round" opacity=".45"/>
+              <path class="stream" d="M222 84 Q192 118 171 196" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+
+              <!-- café dentro de la taza -->
+              <g clip-path="url(#glassClip)"><rect x="70" y="360" width="200" height="62" fill="#2b1d16"/></g>
+              <ellipse cx="170" cy="360" rx="76" ry="9" fill="#3d2a20"/>
+
+              <!-- sobre colgado -->
+              <path d="M112 200 H228 L222 318 Q170 332 118 318Z" fill="#f4f8ff"/>
+              <path d="M112 200 H228 V218 H112Z" fill="#1f66e0"/>
+              <path d="M206 218 H228 L222 318 Q214 320 208 322Z" fill="#1f66e0" opacity=".08"/>
+
               <!-- gotas -->
-              <circle class="dp" cx="200" cy="266" r="5" fill="#3b2416"/>
-              <circle class="dp dp2" cx="200" cy="266" r="5" fill="#3b2416"/>
-              <circle class="dp dp3" cx="200" cy="266" r="5" fill="#3b2416"/>
-              <!-- taza -->
-              <ellipse cx="200" cy="452" rx="124" ry="8" fill="#041a47" opacity=".28"/>
-              <ellipse cx="200" cy="440" rx="130" ry="13" fill="#f1ead7"/>
-              <path d="M292 358 q46 0 44 32 q-2 30 -50 32" fill="none" stroke="#ffffff" stroke-width="13" stroke-linecap="round"/>
-              <path d="M104 338 L296 338 L278 418 Q274 436 254 436 L146 436 Q126 436 122 418Z" fill="#ffffff"/>
-              <g clip-path="url(#cupClip)"><path d="M90 372 Q200 392 310 372 L310 394 Q200 414 90 394Z" fill="#ee6aa7"/></g>
-              <ellipse cx="200" cy="338" rx="96" ry="14" fill="#ffffff"/>
-              <ellipse cx="200" cy="340" rx="84" ry="10" fill="#3b2416"/>
-              <ellipse class="ripple" cx="200" cy="340" rx="34" ry="5" fill="none" stroke="#fff8e6" stroke-width="2"/>
+              <circle class="dp" cx="170" cy="326" r="4.5" fill="#2b1d16"/>
+              <circle class="dp dp2" cx="170" cy="326" r="4.5" fill="#2b1d16"/>
+              <circle class="dp dp3" cx="170" cy="326" r="4.5" fill="#2b1d16"/>
+              <ellipse class="ripple" cx="170" cy="360" rx="30" ry="4.5" fill="none" stroke="#a9ccff" stroke-width="2"/>
+
+              <!-- taza de vidrio -->
+              <ellipse cx="170" cy="446" rx="122" ry="11" fill="#041a47" opacity=".3"/>
+              <ellipse cx="170" cy="432" rx="118" ry="12" fill="#cfe0ff"/>
+              <path d="M268 232 q46 0 44 36 q-2 34 -46 36" fill="none" stroke="#ffffff" stroke-width="9" stroke-linecap="round" opacity=".85"/>
+              <path d="M70 200 L270 200 L250 400 Q246 420 226 420 L114 420 Q94 420 90 400Z" fill="#ffffff" fill-opacity=".14" stroke="#ffffff" stroke-opacity=".85" stroke-width="3"/>
+              <ellipse cx="170" cy="200" rx="100" ry="13" fill="none" stroke="#ffffff" stroke-opacity=".9" stroke-width="3"/>
+
+              <!-- orejas del sobre sobre el borde -->
+              <rect x="50" y="191" width="64" height="13" rx="4" fill="#dce8ff"/>
+              <rect x="226" y="191" width="64" height="13" rx="4" fill="#dce8ff"/>
             </svg>
             <div class="art img-hero drip-logo" role="img" aria-label="Mandre"></div>
           </div>
