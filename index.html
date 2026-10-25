@@ -2948,14 +2948,21 @@ var qrcode = function() {
       desde:String(o.desde||""), hasta:String(o.hasta||""), hd:String(o.horaDesde||""), hh:String(o.horaHasta||"") };
   }
   function two(n){ return ("0"+n).slice(-2); }
-  function promoActive(p){
-    var d = new Date(), day = d.getFullYear()+"-"+two(d.getMonth()+1)+"-"+two(d.getDate()), t = two(d.getHours())+":"+two(d.getMinutes());
-    if(!p.activo || !p.titulo) return false;
-    if(p.desde && day < p.desde) return false; if(p.hasta && day > p.hasta) return false;
-    if(p.hd && p.hh) return p.hd <= p.hh ? (t >= p.hd && t <= p.hh) : (t >= p.hd || t <= p.hh);
-    if(p.hd && t < p.hd) return false; if(p.hh && t > p.hh) return false;
-    return true;
+  /* Hora de Colombia (UTC-5), sin depender de la zona horaria ni del reloj de la TV */
+  var CLK = 0;
+  function nowCO(){ return new Date(Date.now() + CLK - 5*3600*1000); }
+  function promoWhy(p){
+    var d = nowCO(), day = d.getUTCFullYear()+"-"+two(d.getUTCMonth()+1)+"-"+two(d.getUTCDate()), t = two(d.getUTCHours())+":"+two(d.getUTCMinutes());
+    if(!p.activo) return "está apagada en el admin";
+    if(!p.titulo) return "no tiene título";
+    if(p.desde && day < p.desde) return "empieza el " + p.desde;
+    if(p.hasta && day > p.hasta) return "venció el " + p.hasta;
+    if(p.hd && p.hh){ if(!(p.hd <= p.hh ? (t >= p.hd && t <= p.hh) : (t >= p.hd || t <= p.hh))) return "fuera de horario (" + p.hd + "–" + p.hh + ", ahora " + t + ")"; return ""; }
+    if(p.hd && t < p.hd) return "desde las " + p.hd + " (ahora " + t + ")";
+    if(p.hh && t > p.hh) return "hasta las " + p.hh + " (ahora " + t + ")";
+    return "";
   }
+  function promoActive(p){ return !promoWhy(p); }
   function fsVal(v){
     if(v.stringValue!==undefined) return v.stringValue; if(v.integerValue!==undefined) return +v.integerValue; if(v.doubleValue!==undefined) return v.doubleValue;
     if(v.booleanValue!==undefined) return v.booleanValue;
@@ -2965,7 +2972,9 @@ var qrcode = function() {
   function fsGet(col, tok, acc){
     acc = acc || [];
     var u = DOCS + col + "?pageSize=300&key=" + KEY + (tok ? "&pageToken=" + encodeURIComponent(tok) : "") + "&_=" + Date.now();
-    return fetch(u, { cache:"no-store" }).then(function(r){ if(!r.ok) throw new Error("HTTP " + r.status); return r.json(); }).then(function(j){
+    return fetch(u, { cache:"no-store" }).then(function(r){
+      try{ var hd = r.headers.get("date"), tt = hd ? Date.parse(hd) : 0; if(tt) CLK = tt - Date.now(); }catch(e){}
+      if(!r.ok) throw new Error("HTTP " + r.status); return r.json(); }).then(function(j){
       (j.documents||[]).forEach(function(d){ var o = { id:d.name.split("/").pop() }, f = d.fields||{}, k; for(k in f){ o[k] = fsVal(f[k]); } acc.push(o); });
       return j.nextPageToken ? fsGet(col, j.nextPageToken, acc) : acc;
     });
@@ -2995,14 +3004,17 @@ var qrcode = function() {
     lastSig = sg; pending = m; if(running) dirty = true;
   }
   function liveStatus(){
-    var n = PROMOS.map(normPromo).filter(promoActive).length;
-    MSG.live = "Promos activas: " + n + " · Jam: " + (jamOn() ? "sí" : "no"); status();
+    var all = PROMOS.map(normPromo), n = all.filter(promoActive).length, why = [];
+    all.forEach(function(p){ var w = promoWhy(p); if(w) why.push("«" + (p.titulo || p.id) + "» " + w); });
+    var d = nowCO();
+    MSG.live = (MSG.promoErr ? MSG.promoErr + " · " : "") + "Promos: " + all.length + " leídas, " + n + " activas" + (why.length ? " [" + why.join("; ") + "]" : "") +
+      " · Jam: " + (jamOn() ? "sí" : "no") + " · Hora Colombia " + two(d.getUTCHours()) + ":" + two(d.getUTCMinutes()); status();
   }
   function loadLive(){
     if(!RAW) return Promise.resolve();
     return Promise.all([fsGet("kiosko_productos"), fsGet("kiosko_promos")]).then(function(x){
-      OVR = x[0]; PROMOS = x[1]; setPending(build()); liveStatus();
-    }).catch(function(e){ if(window.console) console.warn("Cambios en vivo:", e); MSG.live = "no se pudo leer promos/Jam (se mantiene lo anterior)"; status(); });
+      OVR = x[0]; PROMOS = x[1]; MSG.promoErr = ""; setPending(build()); liveStatus();
+    }).catch(function(e){ if(window.console) console.warn("Cambios en vivo:", e); MSG.promoErr = "ERROR leyendo kiosko_promos/kiosko_productos (se mantiene lo anterior)"; liveStatus(); });
   }
   function loadMenu(){
     return fsGet("menu_categorias").then(function(c){ return fsGet("menu_productos").then(function(p){ return [c,p]; }); })
@@ -3013,6 +3025,7 @@ var qrcode = function() {
         .then(function(x){ r[2] = x[0]; r[3] = x[1]; return r; });
     }).then(function(r){
       if(r[2]) OVR = r[2]; if(r[3]) PROMOS = r[3]; RAW = [r[0], r[1]];
+      MSG.promoErr = (r[2] && r[3]) ? "" : "ERROR leyendo kiosko_promos/kiosko_productos (revisa reglas)";
       var m = build();
       if(!m.prods.length) throw new Error("menú vacío");
       MSG.menu = "Menú en vivo · " + m.prods.length + " productos · " + m.prods.filter(function(p){ return p.imagen; }).length + " con foto · " + m.promos.filter(promoActive).length + " promos activas";
