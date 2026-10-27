@@ -544,6 +544,10 @@
   .jam-cap{ margin-top:1.2rem; font-size:clamp(.62rem,.85vw,.95rem); letter-spacing:.2em; text-transform:uppercase; font-weight:600; color:rgba(255,255,255,.75); }
   .jam-cap i{ display:inline-block; width:.55em; height:.55em; margin-right:.6em; border-radius:50%; background:var(--lime); animation:breathe 2.4s ease-in-out infinite; }
   @media (max-aspect-ratio: 4/5){ .jam-grid{ grid-template-columns:1fr; text-align:center; } .jam-steps li{ justify-content:center; } .jam-card{ width:calc(var(--vh) * 30); } }
+  .stb{ display:inline-block; margin-left:.6em; padding:.14em .7em; border-radius:999px; background:var(--olive-deep); color:#fff; font-size:.55em; font-weight:700; letter-spacing:.12em; text-transform:uppercase; vertical-align:middle; white-space:nowrap; }
+  .row.hl{ background:linear-gradient(90deg, rgba(176,196,65,.30), rgba(176,196,65,0)); border-radius:1rem; box-shadow:inset .35rem 0 0 var(--olive); padding-left:.9rem; }
+  .row.hl .rn{ font-weight:800; }
+  .card.hl{ outline:3px solid var(--lime); outline-offset:.5rem; border-radius:1.2rem; }
   #dbg{ position:fixed; top:.4rem; left:.6rem; z-index:99; font-size:.7rem; color:#c00; background:rgba(255,255,255,.85); padding:.2em .5em; }
   @media (max-aspect-ratio: 4/5){
     .board-grid{ grid-template-columns:1fr; }
@@ -2895,7 +2899,7 @@ var qrcode = function() {
   var STORAGE = "https://firebasestorage.googleapis.com/v0/b/tanalza-app.firebasestorage.app/o/";
   var WEATHER = "https://api.open-meteo.com/v1/forecast?latitude=5.234&longitude=-75.786&current=temperature_2m,precipitation,weather_code,is_day&timezone=America%2FBogota";
   var JAMCACHE = "mandre_vitrina_jam_v1", JAM = { url:"", activo:false }, JAM_MS = 30*1000, LIVE_MS = 60*1000;
-  var MENU_MS = 10*60*1000, WEATHER_MS = 15*60*1000, PAGE = 8, CACHE = "mandre_vitrina_menu_v2";
+  var MENU_MS = 5*60*1000, SAFE_MS = 15*60*1000, WEATHER_MS = 15*60*1000, RELOAD_MS = 6*3600*1000, PAGE = 8, CACHE = "mandre_vitrina_menu_v2", ROTKEY = "mandre_vitrina_rot_v1";
   var STATIC = {"brand": "<div class=\"scene-topbar\">\n        <span class=\"tag\">Drip de café · 1 unidad</span>\n      </div>\n      <div class=\"brand-center\">\n        <div class=\"art img-hero hero-reveal\" data-anim role=\"img\" aria-label=\"Mandre — café de origen\"></div>\n        <p class=\"brand-caption\" data-anim>Café de origen</p>\n        <p class=\"brand-sub\" data-anim>Cultivado en Anserma, Caldas</p>\n      </div>", "origin": "<div class=\"origin-grid\">\n        <div class=\"origin-copy\" data-anim>\n          <span class=\"eyebrow\">Nuestro origen</span>\n          <h2 class=\"headline\">Anserma,<b>Caldas.</b></h2>\n          <span class=\"rule\" data-anim aria-hidden=\"true\"></span>\n          <p class=\"body-text\">Cultivado por caficultores de nuestra tierra, en las montañas donde nace un café con carácter propio.</p>\n          <ul class=\"spec-row\">\n            <li>100% arábica</li>\n            <li>Tueste artesanal</li>\n            <li>Molido de origen</li>\n          </ul>\n        </div>\n        <div class=\"origin-art\">\n          <svg class=\"mountains\" viewBox=\"0 0 420 260\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\">\n            <polygon points=\"0,210 55,120 100,168 165,92 230,175 300,118 365,185 420,150 420,260 0,260\" fill=\"var(--sage)\" opacity=\".35\"/>\n            <polygon points=\"0,240 75,168 130,205 195,140 255,200 330,158 420,212 420,260 0,260\" fill=\"var(--olive)\" opacity=\".38\"/>\n          </svg>\n          <div class=\"art img-branch branch-watermark\" aria-hidden=\"true\"></div>\n        </div>\n      </div>", "drip": "<div class=\"product-grid\">\n        <div class=\"product-copy\" data-anim>\n          <span class=\"eyebrow\">Tu café, donde quieras</span>\n          <h2 class=\"headline\">Un drip para<b>cada momento.</b></h2>\n          <p class=\"body-text\">Todo lo que necesitas para un café de especialidad, listo en minutos: en la oficina, de viaje o en casa.</p>\n          <span class=\"spec-line\">13 g (0.46 oz) de café tostado y molido</span>\n        </div>\n        <div class=\"product-art\">\n          <svg class=\"brew\" viewBox=\"0 0 220 270\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\">\n            <path class=\"brew-steam-a\" d=\"M92,150 C86,132 98,120 92,102\" fill=\"none\" stroke=\"var(--sage)\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n            <path class=\"brew-steam-b\" d=\"M128,150 C134,130 122,118 129,100\" fill=\"none\" stroke=\"var(--sage)\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n            <ellipse cx=\"110\" cy=\"60\" rx=\"30\" ry=\"7\" fill=\"none\" stroke=\"var(--ink-soft)\" stroke-width=\"3\"/>\n            <path d=\"M80,60 L140,60 L117,112 L103,112 Z\" fill=\"none\" stroke=\"var(--ink-soft)\" stroke-width=\"3\" stroke-linejoin=\"round\"/>\n            <circle class=\"brew-drop\" cx=\"110\" cy=\"114\" r=\"4.5\" fill=\"var(--olive-deep)\"/>\n            <ellipse cx=\"110\" cy=\"150\" rx=\"55\" ry=\"9\" fill=\"none\" stroke=\"var(--ink-soft)\" stroke-width=\"3\"/>\n            <ellipse cx=\"110\" cy=\"151\" rx=\"46\" ry=\"6.5\" fill=\"var(--sage)\" opacity=\".55\"/>\n            <ellipse class=\"brew-ripple\" cx=\"110\" cy=\"151\" rx=\"20\" ry=\"4\" fill=\"none\" stroke=\"var(--olive)\" stroke-width=\"2\"/>\n            <path d=\"M58,150 L70,235 Q75,246 86,246 L134,246 Q145,246 150,235 L162,150\" fill=\"none\" stroke=\"var(--ink-soft)\" stroke-width=\"3\" stroke-linejoin=\"round\"/>\n          </svg>\n        </div>\n      </div>", "cta": "<div class=\"cta-center\">\n        <div class=\"art img-badge cta-stamp\" data-anim role=\"img\" aria-label=\"La Oficina Coffee Bar\"></div>\n        <h2 class=\"headline headline--light\" data-anim>Pruébalo hoy<b>en barra.</b></h2>\n        <p class=\"body-text body-text--light\" data-anim>Pregunta por tu Drip Mandre — café de especialidad para llevar a donde tú quieras.</p>\n        <span class=\"footer-line\" data-anim>La Oficina Coffee Bar · Anserma, Caldas</span>\n      </div>"};
 
   /* ============ MENÚ DE RESPALDO ============ */
@@ -2938,14 +2942,29 @@ var qrcode = function() {
   function applyOvr(p, o){
     p.pin = false; p.off = false; if(!o) return p;
     var im = imageOf(o); if(im){ p.imagenMenu = p.imagen; p.imagen = im; }     // foto exclusiva de la vitrina
-    p.off = o.ocultar === true || o.agotado === true; p.pin = o.recomendado === true;
+    p.off = bool(o.ocultar,false) || bool(o.agotado,false); p.pin = bool(o.recomendado,false);
     return p;
   }
+  function pick(o, ks){ var i, v; for(i=0;i<ks.length;i++){ v = o[ks[i]]; if(v!==undefined && v!==null && v!=="") return v; } return ""; }
+  function bool(v, d){ if(v===true||v===false) return v; if(typeof v==="string"){ v = v.trim().toLowerCase(); if(/^(false|no|0|off|apagada|inactiva)$/.test(v)) return false; if(/^(true|si|sí|1|on|encendida|activa)$/.test(v)) return true; } if(v===0) return false; if(v===1) return true; return d; }
+  function dateStr(v){
+    v = String(v==null?"":v).trim(); if(!v) return "";
+    var m = v.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/); if(m) return m[1]+"-"+two(+m[2])+"-"+two(+m[3]);
+    m = v.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/); if(m) return m[3]+"-"+two(+m[2])+"-"+two(+m[1]);
+    return v;
+  }
+  function timeStr(v){
+    v = String(v==null?"":v).trim().toLowerCase(); if(!v) return "";
+    var m = v.match(/^(\d{1,2})(?::(\d{2}))?\s*(a\.?m\.?|p\.?m\.?)?/); if(!m) return v;
+    var h = +m[1], mi = m[2] ? +m[2] : 0;
+    if(m[3]){ if(/^p/.test(m[3]) && h < 12) h += 12; if(/^a/.test(m[3]) && h === 12) h = 0; }
+    return two(h) + ":" + two(mi);
+  }
   function normPromo(o){
-    var p = num(o.precio), a = num(o.precioAntes);
-    return { id:o.id, titulo:String(o.titulo||"").trim(), descripcion:String(o.descripcion||"").trim(), precio:isFinite(p)?p:null, antes:isFinite(a)?a:null,
-      etiqueta:String(o.etiqueta||"").trim(), imagen:imageOf(o), activo:o.activo!==false, orden:isFinite(num(o.orden))?+o.orden:999,
-      desde:String(o.desde||""), hasta:String(o.hasta||""), hd:String(o.horaDesde||""), hh:String(o.horaHasta||"") };
+    var p = num(pick(o,["precio","precioPromo","price"])), a = num(pick(o,["precioAntes","precio_antes","precioAnterior","antes"])), t = pick(o,["titulo","title","nombre"]);
+    return { id:o.id, titulo:String(t||"").trim(), descripcion:String(pick(o,["descripcion","description","detalle"])||"").trim(), precio:isFinite(p)?p:null, antes:isFinite(a)?a:null,
+      etiqueta:String(o.etiqueta||"").trim(), imagen:imageOf(o), activo:bool(pick(o,["activo","activa","enabled"]), true), orden:isFinite(num(o.orden))?+o.orden:999,
+      desde:dateStr(o.desde), hasta:dateStr(o.hasta), hd:timeStr(o.horaDesde), hh:timeStr(o.horaHasta) };
   }
   function two(n){ return ("0"+n).slice(-2); }
   /* Hora de Colombia (UTC-5), sin depender de la zona horaria ni del reloj de la TV */
@@ -2966,6 +2985,7 @@ var qrcode = function() {
   function fsVal(v){
     if(v.stringValue!==undefined) return v.stringValue; if(v.integerValue!==undefined) return +v.integerValue; if(v.doubleValue!==undefined) return v.doubleValue;
     if(v.booleanValue!==undefined) return v.booleanValue;
+    if(v.timestampValue!==undefined) return v.timestampValue;
     if(v.arrayValue){ var a = v.arrayValue.values||[], i, x; for(i=0;i<a.length;i++){ x = fsVal(a[i]); if(typeof x==="string") return x; } }
     return null;
   }
@@ -2997,7 +3017,14 @@ var qrcode = function() {
   var RAW = null, OVR = [], PROMOS = [], lastSig = "", dirty = false;
   function build(){
     var ovr = {}; OVR.forEach(function(o){ ovr[o.id] = o; });
-    return { cats:RAW[0].map(normCat), prods:RAW[1].map(function(o){ return applyOvr(normProd(o), ovr[o.id]); }), promos:PROMOS.map(normPromo) };
+    var promos = PROMOS.map(normPromo);
+    RAW[1].forEach(function(o){
+      if(bool(o.promocion,false) || bool(o.enPromocion,false) || bool(o.productoDelDia,false) || bool(o.productoDelMomento,false)){
+        var pp = normProd(o), pr = num(o.precioPromo);
+        if(pp.nombre && pp.activo && pp.disponible) promos.push({ id:"p-"+o.id, titulo:pp.nombre, descripcion:pp.descripcion, precio:isFinite(pr)?pr:pp.precio, antes:isFinite(pr)?pp.precio:null, etiqueta:bool(o.productoDelDia,false)?"Del día":"Del momento", imagen:pp.imagen, activo:true, orden:500, desde:"", hasta:"", hd:"", hh:"" });
+      }
+    });
+    return { cats:RAW[0].map(normCat), prods:RAW[1].map(function(o){ return applyOvr(normProd(o), ovr[o.id]); }), promos:promos };
   }
   function setPending(m){
     var sg = JSON.stringify(m); if(sg === lastSig) return;
@@ -3007,7 +3034,7 @@ var qrcode = function() {
     var all = PROMOS.map(normPromo), n = all.filter(promoActive).length, why = [];
     all.forEach(function(p){ var w = promoWhy(p); if(w) why.push("«" + (p.titulo || p.id) + "» " + w); });
     var d = nowCO();
-    MSG.live = (MSG.promoErr ? MSG.promoErr + " · " : "") + "Promos: " + all.length + " leídas, " + n + " activas" + (why.length ? " [" + why.join("; ") + "]" : "") +
+    MSG.live = (RT.on ? "Tiempo real · " : "Lectura cada 1–5 min · ") + (MSG.promoErr ? MSG.promoErr + " · " : "") + "Promos: " + all.length + " leídas, " + n + " activas" + (why.length ? " [" + why.join("; ") + "]" : "") +
       " · Jam: " + (jamOn() ? "sí" : "no") + " · Hora Colombia " + two(d.getUTCHours()) + ":" + two(d.getUTCMinutes()); status();
   }
   function loadLive(){
@@ -3039,23 +3066,58 @@ var qrcode = function() {
     });
   }
 
+
+  /* ============ TIEMPO REAL (SDK de Firebase: el kiosko se entera al instante, sin recargar) ============ */
+  var RT = { on:false, got:{}, cats:[], prods:[], ovr:[], promos:[], t:null };
+  function docsOf(s){ return s.docs.map(function(d){ var o = d.data(), k; o.id = d.id; for(k in o){ if(o[k] && typeof o[k] === "object" && typeof o[k].toDate === "function"){ o[k] = ""; } else if(Array.isArray(o[k])){ o[k] = ""; } } return o; }); }
+  function rtApply(){
+    clearTimeout(RT.t);
+    RT.t = setTimeout(function(){
+      if(!(RT.got.cats && RT.got.prods)) return;
+      RAW = [RT.cats, RT.prods];
+      if(RT.got.ovr) OVR = RT.ovr;
+      if(RT.got.promos){ PROMOS = RT.promos; MSG.promoErr = ""; }
+      var m = build(); if(!m.prods.length) return;
+      haveReal = true; MSG.live0 = "tiempo real";
+      MSG.menu = "Menú en vivo (tiempo real) · " + m.prods.length + " productos · " + m.prods.filter(function(p){ return p.imagen; }).length + " con foto · " + m.promos.filter(promoActive).length + " promos activas";
+      setPending(m); liveStatus(); status();
+      try{ localStorage.setItem(CACHE, JSON.stringify(m)); }catch(e){}
+    }, 1200);
+  }
+  function startRealtime(){
+    var imp = new Function("u", "return import(u)"), V = "https://www.gstatic.com/firebasejs/10.14.1/";
+    return Promise.all([imp(V+"firebase-app.js"), imp(V+"firebase-firestore.js")]).then(function(m){
+      var fs = m[1], app = m[0].initializeApp({ apiKey:KEY, authDomain:"tanalza-app.firebaseapp.com", projectId:"tanalza-app", appId:"1:458130807177:web:cf5c8efb153e05e6542958" }, "vitrina-rt"), db = fs.getFirestore(app);
+      function on(col, key){
+        fs.onSnapshot(fs.collection(db, col), function(s){ RT[key] = docsOf(s); RT.got[key] = true; rtApply(); },
+          function(e){ if(window.console) console.warn("Tiempo real " + col + ":", e); if(key === "promos"){ MSG.promoErr = "ERROR leyendo kiosko_promos en tiempo real (revisa reglas: allow read: if true)"; liveStatus(); } });
+      }
+      on("menu_categorias","cats"); on("menu_productos","prods"); on("kiosko_productos","ovr"); on("kiosko_promos","promos");
+      fs.onSnapshot(fs.doc(db, "jam_config", "actual"), function(s){ applyJam(s.exists() ? s.data() : null); }, function(e){ if(window.console) console.warn("Tiempo real Jam:", e); });
+      RT.on = true;
+    }).catch(function(e){ RT.on = false; if(window.console) console.warn("Tiempo real no disponible, se usa lectura periódica:", e); });
+  }
+
   /* ============ JAM DE SPOTIFY (jam_config/actual, lo publica el portal) ============ */
   function jamUrlOk(u){
     try{ var x = new URL(u), h = x.hostname.toLowerCase();
       return x.protocol === "https:" && (h === "spotify.link" || h === "spotify.app.link" || h === "spotify.com" || /\.spotify\.com$/.test(h));
     }catch(e){ return false; }
   }
+  function applyJam(d){
+    var was = jamOn();
+    JAM = { url: d && typeof d.url === "string" ? d.url.trim() : "", activo: !!(d && bool(d.activo,false)) };
+    try{ localStorage.setItem(JAMCACHE, JSON.stringify(JAM)); }catch(e){}
+    if(running && was !== jamOn()){
+      dirty = true;                                                     // reconstruye el ciclo con/sin la escena del Jam
+      if(!jamOn() && curKind === "jam"){ if(timer){ clearTimeout(timer); timer = null; } next(); }   // si está en pantalla, se quita ya
+    }
+    liveStatus();
+  }
   function loadJam(){
     return fsGet("jam_config").then(function(docs){
       var d = null, i; for(i=0;i<docs.length;i++){ if(docs[i].id === "actual") d = docs[i]; }
-      var was = jamOn();
-      JAM = { url: d && typeof d.url === "string" ? d.url.trim() : "", activo: !!(d && d.activo === true) };
-      try{ localStorage.setItem(JAMCACHE, JSON.stringify(JAM)); }catch(e){}
-      if(running && was !== jamOn()){
-        dirty = true;                                                     // reconstruye el ciclo con/sin la escena del Jam
-        if(!jamOn() && curKind === "jam"){ if(timer){ clearTimeout(timer); timer = null; } next(); }   // si está en pantalla, se quita ya
-      }
-      liveStatus();
+      applyJam(d);
     }).catch(function(e){
       if(window.console) console.warn("Jam:", e);
       try{ var c = JSON.parse(localStorage.getItem(JAMCACHE)||"null"); if(c && !JAM.url) JAM = c; }catch(x){}
@@ -3171,16 +3233,17 @@ var qrcode = function() {
   }
 
   /* ============ CONSTRUCTORES DE ESCENA ============ */
+  function starChip(p){ return p.star ? '<span class="stb">★ Destacado</span>' : ""; }
   function cmChip(p){ return isCoffee(p) ? '<span class="cm">Café Mandre</span>' : ""; }
   function imgsOf(l){ return l.map(function(p){ return p.imagen; }).filter(Boolean); }
   function mini(list){
     if(!list || !list.length) return "";
     return '<div class="mini">' + list.map(function(q){ return '<div class="m">'+photo(q,"thumb")+'<div class="mn">'+esc(q.nombre)+(q.precio!=null?'<b>'+money(q.precio)+'</b>':'')+'</div></div>'; }).join("") + '</div>';
   }
-  function feat(p, sib){
+  function feat(p, sib, tag){
     var n = splitName(p.nombre), cof = isCoffee(p);
     return { kind:"feat", dur:9000, imgs:imgsOf([p].concat(sib||[])), html:
-      '<div class="product-grid"><div class="product-copy" data-anim><span class="eyebrow">'+whyTag(p)+'</span>' +
+      '<div class="product-grid"><div class="product-copy" data-anim><span class="eyebrow">'+(tag||whyTag(p))+'</span>' +
       '<h2 class="headline sm">'+(n[0]?'<span>'+n[0]+'</span>':'')+'<b>'+n[1]+'</b></h2><span class="rule" data-anim aria-hidden="true"></span>' +
       (p.descripcion ? '<p class="body-text">'+esc(p.descripcion)+'</p>' : '') +
       (p.precio!=null ? '<div class="price">'+priceHTML(p)+'</div>' : '') +
@@ -3189,7 +3252,7 @@ var qrcode = function() {
   }
   function cardsHTML(items, why){
     return '<div class="cards">' + items.map(function(p,i){
-      return '<div class="card" style="animation-delay:'+(.3+i*.18)+'s">'+photo(p,"photo")+'<div class="rn">'+esc(p.nombre)+cmChip(p)+'</div>' +
+      return '<div class="card'+(p.star?' hl':'')+'" style="animation-delay:'+(.3+i*.18)+'s">'+photo(p,"photo")+'<div class="rn">'+esc(p.nombre)+cmChip(p)+starChip(p)+'</div>' +
         (why ? '<div class="why">'+whyTag(p)+'</div>' : '') + (p.precio!=null ? '<div class="rp">'+priceHTML(p)+'</div>' : '') + (p.descripcion ? '<div class="rd">'+esc(p.descripcion)+'</div>' : '') + '</div>';
     }).join("") + '</div>';
   }
@@ -3203,7 +3266,7 @@ var qrcode = function() {
   function boardScene(cat, items, hot){
     var d = items.length > 4 ? 2 : 1, r = Math.ceil(items.length / d), wl = wlen(cat.nombre + ".");
     var rows = items.map(function(p,i){
-      return '<div class="row" style="animation-delay:'+(.25+i*.1)+'s">'+photo(p,"thumb")+'<div class="rt"><div class="rn">'+esc(p.nombre)+cmChip(p)+'</div>'+(p.descripcion?'<div class="rd">'+esc(p.descripcion)+'</div>':'')+'</div><div class="rp">'+priceHTML(p)+'</div></div>';
+      return '<div class="row'+(p.star?' hl':'')+'" style="animation-delay:'+(.25+i*.1)+'s">'+photo(p,"thumb")+'<div class="rt"><div class="rn">'+esc(p.nombre)+cmChip(p)+starChip(p)+'</div>'+(p.descripcion?'<div class="rd">'+esc(p.descripcion)+'</div>':'')+'</div><div class="rp">'+priceHTML(p)+'</div></div>';
     }).join("");
     return { kind:"board", dur:Math.min(12000, 7500 + items.length*450), imgs:imgsOf(items), html:
       '<div class="board-grid'+(d===2?' g2':'')+'" style="--wl:'+wl+'"><div class="product-copy" data-anim><span class="eyebrow">'+(hot?'Ideal para ahora':'Nuestro menú')+'</span>' +
@@ -3226,41 +3289,76 @@ var qrcode = function() {
   }
   function stat(k, kind, dur, cls){ return { kind:kind, cls:cls||"", dur:dur, imgs:[], html:STATIC[k] }; }
 
-  /* ============ PLAN DEL CICLO: todo el menú, con lo recomendado primero y más veces ============ */
-  var cycle = 0;
+  /* ============ PLAN DEL CICLO: rotación de destacados (cada ciclo resalta productos DIFERENTES) ============ */
+  var cycle = 0, SPOTN = 6, ROT = 0, T0 = Date.now();
+  try{ ROT = parseInt(localStorage.getItem(ROTKEY), 10) || 0; }catch(e){}
+  function saveRot(){ try{ localStorage.setItem(ROTKEY, String(ROT)); }catch(e){} }
+
+  /* Lista rotativa: se intercalan las categorías (café, comer, postres…) para que el destacado cambie de tipo en cada ciclo.
+     Los marcados como «recomendado» en el admin aparecen más veces, pero ya no son siempre los mismos. */
+  function spotPool(all){
+    var h = hourNow(), day = new Date().getDate(), list = all.filter(function(p){ return !isDrip(p) && !(tagsOf(p).alc && h < 17); });
+    if(list.length >= 12){
+      var sc = list.map(function(p){ return scoreOf(p, "x") - hash(p.id + "|x") * 1.4; }).sort(function(a,b){ return a-b; }), th = sc[Math.floor(sc.length * 0.25)];
+      list = list.filter(function(p){ return scoreOf(p, "x") - hash(p.id + "|x") * 1.4 >= th; });
+    }
+    var g = {}, keys = [];
+    list.forEach(function(p){ if(!g[p.categoria]){ g[p.categoria] = []; keys.push(p.categoria); } g[p.categoria].push(p); });
+    keys.sort(function(a,b){ return hash(a + "|" + day) - hash(b + "|" + day); });
+    keys.forEach(function(k){ g[k].sort(function(a,b){ return hash(a.id + "|" + day) - hash(b.id + "|" + day); }); });
+    var pool = [], more = true, i = 0;
+    while(more){ more = false; keys.forEach(function(k){ if(g[k][i]){ pool.push(g[k][i]); more = true; } }); i++; }
+    var pins = pool.filter(function(p){ return p.pin; }), half = Math.ceil(pool.length / 2);
+    pins.forEach(function(p, n){ pool.splice(Math.min(pool.length, half + n * 3), 0, p); });
+    return pool;
+  }
+  function rotPicks(all, n){
+    var pool = spotPool(all), out = [], i, p;
+    for(i=0; i<pool.length && out.length<n; i++){ p = pool[(ROT + i) % pool.length]; if(out.indexOf(p) < 0) out.push(p); }
+    return out;
+  }
   function plan(){
-    var all = allProducts(), salt = cycle + "|" + new Date().getDate(), picks = topPicks(all, 6, salt), i;
+    var all = allProducts(), salt = cycle + "|" + new Date().getDate(), i;
+    all.forEach(function(p){ p.star = false; });
+    var picks = rotPicks(all, SPOTN);
     var ids = {}; menu.cats.forEach(function(c){ ids[c.id] = c; });
     all.forEach(function(p){ if(!ids[p.categoria]){ ids[p.categoria] = { id:p.categoria, nombre:p.categoria||"Otros", nota:"", orden:998, activo:true }; } });
     var cats = [], k; for(k in ids){ if(ids[k].activo) cats.push(ids[k]); }
+    var rnd = Math.floor(ROT / SPOTN);
     var info = cats.map(function(c){
       var items = all.filter(function(p){ return p.categoria===c.id; }).sort(byOrden);
+      if(items.length){ var star = items[(rnd + Math.floor(hash(c.id) * items.length)) % items.length]; if(star && !isDrip(star)) star.star = true; }
       var sc = items.map(function(p){ return scoreOf(p, salt); }).sort(function(a,b){ return b-a; }).slice(0,3);
       var avg = sc.length ? sc.reduce(function(a,b){ return a+b; },0)/sc.length : -99;
       return { c:c, items:items, avg:avg };
     }).filter(function(x){ return x.items.length; }).sort(function(a,b){ return b.avg - a.avg; });
+    picks.forEach(function(p){ p.star = true; });
     var B = [];
     info.forEach(function(x, ix){
       var pages = Math.ceil(x.items.length / PAGE), size = Math.ceil(x.items.length / pages), j, ch;
       for(j=0;j<pages;j++){ ch = x.items.slice(j*size, (j+1)*size); if(!ch.length) continue;
         B.push(ch.length <= 3 ? bigScene(x.c, ch, ix<2) : boardScene(x.c, ch, ix<2)); }
     });
-    function fe(p){
+    function fe(p, tag){
       var sib = all.filter(function(q){ return q.categoria===p.categoria && q.id!==p.id && !isDrip(q); }).sort(function(a,b){ return (!!b.imagen - !!a.imagen) || byOrden(a,b); }).slice(0,4);
-      return feat(p, sib);
+      return feat(p, sib, tag);
     }
+    var hero = picks[0] || null;
     var F = []; [1,2].forEach(function(n){ if(picks[n]) F.push(fe(picks[n])); });
     F.push(stat("drip","drip",5500)); if(picks[3]) F.push(fe(picks[3])); F.push(stat("origin","origin",6500));
     [4,5].forEach(function(n){ if(picks[n]) F.push(fe(picks[n])); });
     var PS = (menu.promos||[]).filter(promoActive).sort(function(a,b){ return a.orden - b.orden; }).map(promoScene);
-    var L = [ stat("brand","brand",6500), stat("drip","drip",7000) ];
-    if(picks.length >= 3) L.push(nowScene(picks.slice(0,3)));
+    var L = [ stat("brand","brand",6500) ];
+    PS.forEach(function(x){ L.push(x); });                              // las promos salen al comienzo del ciclo
+    L.push(stat("drip","drip",7000));
+    if(hero) L.push(fe(hero, "★ Destacado de este ciclo"));
+    var nowList = topPicks(all.filter(function(p){ return p !== hero; }), 3, salt);
+    if(nowList.length >= 3) L.push(nowScene(nowList));
     var JS = jamOn() ? jamScene() : null; if(JS) L.push(JS);
-    PS.forEach(function(x){ L.push(x); });
-    if(picks[0]) L.push(fe(picks[0]));
     B.forEach(function(s, n){ L.push(s); if(n % 2 === 1 && F.length) L.push(F.shift()); if(n === Math.floor(B.length/2)) PS.forEach(function(x){ L.push(x); }); });
     while(F.length){ L.push(F.shift()); }
     if(JS && B.length > 3){ L.push(jamScene()); }
+    if(PS.length) PS.forEach(function(x){ L.push(x); });                // y otra vez antes de cerrar
     L.push(stat("cta","cta",8000,"scene--cta"));
     return L;
   }
@@ -3322,15 +3420,23 @@ var qrcode = function() {
   }
   function next(){
     if(!running) return;
-    if(idx >= SC.length || !SC.length || dirty){
-      if(SC.length && !dirty) cycle++;
-      dirty = false;
-      if(pending){ menu = pending; pending = null; }
-      SC = plan(); idx = 0;
-    }
-    var s = SC[idx];
-    if(s.kind === "jam" && !jamOn()){ idx++; return next(); }   // el Jam se apagó desde el portal
-    show(s).then(function(){ idx++; timer = setTimeout(next, s.dur); });
+    function fail(e){ if(window.console) console.warn("Escena:", e); idx++; if(timer) clearTimeout(timer); timer = setTimeout(next, 2000); }
+    try{
+      if(idx >= SC.length || !SC.length || dirty){
+        if(SC.length && !dirty){
+          cycle++; ROT += SPOTN; saveRot();
+          if(AUTO && Date.now() - T0 > RELOAD_MS){ location.reload(); return; }   // recarga completa cada 6 h (solo con ?auto=1) para que la TV nunca quede con versión vieja
+        }
+        dirty = false;
+        if(pending){ menu = pending; pending = null; }
+        try{ SC = plan(); }catch(e){ if(window.console) console.warn("Plan:", e); SC = [ stat("brand","brand",6500), stat("cta","cta",8000,"scene--cta") ]; }
+        idx = 0;
+      }
+      var s = SC[idx];
+      if(!s){ idx = 0; timer = setTimeout(next, 1000); return; }
+      if(s.kind === "jam" && !jamOn()){ idx++; return next(); }   // el Jam se apagó desde el portal
+      show(s).then(function(){ idx++; timer = setTimeout(next, s.dur); }).catch(fail);
+    }catch(e){ fail(e); }
   }
   function startLoop(){ running = true; cycle = 0; idx = 0; SC = []; if(pending){ menu = pending; pending = null; } next(); }
   function stopLoop(){ running = false; if(timer){ clearTimeout(timer); timer = null; }
@@ -3381,7 +3487,16 @@ var qrcode = function() {
   /* ============ ARRANQUE ============ */
   /* ?auto=1 → arranca solo.  ?debug=1 → muestra el estado de menú, clima y fotos sobre la pantalla */
   Promise.all([loadMenu(), loadWeather(), loadJam()]).then(function(){ if(AUTO) enter(); });
-  setInterval(loadMenu, MENU_MS); setInterval(loadWeather, WEATHER_MS); setInterval(loadJam, JAM_MS); setInterval(loadLive, LIVE_MS);
+  startRealtime();                                   // escucha Firebase en vivo (si el navegador lo permite)
+  /* Respaldo por lectura periódica: con tiempo real activo solo refresca cada 15 min (ahorra lecturas); sin él, promos/ocultos cada minuto y menú cada 5 min */
+  var tick = 0;
+  setInterval(function(){
+    tick++;
+    if(RT.on){ if(tick % 15 === 0){ loadMenu(); loadJam(); } }
+    else { loadLive(); if(tick % 5 === 0) loadMenu(); if(tick % 1 === 0 && !jamOn()) loadJam(); }
+  }, 60*1000);
+  setInterval(loadWeather, WEATHER_MS);
+  setInterval(function(){ if(!RT.on) loadJam(); }, JAM_MS);
 })();
 </script>
 </body>
